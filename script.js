@@ -14,6 +14,351 @@ const AGENTS = [
   {id:'a10', name:'Alex Mac', assigned:6, resolved:6, aht:'18m', sla:100, csat:4.8},
 ];
 
+const DEPT_AGENTS = {
+  "Support": ["a2", "a4"],
+  "Collection": ["a1"],
+  "Legal Related": ["a3", "a8"],
+  "Grievance": ["a5"]
+};
+let DEPT_CHANNEL_CAPACITIES = {
+  "Support": { WhatsApp: 10, Email: 20, Chat: 10, Call: 3 },
+  "Collection": { WhatsApp: 10, Email: 20, Chat: 10, Call: 3 },
+  "Legal Related": { WhatsApp: 10, Email: 20, Chat: 10, Call: 3 },
+  "Grievance": { WhatsApp: 10, Email: 20, Chat: 10, Call: 3 }
+};
+
+// Initialize default skills for agents
+const defaultSkills = [
+  { channels: ['WhatsApp', 'Email'], languages: ['English', 'Hindi'] },
+  { channels: ['Email', 'Chat'], languages: ['English', 'Marathi'] },
+  { channels: ['Chat', 'Call'], languages: ['English', 'Gujarati'] },
+  { channels: ['Call', 'WhatsApp'], languages: ['English', 'Hindi'] },
+  { channels: ['WhatsApp', 'Chat'], languages: ['English', 'Marathi'] }
+];
+AGENTS.forEach((a, i) => {
+  const s = defaultSkills[i % defaultSkills.length];
+  a.skills = {
+    channels: [...s.channels],
+    languages: [...s.languages]
+  };
+  a.capacities = {
+    WhatsApp: 10,
+    Email: 20,
+    Chat: 10,
+    Call: 3
+  };
+});
+
+let ASSIGNMENT_RULES = [
+  {
+    id: 'r1',
+    name: 'High Priority Email Routing',
+    skill: 'Email',
+    agents: ['a2', 'a4'],
+    startDate: '2026-08-08',
+    startTime: '09:00',
+    endDate: '2026-08-15',
+    endTime: '18:00',
+    priority: 'High',
+    status: 'Active'
+  },
+  {
+    id: 'r2',
+    name: 'Weekend WhatsApp Support',
+    skill: 'WhatsApp',
+    agents: ['a1', 'a5'],
+    startDate: '2026-08-08',
+    startTime: '00:00',
+    endDate: '2026-08-31',
+    endTime: '23:59',
+    priority: 'Medium',
+    status: 'Active'
+  }
+];
+
+let CHANNEL_ASSIGNMENTS = [
+  {
+    id: 'ca_1',
+    dept: 'Support',
+    agentId: 'a2',
+    agentName: 'Emma Watson',
+    channel: 'Email',
+    startDate: '2026-08-10',
+    startTime: '09:00',
+    endDate: '2026-08-20',
+    endTime: '18:00',
+    status: 'Active'
+  }
+];
+
+function getAgentQueues(agentId) {
+  const queues = [];
+  for (const [dept, ids] of Object.entries(DEPT_AGENTS)) {
+    if (ids.includes(agentId)) {
+      queues.push(dept);
+    }
+  }
+  return queues.join(', ') || 'General';
+}
+
+function getActiveTicketCountForAgent(agentId) {
+  return TICKETS.filter(t => t.assignee === agentId && t.status !== 'Closed' && t.status !== 'Resolved' && t.status !== 'Merged').length;
+}
+
+function getActiveTicketCountForAgentAndChannel(agentId, channel) {
+  return TICKETS.filter(t => t.assignee === agentId && t.channel === channel && t.status !== 'Closed' && t.status !== 'Resolved' && t.status !== 'Merged').length;
+}
+
+function getAgentChannelCapacity(agentId, channel) {
+  const a = AGENTS.find(x => x.id === agentId);
+  if (!a) return 10;
+  
+  // 1. Check if individual agent capacity override is set
+  if (a.capacities && a.capacities[channel] !== undefined) {
+    return parseInt(a.capacities[channel]);
+  }
+  
+  // 2. If not, inherit from the agent's department capacity
+  const depts = getAgentQueues(agentId).split(', ');
+  if (depts.length > 0 && depts[0] !== 'General') {
+    const firstDept = depts[0];
+    if (DEPT_CHANNEL_CAPACITIES[firstDept] && DEPT_CHANNEL_CAPACITIES[firstDept][channel] !== undefined) {
+      return parseInt(DEPT_CHANNEL_CAPACITIES[firstDept][channel]);
+    }
+  }
+  
+  // 3. Fallback defaults
+  return channel === 'Call' ? 3 : channel === 'Email' ? 20 : 10;
+}
+
+function agentHasChannelCapacity(agentId, channel) {
+  const activeCount = getActiveTicketCountForAgentAndChannel(agentId, channel);
+  const maxCap = getAgentChannelCapacity(agentId, channel);
+  return activeCount < maxCap;
+}
+
+const DEPT_CAT_SUBCAT = {
+  "Support": {
+    "KYC Verification": ["Under process", "OTP not received", "OTP-Greyed out", "Other-3rd Party Error"],
+    "Declined Profile": ["Analyst Decline", "Cibil Decline", "System decline", "User decline", "Ineligible Salary"],
+    "Salary verification": ["Under process", "Employment Details", "Salary Slip", "Invalid Bank statement", "Pending Bank Statement", "BS Uploading Error"],
+    "Profile Untraceable": ["Unregistered Email", "NC on Phone"],
+    "Disbursement Pending": ["Amount Not Credited", "Account Blocked"],
+    "Registration": ["Basic Details"],
+    "Loan Offer": ["Tenure / EMI Schedule", "Offer Amount Limit", "High Rate of Interest", "New Loan Eligibility", "Processing fee"],
+    "Loan Enquiry": ["Tenure / EMI Schedule", "Auto Debit related", "Repayment related"],
+    "E-Mandate": ["Unable to process E-mandate", "Under process", "Bank Change", "Other-3rd Party Error"],
+    "Final Verification": ["Under process", "ECS/Overdue Proof"],
+    "E-Sign": ["Unable to process E-Sign", "Other-3rd Party Error"],
+    "Notification": ["Promotional Msgs."],
+    "Change mobile no": ["Inactive Number"],
+    "Cool-off Removal": ["Bad Cibil", "Latest Salary - NA", "Others"],
+    "Cibil Updation": ["CFL-Dependency", "CX to File Dispute", "Waiver Payment"],
+    "Insurance": ["Insurance Claim", "Insurance Cancellation"],
+    "Refund/Credit": ["Refund Request", "Credit Note"],
+    "Loan cancellation": ["Loan cancellation"],
+    "NOC": ["Settled-NOC", "Closure-NOC"],
+    "Delete account": ["Delete account"]
+  },
+  "Collection": {
+    "Repayment": ["Auto Debit related", "Manual Payment Updation", "Closure on time", "Loan Foreclose", "Extension", "Waiver Link", "Settlement", "Remove Settlement", "3rd Party Contact"],
+    "ECS Charge": ["ECS Related", "ECS-Payment not updated", "ECS-Waiver"],
+    "Reference calling": ["CX to share proof", "CFL to Validate"]
+  },
+  "Legal Related": {
+    "Settlement": ["Extension"],
+    "Single-Debt Contacts": ["Settlement/Extension - Other 3rd Party"],
+    "Cyber - Frozen Lien": ["Cyber - Frozen Lien"],
+    "Legal Case Information": ["Legal Case Information"],
+    "Legal Notice": ["Legal Notice"]
+  },
+  "Grievance": {
+    "Repayment Extension": ["Repayment Extension"],
+    "Settlement": ["Settlement"],
+    "Cibil Updation": ["Cibil Updation"],
+    "Collection Related": ["Collection Related"],
+    "Legal Related": ["Legal Related"],
+    "Harassment": ["Harassment"],
+    "Lending Process": ["Lending Process"],
+    "Refund": ["Refund"],
+    "Auto debit": ["Auto debit"],
+    "Repayment": ["Repayment"],
+    "Multiple EMI Deduction": ["Multiple EMI Deduction"],
+    "Loan related": ["Loan Offer", "Loan Enquiry", "Loan Decline", "Loan Cancelation"],
+    "Charges Related": ["Charges Related"],
+    "Foreclosure": ["Foreclosure"],
+    "Reference Call": ["Reference Call"]
+  }
+};
+
+function getDepartmentForCategory(category) {
+  for (const [dept, cats] of Object.entries(DEPT_CAT_SUBCAT)) {
+    if (cats[category]) return dept;
+  }
+  return 'Support'; // default fallback
+}
+
+function getActiveTicketCountForDeptAndChannel(dept, channel) {
+  return TICKETS.filter(t => (t.department === dept || t.queue === dept) && t.channel === channel && t.status !== 'Closed' && t.status !== 'Resolved' && t.status !== 'Merged').length;
+}
+
+function deptHasChannelCapacity(dept, channel) {
+  const activeCount = getActiveTicketCountForDeptAndChannel(dept, channel);
+  const caps = DEPT_CHANNEL_CAPACITIES[dept] || { WhatsApp: 10, Email: 20, Chat: 10, Call: 3 };
+  const maxCap = caps[channel] !== undefined ? parseInt(caps[channel]) : (channel === 'Call' ? 3 : channel === 'Email' ? 20 : 10);
+  return activeCount < maxCap;
+}
+
+function findSkillBasedAssignee(channel, category, priority, language) {
+  const now = new Date();
+  const dept = getDepartmentForCategory(category);
+  const isDeptFull = !deptHasChannelCapacity(dept, channel);
+  
+  // A. Check for Active Manager Channel-wise Assignments
+  const activeChannelAssignments = CHANNEL_ASSIGNMENTS.filter(ca => {
+    if (ca.status !== 'Active') return false;
+    if (ca.channel !== channel) return false;
+
+    const start = new Date(`${ca.startDate}T${ca.startTime}:00`);
+    const end = new Date(`${ca.endDate}T${ca.endTime}:00`);
+    return now >= start && now <= end;
+  });
+
+  if (activeChannelAssignments.length > 0) {
+    const assignedAgentIds = activeChannelAssignments.map(ca => ca.agentId);
+    let caEligible = AGENTS.filter(a => assignedAgentIds.includes(a.id));
+
+    // Filter agents based on availability + channel skill + language skill + capacity + department capacity
+    let filtered = caEligible.filter(a => {
+      if (a.status !== 'Available' || a.paused || a.onLeave) return false;
+      if (!agentHasChannelCapacity(a.id, channel)) return false;
+      if (isDeptFull && getAgentQueues(a.id).includes(dept)) return false;
+      const hasChannel = a.skills && a.skills.channels.includes(channel);
+      const hasLanguage = a.skills && a.skills.languages.includes(language);
+      return hasChannel && hasLanguage;
+    });
+
+    if (filtered.length === 0) {
+      filtered = caEligible.filter(a => {
+        if (a.paused || a.onLeave) return false;
+        if (!agentHasChannelCapacity(a.id, channel)) return false;
+        if (isDeptFull && getAgentQueues(a.id).includes(dept)) return false;
+        const hasChannel = a.skills && a.skills.channels.includes(channel);
+        const hasLanguage = a.skills && a.skills.languages.includes(language);
+        return hasChannel && hasLanguage;
+      });
+    }
+
+    if (filtered.length === 0) {
+      filtered = caEligible.filter(a => {
+        if (a.paused || a.onLeave) return false;
+        if (!agentHasChannelCapacity(a.id, channel)) return false;
+        if (isDeptFull && getAgentQueues(a.id).includes(dept)) return false;
+        return a.skills && a.skills.channels.includes(channel);
+      });
+    }
+
+    // Fallback if all assigned agents are at capacity or dept is full
+    if (filtered.length === 0) {
+      filtered = caEligible.filter(a => {
+        if (a.paused || a.onLeave) return false;
+        return a.skills && a.skills.channels.includes(channel);
+      });
+    }
+
+    if (filtered.length > 0) {
+      filtered.sort((a, b) => a.assigned - b.assigned);
+      return filtered[0].id;
+    }
+  }
+
+  // 1. Find active rules matching this ticket's channel
+  const matchingRules = ASSIGNMENT_RULES.filter(r => {
+    if (r.status !== 'Active') return false;
+    if (r.skill !== channel) return false;
+    
+    const startStr = `${r.startDate}T${r.startTime}:00`;
+    const endStr = `${r.endDate}T${r.endTime}:00`;
+    const start = new Date(startStr);
+    const end = new Date(endStr);
+    
+    return now >= start && now <= end;
+  });
+
+  let eligibleAgents = [];
+  
+  if (matchingRules.length > 0) {
+    matchingRules.sort((a, b) => {
+      if (a.priority === priority && b.priority !== priority) return -1;
+      if (a.priority !== priority && b.priority === priority) return 1;
+      return 0;
+    });
+    const rule = matchingRules[0];
+    eligibleAgents = AGENTS.filter(a => rule.agents.includes(a.id));
+  } else {
+    eligibleAgents = [...AGENTS];
+  }
+
+  // 2. Filter agents based on availability + channel skill + language skill + capacity + department capacity
+  let filtered = eligibleAgents.filter(a => {
+    if (a.status !== 'Available' || a.paused || a.onLeave) return false;
+    if (!agentHasChannelCapacity(a.id, channel)) return false;
+    if (isDeptFull && getAgentQueues(a.id).includes(dept)) return false;
+    
+    const hasChannel = a.skills && a.skills.channels.includes(channel);
+    const hasLanguage = a.skills && a.skills.languages.includes(language);
+    return hasChannel && hasLanguage;
+  });
+
+  // If no available agents match channel + language + capacity + dept capacity, relax availability check
+  if (filtered.length === 0) {
+    filtered = eligibleAgents.filter(a => {
+      if (a.paused || a.onLeave) return false;
+      if (!agentHasChannelCapacity(a.id, channel)) return false;
+      if (isDeptFull && getAgentQueues(a.id).includes(dept)) return false;
+      const hasChannel = a.skills && a.skills.channels.includes(channel);
+      const hasLanguage = a.skills && a.skills.languages.includes(language);
+      return hasChannel && hasLanguage;
+    });
+  }
+
+  // If still nothing, relax language check
+  if (filtered.length === 0) {
+    filtered = eligibleAgents.filter(a => {
+      if (a.paused || a.onLeave) return false;
+      if (!agentHasChannelCapacity(a.id, channel)) return false;
+      if (isDeptFull && getAgentQueues(a.id).includes(dept)) return false;
+      return a.skills && a.skills.channels.includes(channel);
+    });
+  }
+
+  // If still nothing, relax department capacity constraint
+  if (filtered.length === 0) {
+    filtered = eligibleAgents.filter(a => {
+      if (a.paused || a.onLeave) return false;
+      if (!agentHasChannelCapacity(a.id, channel)) return false;
+      return a.skills && a.skills.channels.includes(channel);
+    });
+  }
+
+  // If still empty, fallback to agents regardless of capacity to prevent starvation
+  if (filtered.length === 0) {
+    filtered = eligibleAgents.filter(a => {
+      if (a.paused || a.onLeave) return false;
+      return a.skills && a.skills.channels.includes(channel);
+    });
+  }
+
+  // If still empty, fallback to first eligible agent
+  if (filtered.length === 0) {
+    return eligibleAgents.length > 0 ? eligibleAgents[0].id : null;
+  }
+
+  // Sort by workload (assigned count) to balance capacity
+  filtered.sort((a, b) => a.assigned - b.assigned);
+  return filtered[0].id;
+}
+
 /* =========================================================
    AGENT STATUS CONTROL & ACTIVITY LOGGING
 ========================================================= */
@@ -154,25 +499,358 @@ function fmtLeaveRange(a){
   return `${fTxt} \u2192 ${tTxt}`;
 }
 function renderTeamStatus(){
-  const body = document.getElementById('teamStatusBody');
+  const table = document.getElementById('teamStatusTable');
+  if(!table) {
+    const body = document.getElementById('teamStatusBody');
+    if(!body) return;
+    body.innerHTML = AGENTS.map(a=>{
+      const live = liveDurations(a);
+      const activeCount = getActiveTicketCountForAgent(a.id);
+      
+      let hasBreachedCapacity = false;
+      let isCloseToCapacity = false;
+      ['WhatsApp', 'Email', 'Chat', 'Call'].forEach(ch => {
+        const count = getActiveTicketCountForAgentAndChannel(a.id, ch);
+        const max = getAgentChannelCapacity(a.id, ch);
+        if (count >= max) {
+          hasBreachedCapacity = true;
+        } else if (count >= max * 0.8) {
+          isCloseToCapacity = true;
+        }
+      });
+      
+      let dotColor = '#22C55E';
+      if (hasBreachedCapacity) {
+        dotColor = '#EF4444';
+      } else if (isCloseToCapacity) {
+        dotColor = '#F59E0B';
+      }
+      
+      const capacityHtml = `
+        <div style="margin-top: 4px; display: flex; flex-direction: column; gap: 2px; font-size: 10.5px; color: var(--ink-soft); line-height: 1.3;">
+          <div style="display: flex; align-items: center; gap: 4px; font-weight: 600; margin-bottom: 2px;">
+            <span style="background:${dotColor}; display:inline-block; width:7px; height:7px; border-radius:50%;"></span>
+            <span>Status check</span>
+          </div>
+          <span>WhatsApp: <b>${getActiveTicketCountForAgentAndChannel(a.id, 'WhatsApp')}</b> / ${getAgentChannelCapacity(a.id, 'WhatsApp')}</span>
+          <span>Email: <b>${getActiveTicketCountForAgentAndChannel(a.id, 'Email')}</b> / ${getAgentChannelCapacity(a.id, 'Email')}</span>
+          <span>Chat: <b>${getActiveTicketCountForAgentAndChannel(a.id, 'Chat')}</b> / ${getAgentChannelCapacity(a.id, 'Chat')}</span>
+          <span>Call: <b>${getActiveTicketCountForAgentAndChannel(a.id, 'Call')}</b> / ${getAgentChannelCapacity(a.id, 'Call')}</span>
+        </div>
+      `;
+      const queuesStr = getAgentQueues(a.id);
+      const skillsStr = (a.skills ? `Ch: ${a.skills.channels.join(', ')} | Lg: ${a.skills.languages.join(', ')}` : 'None');
+
+      const now = new Date();
+      const activeMgrChans = CHANNEL_ASSIGNMENTS.filter(ca => {
+        if (ca.agentId !== a.id || ca.status !== 'Active') return false;
+        const start = new Date(`${ca.startDate}T${ca.startTime}:00`);
+        const end = new Date(`${ca.endDate}T${ca.endTime}:00`);
+        return now >= start && now <= end;
+      }).map(ca => ca.channel);
+      const combinedChans = Array.from(new Set([...activeMgrChans, ...(a.skills ? a.skills.channels : [])]));
+      const activeChansStr = combinedChans.length > 0 ? combinedChans.join(', ') : 'None';
+
+      return `<tr>
+        <td><span class="assignee-pill"><span class="mini-avatar">${initials(a.name)}</span>${a.name}</span></td>
+        <td>
+          <select class="team-status-select" onchange="managerChangeStatus('${a.id}', this.value)">
+            ${STATUS_OPTIONS.map(s=>`<option value="${s}" ${s===a.status?'selected':''}>${s}</option>`).join('')}
+          </select>
+        </td>
+        <td style="color:var(--ink-faint); font-size: 11.5px;">${fmtLogTime(a.statusSince)}</td>
+        <td>${fmtDuration(live[a.status] || 0)}</td>
+        <td>
+          <div style="font-weight: 700; color: var(--ink); font-size: 13px;">${activeCount} Active Cases</div>
+        </td>
+        <td>${capacityHtml}</td>
+        <td>${queuesStr}</td>
+        <td><span class="status-badge" style="background:var(--purple-tint); color:var(--purple); border: 1px solid var(--purple-badge);">${skillsStr}</span></td>
+        <td><span class="status-badge" style="background:#E2E8F0; color:#475569; border: 1px solid var(--line); font-size: 11px;">${activeChansStr}</span></td>
+        <td><label class="mini-toggle" style="${a.onLeave?'opacity:.55;':''}"><input type="checkbox" ${a.paused?'checked':''} ${a.onLeave?'disabled title="Automatically paused while on leave"':''} onchange="togglePauseAssignment('${a.id}', this.checked)"> Paused</label></td>
+        <td><label class="mini-toggle"><input type="checkbox" ${a.onLeave?'checked':''} onchange="handleLeaveCheckbox('${a.id}', this.checked)"> On leave</label>${a.onLeave ? `<div style="font-size:10px;color:var(--ink-faint);margin-top:2px;">${fmtLeaveRange(a)}</div>` : ''}</td>
+        <td><button class="btn btn-ghost btn-sm" onclick="openAgentLog('${a.id}')">View log</button></td>
+      </tr>`;
+    }).join('');
+    enhanceAllSelects(body);
+    return;
+  }
+
+  const sort = (typeof sortState !== 'undefined' && sortState.team) ? sortState.team : {field: null, asc: true};
+  let list = [...AGENTS];
+  if(sort.field && typeof sortArray !== 'undefined'){
+    sortArray(list, sort.field, sort.asc);
+  }
+
+  table.innerHTML = `
+    <thead><tr>
+      <th class="sortable-header" onclick="toggleSort('team', 'name', 'renderTeamStatus')">Agent${typeof sortIcon !== 'undefined' ? sortIcon('team', 'name') : ''}</th>
+      <th class="sortable-header" onclick="toggleSort('team', 'status', 'renderTeamStatus')">Status${typeof sortIcon !== 'undefined' ? sortIcon('team', 'status') : ''}</th>
+      <th class="sortable-header" onclick="toggleSort('team', 'statusSince', 'renderTeamStatus')">Since${typeof sortIcon !== 'undefined' ? sortIcon('team', 'statusSince') : ''}</th>
+      <th>Time in status today</th>
+      <th>Workload</th>
+      <th>Primary Capacity</th>
+      <th>Assigned Queues</th>
+      <th>Skills</th>
+      <th>Active Channels</th>
+      <th class="sortable-header" onclick="toggleSort('team', 'paused', 'renderTeamStatus')">Assignment${typeof sortIcon !== 'undefined' ? sortIcon('team', 'paused') : ''}</th>
+      <th class="sortable-header" onclick="toggleSort('team', 'onLeave', 'renderTeamStatus')">Leave${typeof sortIcon !== 'undefined' ? sortIcon('team', 'onLeave') : ''}</th>
+      <th style="width:160px; text-align: right;">Actions</th>
+    </tr></thead>
+    <tbody id="teamStatusBody">
+      ${list.map(a=>{
+        const live = liveDurations(a);
+        const activeCount = getActiveTicketCountForAgent(a.id);
+        
+        let hasBreachedCapacity = false;
+        let isCloseToCapacity = false;
+        ['WhatsApp', 'Email', 'Chat', 'Call'].forEach(ch => {
+          const count = getActiveTicketCountForAgentAndChannel(a.id, ch);
+          const max = getAgentChannelCapacity(a.id, ch);
+          if (count >= max) {
+            hasBreachedCapacity = true;
+          } else if (count >= max * 0.8) {
+            isCloseToCapacity = true;
+          }
+        });
+        
+        let dotColor = '#22C55E';
+        if (hasBreachedCapacity) {
+          dotColor = '#EF4444';
+        } else if (isCloseToCapacity) {
+          dotColor = '#F59E0B';
+        }
+        
+        const capacityHtml = `
+          <div style="margin-top: 4px; display: flex; flex-direction: column; gap: 2px; font-size: 10.5px; color: var(--ink-soft); line-height: 1.3;">
+            <div style="display: flex; align-items: center; gap: 4px; font-weight: 600; margin-bottom: 2px;">
+              <span style="background:${dotColor}; display:inline-block; width:7px; height:7px; border-radius:50%;"></span>
+              <span>Status check</span>
+            </div>
+            <span>WhatsApp: <b>${getActiveTicketCountForAgentAndChannel(a.id, 'WhatsApp')}</b> / ${getAgentChannelCapacity(a.id, 'WhatsApp')}</span>
+            <span>Email: <b>${getActiveTicketCountForAgentAndChannel(a.id, 'Email')}</b> / ${getAgentChannelCapacity(a.id, 'Email')}</span>
+            <span>Chat: <b>${getActiveTicketCountForAgentAndChannel(a.id, 'Chat')}</b> / ${getAgentChannelCapacity(a.id, 'Chat')}</span>
+            <span>Call: <b>${getActiveTicketCountForAgentAndChannel(a.id, 'Call')}</b> / ${getAgentChannelCapacity(a.id, 'Call')}</span>
+          </div>
+        `;
+        
+        const queuesStr = getAgentQueues(a.id);
+        const skillsStr = (a.skills ? `Ch: ${a.skills.channels.join(', ')} | Lg: ${a.skills.languages.join(', ')}` : 'None');
+
+        const now = new Date();
+        const activeMgrChans = CHANNEL_ASSIGNMENTS.filter(ca => {
+          if (ca.agentId !== a.id || ca.status !== 'Active') return false;
+          const start = new Date(`${ca.startDate}T${ca.startTime}:00`);
+          const end = new Date(`${ca.endDate}T${ca.endTime}:00`);
+          return now >= start && now <= end;
+        }).map(ca => ca.channel);
+        const combinedChans = Array.from(new Set([...activeMgrChans, ...(a.skills ? a.skills.channels : [])]));
+        const activeChansStr = combinedChans.length > 0 ? combinedChans.join(', ') : 'None';
+
+        return `<tr>
+          <td><span class="assignee-pill"><span class="mini-avatar">${initials(a.name)}</span>${a.name}</span></td>
+          <td>
+            <select class="team-status-select" onchange="managerChangeStatus('${a.id}', this.value)">
+              ${STATUS_OPTIONS.map(s=>`<option value="${s}" ${s===a.status?'selected':''}>${s}</option>`).join('')}
+            </select>
+          </td>
+          <td style="color:var(--ink-faint); font-size: 11.5px;">${fmtLogTime(a.statusSince)}</td>
+          <td>${fmtDuration(live[a.status] || 0)}</td>
+          <td>
+            <div style="font-weight: 700; color: var(--ink); font-size: 13px;">${activeCount} Active Cases</div>
+          </td>
+          <td>${capacityHtml}</td>
+          <td style="font-size: 12px; color: var(--ink-soft);">${queuesStr}</td>
+          <td><span class="status-badge" style="background:var(--purple-tint); color:var(--purple); border: 1px solid var(--purple-badge); font-size: 11px; white-space: normal; max-width: 250px; display: inline-block;">${skillsStr}</span></td>
+          <td><span class="status-badge" style="background:#E2E8F0; color:#475569; border: 1px solid var(--line); font-size: 11px; white-space: normal; max-width: 200px; display: inline-block;">${activeChansStr}</span></td>
+          <td><label class="mini-toggle" style="${a.onLeave?'opacity:.55;':''}"><input type="checkbox" ${a.paused?'checked':''} ${a.onLeave?'disabled title="Automatically paused while on leave"':''} onchange="togglePauseAssignment('${a.id}', this.checked)"> Paused</label></td>
+          <td><label class="mini-toggle"><input type="checkbox" ${a.onLeave?'checked':''} onchange="handleLeaveCheckbox('${a.id}', this.checked)"> On leave</label>${a.onLeave ? `<div style="font-size:10px;color:var(--ink-faint);margin-top:2px;">${fmtLeaveRange(a)}</div>` : ''}</td>
+          <td style="white-space: nowrap; text-align: right;"><button class="btn btn-ghost btn-sm" onclick="openEditSkillsModal('${a.id}')" style="margin-right:4px;">Edit skills</button><button class="btn btn-ghost btn-sm" onclick="openAgentLog('${a.id}')">View log</button></td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  `;
+  enhanceAllSelects(table.querySelector('tbody'));
+}
+
+function renderAssignmentRules() {
+  const body = document.getElementById('assignmentRulesBody');
   if(!body) return;
-  body.innerHTML = AGENTS.map(a=>{
-    const live = liveDurations(a);
-    return `<tr>
-      <td><span class="assignee-pill"><span class="mini-avatar">${initials(a.name)}</span>${a.name}</span></td>
-      <td>
-        <select class="team-status-select" onchange="managerChangeStatus('${a.id}', this.value)">
-          ${STATUS_OPTIONS.map(s=>`<option value="${s}" ${s===a.status?'selected':''}>${s}</option>`).join('')}
-        </select>
-      </td>
-      <td style="color:var(--ink-faint);">${fmtLogTime(a.statusSince)}</td>
-      <td>${fmtDuration(live[a.status] || 0)}</td>
-      <td><label class="mini-toggle" style="${a.onLeave?'opacity:.55;':''}"><input type="checkbox" ${a.paused?'checked':''} ${a.onLeave?'disabled title="Automatically paused while on leave"':''} onchange="togglePauseAssignment('${a.id}', this.checked)"> Paused</label></td>
-      <td><label class="mini-toggle"><input type="checkbox" ${a.onLeave?'checked':''} onchange="handleLeaveCheckbox('${a.id}', this.checked)"> On leave</label>${a.onLeave ? `<div style="font-size:10px;color:var(--ink-faint);margin-top:2px;">${fmtLeaveRange(a)}</div>` : ''}</td>
-      <td><button class="btn btn-ghost btn-sm" onclick="openAgentLog('${a.id}')">View log</button></td>
-    </tr>`;
+
+  const allRules = [
+    ...ASSIGNMENT_RULES.map(r => ({ ...r, type: 'skill' })),
+    ...CHANNEL_ASSIGNMENTS.map(ca => ({
+      id: ca.id,
+      name: `Channel assignment: ${ca.agentName}`,
+      skill: ca.channel,
+      agents: [ca.agentId],
+      startDate: ca.startDate,
+      startTime: ca.startTime,
+      endDate: ca.endDate,
+      endTime: ca.endTime,
+      priority: 'Medium',
+      status: ca.status,
+      type: 'channel',
+      dept: ca.dept
+    }))
+  ];
+
+  if(allRules.length === 0) {
+    body.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--ink-faint);padding:20px;">No assignment or routing rules configured.</td></tr>`;
+    return;
+  }
+
+  const now = new Date();
+
+  body.innerHTML = allRules.map(r => {
+    let agentsNames = "";
+    if (r.type === 'skill') {
+      agentsNames = r.agents.map(aid => {
+        const a = AGENTS.find(x => x.id === aid);
+        return a ? a.name : aid;
+      }).join(', ');
+    } else {
+      const a = AGENTS.find(x => x.id === r.agents[0]);
+      agentsNames = a ? `${a.name} (${r.dept})` : r.agents[0];
+    }
+
+    const start = new Date(`${r.startDate}T${r.startTime}:00`);
+    const end = new Date(`${r.endDate}T${r.endTime}:00`);
+    
+    let currentStatus = r.status;
+    if (r.status === 'Active' && (now < start || now > end)) {
+      currentStatus = now > end ? 'Expired' : 'Scheduled';
+    }
+
+    let statusClass = 'status-badge status-Resolved'; // green/Active
+    if (currentStatus === 'Paused') statusClass = 'status-badge status-Closed'; // grey
+    else if (currentStatus === 'Expired') statusClass = 'status-badge status-Closed'; // grey
+    else if (currentStatus === 'Scheduled') statusClass = 'status-badge status-Open'; // blue
+
+    const activePeriod = `${r.startDate} ${r.startTime} to ${r.endDate} ${r.endTime}`;
+    const statusBtnText = r.status === 'Active' ? 'Pause' : 'Activate';
+
+    const typeBadge = r.type === 'skill' 
+      ? `<span class="status-badge" style="background:var(--purple-tint); color:var(--purple); border: 1px solid var(--purple-badge); font-size:10px; padding: 2px 6px;">Skill Routing</span>`
+      : `<span class="status-badge" style="background:#E2E8F0; color:#475569; border: 1px solid var(--line); font-size:10px; padding: 2px 6px;">Channel Assignment</span>`;
+
+    const toggleAction = r.type === 'skill' ? `toggleRuleStatus('${r.id}')` : `toggleChannelAssignmentStatus('${r.id}')`;
+    const deleteAction = r.type === 'skill' ? `deleteRule('${r.id}')` : `deleteChannelAssignment('${r.id}')`;
+
+    return `
+      <tr>
+        <td>${typeBadge}</td>
+        <td style="font-weight: 600; color: #0F172A;">${r.name}</td>
+        <td><span class="chan-badge chan-badge-${r.skill.toLowerCase()}" style="background:#E2E8F0; color:#475569; padding: 2px 6px; border-radius: 4px; font-size: 11px;">${r.skill}</span></td>
+        <td>${agentsNames}</td>
+        <td><span class="pri-badge pri-${r.priority}">${r.priority}</span></td>
+        <td style="font-size:12px; color:var(--ink-soft);">${activePeriod}</td>
+        <td><span class="${statusClass}">${currentStatus}</span></td>
+        <td style="text-align: right;">
+          <button class="btn btn-ghost btn-sm" onclick="${toggleAction}" style="margin-right: 4px;" ${currentStatus === 'Expired' ? 'disabled' : ''}>${statusBtnText}</button>
+          <button class="btn btn-ghost btn-sm" onclick="${deleteAction}" style="color: var(--red);">Delete</button>
+        </td>
+      </tr>
+    `;
   }).join('');
-  enhanceAllSelects(body);
+}
+
+function openAddRuleModal(){
+  const skillSelect = document.getElementById('ruleSkill');
+  if (skillSelect) {
+    skillSelect.innerHTML = '<option value="">Select Category</option>';
+    const categories = [];
+    if (typeof DEPT_CAT_SUBCAT !== 'undefined') {
+      Object.values(DEPT_CAT_SUBCAT).forEach(catObj => {
+        Object.keys(catObj).forEach(c => {
+          if (!categories.includes(c)) categories.push(c);
+        });
+      });
+    } else {
+      categories.push('KYC Verification', 'Disbursement Pending', 'Repayment related', 'Auto Debit related', 'General Query');
+    }
+    categories.forEach(c => {
+      skillSelect.innerHTML += `<option value="${c}">${c}</option>`;
+    });
+  }
+
+  const agentSelect = document.getElementById('ruleAgents');
+  if (agentSelect) {
+    agentSelect.innerHTML = '';
+    AGENTS.forEach(a => {
+      agentSelect.innerHTML += `<option value="${a.id}">${a.name}</option>`;
+    });
+  }
+
+  document.getElementById('ruleName').value = '';
+  document.getElementById('rulePriority').value = 'Medium';
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('ruleStartDate').value = today;
+  document.getElementById('ruleEndDate').value = today;
+  document.getElementById('ruleStartTime').value = '09:00';
+  document.getElementById('ruleEndTime').value = '18:00';
+
+  const modal = document.getElementById('modalAddRule');
+  modal.classList.add('show');
+  enhanceAllSelects(modal);
+}
+
+function saveAssignmentRule(){
+  const name = document.getElementById('ruleName').value.trim();
+  const skill = document.getElementById('ruleSkill').value;
+  const priority = document.getElementById('rulePriority').value;
+  const startD = document.getElementById('ruleStartDate').value;
+  const startT = document.getElementById('ruleStartTime').value;
+  const endD = document.getElementById('ruleEndDate').value;
+  const endT = document.getElementById('ruleEndTime').value;
+
+  const agentSelect = document.getElementById('ruleAgents');
+  const selectedAgents = Array.from(agentSelect.selectedOptions).map(o => o.value);
+
+  if(!name || !skill || selectedAgents.length === 0 || !startD || !startT || !endD || !endT) {
+    showToast('Please fill in all fields and select at least one agent.');
+    return;
+  }
+
+  const newRule = {
+    id: 'r_' + Date.now(),
+    name,
+    skill,
+    agents: selectedAgents,
+    startDate: startD,
+    startTime: startT,
+    endDate: endD,
+    endTime: endT,
+    priority,
+    status: 'Active'
+  };
+
+  ASSIGNMENT_RULES.push(newRule);
+  closeModal('modalAddRule');
+  showToast('Skill-based routing rule created successfully.');
+  renderTeamStatus();
+  renderAssignmentRules();
+}
+
+function toggleRuleStatus(id) {
+  const r = ASSIGNMENT_RULES.find(x => x.id === id);
+  if (r) {
+    r.status = r.status === 'Active' ? 'Paused' : 'Active';
+    showToast(`Rule "${r.name}" has been ${r.status.toLowerCase()}.`);
+    renderAssignmentRules();
+    renderTeamStatus();
+  }
+}
+
+function deleteRule(id) {
+  const idx = ASSIGNMENT_RULES.findIndex(x => x.id === id);
+  if (idx > -1) {
+    const r = ASSIGNMENT_RULES[idx];
+    ASSIGNMENT_RULES.splice(idx, 1);
+    showToast(`Rule "${r.name}" deleted.`);
+    renderAssignmentRules();
+    renderTeamStatus();
+  }
 }
 function managerChangeStatus(agentId, newStatus){
   const a = changeAgentStatus(agentId, newStatus, 'manager', CURRENT_MANAGER_NAME, 'manual override');
@@ -393,9 +1071,363 @@ let TICKETS = [
   {id:'TCK-10242', subject:'Call complaint about repayment reminder timing', customer:'Amul Roy', phone:'+1 416 555 0101', email:'amul.roy@gmail.com', channel:'Call', priority:'High', status:'Waiting for Customer', queue:'Grievance', department:'Grievance', nbfcPartner:'Chinmay', source:'Chinmay', assignee:'a5', updated:'2h ago', slaMins:95, category:'Payment issue', loanId:'LN-44018', loanStage:'EMI active', createdAt: daysAgo(0,4,50),
     thread:[{dir:'in', text:"Called to complain that the repayment reminder was sent at 2 AM and the amount details were incorrect.", chan:'Call', time:'4:50 AM', call:true}],
     activity:['Inbound call received','Routed to Grievance queue','Awaiting customer confirmation']},
+
+  {id:'TCK-10274', subject:'Pre-EMI calculation dispute', customer:'Ramesh Kumar', phone:'+91 98765 43210', email:'ramesh.k@gmail.com', channel:'Email', priority:'High', status:'In Progress', queue:'Collection', department:'Collection', nbfcPartner:'Chinmay', source:'Chinmay', assignee:'a1', updated:'1h ago', slaMins:40, createdAt: daysAgo(0,9,0),
+    thread:[{dir:'in', text:"My pre-EMI interest was calculated at 30 days instead of 28. Please correct.", chan:'Email', time:'9:00 AM'}],
+    activity:['Ticket created via Email','Assigned to Riya Sen']},
+  {id:'TCK-10275', subject:'Unable to sign loan agreement via DigiLocker', customer:'Sanjay Dutt', phone:'+91 98765 43211', email:'sanjay.d@gmail.com', channel:'WhatsApp', priority:'Medium', status:'Open', queue:'Customer Support', department:'Customer Support', nbfcPartner:'Tapstart', source:'Lenditt', assignee:'a2', updated:'45m ago', slaMins:220, createdAt: daysAgo(0,10,0),
+    thread:[{dir:'in', text:"DigiLocker redirect fails with error code 502 Bad Gateway.", chan:'WhatsApp', time:'10:00 AM'}],
+    activity:['Ticket created via WhatsApp','Assigned to Emma Watson']},
+  {id:'TCK-10276', subject:'Interest rate mismatched in welcome letter', customer:'Kareena Kapoor', phone:'+91 98765 43212', email:'kareena.k@gmail.com', channel:'Call', priority:'High', status:'Escalated', queue:'Grievance', department:'Grievance', nbfcPartner:'Chinmay', source:'Chinmay', assignee:'a5', updated:'15m ago', slaMins:-10, createdAt: daysAgo(0,8,0),
+    thread:[{dir:'in', text:"Welcome letter shows 18% p.a. instead of the agreed 16% p.a. sanction.", chan:'Call', time:'8:00 AM', call:true}],
+    activity:['Ticket created via Call','Escalated to Grievance Team']},
+  {id:'TCK-10277', subject:'Refund status of failed autopay transaction', customer:'Saif Ali', phone:'+91 98765 43213', email:'saif.a@gmail.com', channel:'Chat', priority:'Low', status:'New', queue:'Customer Support', department:'Customer Support', nbfcPartner:'Tapstart', source:'ONDC App', assignee:'a4', updated:'5m ago', slaMins:1400, createdAt: daysAgo(0,11,15),
+    thread:[{dir:'in', text:"Autopay failed but amount was debited from my bank. When will it refund?", chan:'Chat', time:'11:15 AM'}],
+    activity:['Ticket created via Chat','Auto-assigned to Farhan Ali']},
+  {id:'TCK-10280', subject:'CIBIL report show active status for closed loan', customer:'Ranbir Kapoor', phone:'+91 98765 43216', email:'ranbir.k@gmail.com', channel:'WhatsApp', priority:'High', status:'In Progress', queue:'Grievance', department:'Grievance', nbfcPartner:'Chinmay', source:'Chinmay', assignee:'a5', updated:'30m ago', slaMins:60, createdAt: daysAgo(0,10,15),
+    thread:[{dir:'in', text:"Loan shows active on my CIBIL statement despite full payment in May. Please update.", chan:'WhatsApp', time:'10:15 AM'}],
+    activity:['Ticket created via WhatsApp','Assigned to Priya Nair','Verification in progress']},
+  {id:'TCK-10281', subject:'Incorrect late payment surcharge calculation', customer:'Alia Bhatt', phone:'+91 98765 43217', email:'alia.b@gmail.com', channel:'Email', priority:'Medium', status:'Open', queue:'Customer Support', department:'Customer Support', nbfcPartner:'Lenditt', source:'Lenditt', assignee:'a2', updated:'2h ago', slaMins:180, createdAt: daysAgo(0,9,30),
+    thread:[{dir:'in', text:"I was charged late fee of Rs 500 instead of Rs 250 as per the schedule.", chan:'Email', time:'9:30 AM'}],
+    activity:['Ticket created via Email','Assigned to Emma Watson']},
+  {id:'TCK-10282', subject:'Clarification on arbitration summons received', customer:'Ranveer Singh', phone:'+91 98765 43218', email:'ranveer.s@gmail.com', channel:'Call', priority:'High', status:'Open', queue:'Legal Related', department:'Legal Related', nbfcPartner:'Tapstart', source:'ONDC App', assignee:'a3', updated:'1h ago', slaMins:120, createdAt: daysAgo(0,10,30),
+    thread:[{dir:'in', text:"Arbitration notice received. Seeking legal cell contact detail.", chan:'Call', time:'10:30 AM', call:true}],
+    activity:['Ticket created via Call','Assigned to Ananya Iyer']},
+  {id:'TCK-10283', subject:'Auto-debit setup verification delay', customer:'Deepika Padukone', phone:'+91 98765 43219', email:'deepika.p@gmail.com', channel:'Chat', priority:'Low', status:'New', queue:'Customer Support', department:'Customer Support', nbfcPartner:'Lenditt', source:'Lenditt', assignee:'a4', updated:'8m ago', slaMins:1410, createdAt: daysAgo(0,11,0),
+    thread:[{dir:'in', text:"E-mandate registration shows pending for last 48 hours. Can I pay manually?", chan:'Chat', time:'11:00 AM'}],
+    activity:['Ticket created via Chat','Auto-assigned to Farhan Ali']},
+  {id:'TCK-10284', subject:'Loan foreclosure penalty waiver request', customer:'Vicky Kaushal', phone:'+91 98765 43220', email:'vicky.k@gmail.com', channel:'WhatsApp', priority:'Medium', status:'Waiting for Customer', queue:'Collection', department:'Collection', nbfcPartner:'Chinmay', source:'Chinmay', assignee:'a1', updated:'3h ago', slaMins:400, createdAt: daysAgo(1,9,15),
+    thread:[
+      {dir:'in', text:"Please waive the 2% foreclosure charges. I am ready to close my loan today.", chan:'WhatsApp', time:'Yesterday, 9:15 AM'},
+      {dir:'out', text:"We can offer a 50% waiver on foreclosure charges. Please confirm to generate payment link.", chan:'WhatsApp', time:'Yesterday, 10:30 AM'}
+    ],
+    activity:['Ticket created via WhatsApp','Assigned to Riya Sen','Waiver terms shared']},
+  {id:'TCK-10285', subject:'Interest computation detail documentation request', customer:'Anushka Sharma', phone:'+91 98765 43221', email:'anushka.s@gmail.com', channel:'Email', priority:'Low', status:'Resolved', queue:'Customer Support', department:'Customer Support', nbfcPartner:'Lenditt', source:'Lenditt', assignee:'a2', updated:'1d ago', slaMins:900, createdAt: daysAgo(2,14,30),
+    thread:[
+      {dir:'in', text:"Need day-count calculation statement sheet for interest billing audit.", chan:'Email', time:'2 days ago'},
+      {dir:'out', text:"Dear Anushka, please find the attached interest computation spreadsheet.", chan:'Email', time:'Yesterday'}
+    ],
+    activity:['Ticket created via Email','Spreadsheet shared with customer','Status changed to Resolved']},
+  {id:'TCK-10286', subject:'Notice details clarification loan LN-7718', customer:'Virat Kohli', phone:'+91 98765 43222', email:'virat.k@gmail.com', channel:'Call', priority:'High', status:'Resolved', queue:'Legal Related', department:'Legal Related', nbfcPartner:'Tapstart', source:'ONDC App', assignee:'a3', updated:'2d ago', slaMins:240, createdAt: daysAgo(2,10,0),
+    thread:[
+      {dir:'in', text:"Received demand notice for EMI bounced on 5th. Bounced due to bank holiday.", chan:'Call', time:'2 days ago', call:true},
+      {dir:'out', text:"Hi Virat, late charges waived as payment went through next working day. Record cleared.", chan:'Email', time:'Yesterday'}
+    ],
+    activity:['Ticket created via Call','Assigned to Ananya Iyer','Surcharge reversed','Status changed to Resolved']},
+  {id:'TCK-10287', subject:'App loading error during bank statement fetch', customer:'KL Rahul', phone:'+91 98765 43223', email:'kl.rahul@gmail.com', channel:'Chat', priority:'Medium', status:'Closed', queue:'Customer Support', department:'Customer Support', nbfcPartner:'Lenditt', source:'Lenditt', assignee:'a4', updated:'4d ago', slaMins:720, createdAt: daysAgo(4,9,40),
+    thread:[
+      {dir:'in', text:"Perfios netbanking statement verification times out on last page.", chan:'Chat', time:'4 days ago'},
+      {dir:'out', text:"Hi Rahul, please try uploading PDF statement instead of netbanking log-in.", chan:'Chat', time:'4 days ago'},
+      {dir:'in', text:"PDF verification went through successfully. Offer approved. Thanks!", chan:'Chat', time:'4 days ago'}
+    ],
+    activity:['Ticket created via Chat','Assigned to Farhan Ali','Perfios workaround shared','Status changed to Closed']},
+  {id:'TCK-10288', subject:'Grievance dispute on recovery executive behavior', customer:'Hardik Pandya', phone:'+91 98765 43224', email:'hardik.p@gmail.com', channel:'Email', priority:'High', status:'Closed', queue:'Grievance', department:'Grievance', nbfcPartner:'Chinmay', source:'Chinmay', assignee:'a5', updated:'5d ago', slaMins:720, createdAt: daysAgo(5,8,30),
+    thread:[
+      {dir:'in', text:"Agent visited my office without prior info and spoke rudely to reception.", chan:'Email', time:'5 days ago'},
+      {dir:'out', text:"Dear Hardik, we have initiated formal disciplinary check against the agency representative. Very sorry for this behavior.", chan:'Email', time:'4 days ago'},
+      {dir:'in', text:"Thanks for prompt action. Hope this does not repeat.", chan:'Email', time:'4 days ago'}
+    ],
+    activity:['Ticket created via Email','Assigned to Priya Nair','QA escalation logged','Agency penalised','Status changed to Closed']},
+  {id:'TCK-10289', subject:'Incorrect ECS bounce charge recovery', customer:'Jasprit Bumrah', phone:'+91 98765 43225', email:'jasprit.b@gmail.com', channel:'WhatsApp', priority:'Medium', status:'Closed', queue:'Collection', department:'Collection', nbfcPartner:'Chinmay', source:'Chinmay', assignee:'a1', updated:'3d ago', slaMins:720, createdAt: daysAgo(3,10,30),
+    thread:[
+      {dir:'in', text:"ECS bounced twice but was cleared on first call. Why two bounce charges?", chan:'WhatsApp', time:'3 days ago'},
+      {dir:'out', text:"Hi Jasprit, bank triggered the bounce twice due to presentation limit. We have reversed one charge.", chan:'WhatsApp', time:'3 days ago'},
+      {dir:'in', text:"Great, received the credit back.", chan:'WhatsApp', time:'3 days ago'}
+    ],
+    activity:['Ticket created via WhatsApp','Assigned to Riya Sen','Reversal processed','Status changed to Closed']},
+  {id:'TCK-10290', subject:'Settlement terms extension request LN-2019', customer:'Rohit Sharma', phone:'+91 98765 43226', email:'rohit.s@gmail.com', channel:'Call', priority:'High', status:'Resolved', queue:'Legal Related', department:'Legal Related', nbfcPartner:'Tapstart', source:'ONDC App', assignee:'a3', updated:'1d ago', slaMins:300, createdAt: daysAgo(2,11,15),
+    thread:[
+      {dir:'in', text:"Requesting 7 days grace to pay the settled lump sum amount of Rs 25,000.", chan:'Call', time:'2 days ago', call:true},
+      {dir:'out', text:"Dear Rohit, extension approved by legal lead. New payment deadline is 15th Aug.", chan:'Email', time:'Yesterday'}
+    ],
+    activity:['Ticket created via Call','Assigned to Ananya Iyer','Settlement extension logged','Status changed to Resolved']},
+  {id:'TCK-10291', subject:'App payment gate failure during repayment', customer:'Shikhar Dhawan', phone:'+91 98765 43227', email:'shikhar.d@gmail.com', channel:'Chat', priority:'Low', status:'Closed', queue:'Customer Support', department:'Customer Support', nbfcPartner:'Lenditt', source:'Lenditt', assignee:'a2', updated:'3d ago', slaMins:1440, createdAt: daysAgo(3,11,45),
+    thread:[
+      {dir:'in', text:"Razropay gateway crashes on checkout page. Balance was deducted but loan shows overdue.", chan:'Chat', time:'3 days ago'},
+      {dir:'out', text:"Hi Shikhar, transaction has been manually reconciled and payment credit has been applied.", chan:'Chat', time:'3 days ago'},
+      {dir:'in', text:"Awesome! Statement updated now.", chan:'Chat', time:'3 days ago'}
+    ],
+    activity:['Ticket created via Chat','Assigned to Emma Watson','Payment reconciled','Status changed to Closed']},
+  {id:'TCK-10292', subject:'Legal notice timeline verification request', customer:'Yuzvendra Chahal', phone:'+91 98765 43228', email:'yuzi.c@gmail.com', channel:'Email', priority:'Medium', status:'Closed', queue:'Legal Related', department:'Legal Related', nbfcPartner:'Tapstart', source:'ONDC App', assignee:'a3', updated:'5d ago', slaMins:720, createdAt: daysAgo(5,9,0),
+    thread:[
+      {dir:'in', text:"Need confirmation of active notice letter details for case file clearance.", chan:'Email', time:'5 days ago'},
+      {dir:'out', text:"Hi Yuzvendra, details confirm case withdrawal scheduled for next court hearing date.", chan:'Email', time:'5 days ago'}
+    ],
+    activity:['Ticket created via Email','Assigned to Ananya Iyer','Timelines confirmed','Status changed to Closed']},
+  {id:'TCK-10293', subject:'Excess interest surcharge refund query', customer:'Rishabh Pant', phone:'+91 98765 43229', email:'rishabh.p@gmail.com', channel:'WhatsApp', priority:'High', status:'Resolved', queue:'Grievance', department:'Grievance', nbfcPartner:'Chinmay', source:'Chinmay', assignee:'a5', updated:'1d ago', slaMins:120, createdAt: daysAgo(1,10,0),
+    thread:[
+      {dir:'in', text:"I was charged interest during system outage window. Please refund.", chan:'WhatsApp', time:'Yesterday, 10:00 AM'},
+      {dir:'out', text:"Hi Rishabh, confirmed the billing issue. We have reversed the extra interest charge.", chan:'WhatsApp', time:'Yesterday, 4:00 PM'}
+    ],
+    activity:['Ticket created via WhatsApp','Assigned to Priya Nair','System outage interest reversed','Status changed to Resolved']},
+  {id:'TCK-10294', subject:'Loan application basic details verification delay', customer:'Shreyas Iyer', phone:'+91 98765 43230', email:'shreyas.i@gmail.com', channel:'Chat', priority:'Low', status:'Closed', queue:'Customer Support', department:'Customer Support', nbfcPartner:'Lenditt', source:'Lenditt', assignee:'a4', updated:'4d ago', slaMins:1440, createdAt: daysAgo(4,10,30),
+    thread:[
+      {dir:'in', text:"Basic profile shows under review for 3 days. What is pending?", chan:'Chat', time:'4 days ago'},
+      {dir:'out', text:"Hi Shreyas, profile has been approved. You can now proceed to select loan tenure.", chan:'Chat', time:'4 days ago'}
+    ],
+    activity:['Ticket created via Chat','Assigned to Farhan Ali','Verification completed','Status changed to Closed']},
+  {id:'TCK-10295', subject:'NOC soft copy dispatch pending', customer:'Ravindra Jadeja', phone:'+91 98765 43231', email:'ravindra.j@gmail.com', channel:'Email', priority:'Medium', status:'Closed', queue:'Collection', department:'Collection', nbfcPartner:'Chinmay', source:'Chinmay', assignee:'a1', updated:'1d ago', slaMins:720, createdAt: daysAgo(2,11,0),
+    thread:[
+      {dir:'in', text:"Request soft copy of NOC statement. Need it to apply for new credit card.", chan:'Email', time:'2 days ago'},
+      {dir:'out', text:"Hi Ravindra, soft copy NOC has been sent. Original hard copy will arrive in 5 working days.", chan:'Email', time:'Yesterday'}
+    ],
+    activity:['Ticket created via Email','Assigned to Riya Sen','NOC copy generated and sent','Status changed to Closed']},
+  {id:'TCK-10296', subject:'Dispute on settlement schedule rate', customer:'Mohammed Shami', phone:'+91 98765 43232', email:'shami.m@gmail.com', channel:'Call', priority:'High', status:'Closed', queue:'Grievance', department:'Grievance', nbfcPartner:'Chinmay', source:'Chinmay', assignee:'a5', updated:'2d ago', slaMins:240, createdAt: daysAgo(2,14,0),
+    thread:[
+      {dir:'in', text:"Offered settlement rate is 50% principal, but collection executive demands 60%. Please verify.", chan:'Call', time:'2 days ago', call:true},
+      {dir:'out', text:"Dear Mohammed, we have confirmed the 50% settlement rate. Revised clearance link shared.", chan:'Email', time:'Yesterday'}
+    ],
+    activity:['Ticket created via Call','Assigned to Priya Nair','Dispute reviewed','Correct settlement rate applied','Status changed to Closed']},
+  {id:'TCK-10297', subject:'Aadhaar signature verification failed error', customer:'Ishant Sharma', phone:'+91 98765 43233', email:'ishant.s@gmail.com', channel:'Chat', priority:'Low', status:'Closed', queue:'Customer Support', department:'Customer Support', nbfcPartner:'Lenditt', source:'Lenditt', assignee:'a2', updated:'3d ago', slaMins:1440, createdAt: daysAgo(3,15,0),
+    thread:[
+      {dir:'in', text:"Getting error: Aadhaar digital signature validation failed on submit.", chan:'Chat', time:'3 days ago'},
+      {dir:'out', text:"Hi Ishant, NSDL backend signature was refreshed. Please re-sign now.", chan:'Chat', time:'3 days ago'}
+    ],
+    activity:['Ticket created via Chat','Assigned to Emma Watson']},
+  {id:'TCK-10298', subject:'Legal desk case clearance reference number', customer:'Umesh Yadav', phone:'+91 98765 43234', email:'umesh.y@gmail.com', channel:'Email', priority:'Medium', status:'Closed', queue:'Legal Related', department:'Legal Related', category:'Legal Case Information', subCategory:'Legal Case Information', assignee:'a3', updated:'4d ago', slaMins:720, createdAt: daysAgo(4,16,0),
+    thread:[
+      {dir:'in', text:"Need legal case clearance reference code for court presentation.", chan:'Email', time:'4 days ago'},
+      {dir:'out', text:"Hi Umesh, clearance code reference is CC-49204-MUM. Discharged officially.", chan:'Email', time:'3 days ago'}
+    ],
+    activity:['Ticket created via Email','Assigned to Ananya Iyer','Reference code shared','Status changed to Closed']},
+  {id:'TCK-10299', subject:'Unable to link Aadhaar with loan account', customer:'Sunil Gavaskar', phone:'+91 98765 43235', email:'sunil.g@gmail.com', channel:'WhatsApp', priority:'High', status:'New', queue:'Support', department:'Support', category:'KYC Verification', subCategory:'Aadhaar Linking', assignee:'a4', updated:'2m ago', slaMins:-10, createdAt: daysAgo(0,0,15),
+    thread:[
+      {dir:'in', text:"I am trying to link my Aadhaar card to my loan account, but getting OTP failure error continuously. Please help.", chan:'WhatsApp', time:'15m ago', unread:true}
+    ],
+    activity:['Ticket created via WhatsApp','Assigned to Emma Watson']},
+  {id:'TCK-10300', subject:'Repayment auto-debit failure penalty dispute', customer:'Sachin Tendulkar', phone:'+91 98765 43236', email:'sachin.t@gmail.com', channel:'Chat', priority:'Medium', status:'Assigned', queue:'Collection', department:'Collection', category:'Repayment', subCategory:'Auto Debit related', assignee:'a1', updated:'15m ago', slaMins:-30, createdAt: daysAgo(0,0,45),
+    thread:[
+      {dir:'in', text:"My bank account had sufficient balance, but your auto debit failed and I was charged a penalty of Rs 500. This is incorrect.", chan:'Chat', time:'45m ago', unread:true}
+    ],
+    activity:['Ticket created via Chat','Assigned to Riya Sen']},
+  {id:'TCK-10301', subject:'Foreclosure notice clarification request', customer:'Rahul Dravid', phone:'+91 98765 43237', email:'rahul.d@gmail.com', channel:'Email', priority:'High', status:'In Progress', queue:'Legal Related', department:'Legal Related', category:'Legal Case Information', subCategory:'Legal Case Information', assignee:'a3', updated:'30m ago', slaMins:45, createdAt: daysAgo(0,1,10),
+    thread:[
+      {dir:'in', text:"Received foreclosure warning letter LN-3910. I have already cleared all outstanding EMIs. Kindly clarify.", chan:'Email', time:'1h 10m ago'},
+      {dir:'out', text:"Dear Rahul, we are verifying your payment logs with our bank portal. Please give us 2 hours.", chan:'Email', time:'45m ago'}
+    ],
+    activity:['Ticket created via Email','Assigned to Ananya Iyer','Under review']},
+  {id:'TCK-10302', subject:'Dispute on recovery executive calling hours', customer:'Sourav Ganguly', phone:'+91 98765 43238', email:'sourav.g@gmail.com', channel:'Call', priority:'Low', status:'Resolved', queue:'Grievance', department:'Grievance', category:'Collection Related', subCategory:'Collection Related', assignee:'a5', updated:'1d ago', slaMins:-120, createdAt: daysAgo(1,4,0),
+    thread:[
+      {dir:'in', text:"Recovery executive called me at 9:30 PM. RBI guidelines state calls are only allowed between 8 AM and 7 PM. I want to log a formal complaint.", chan:'Call', time:'1d ago', call:true},
+      {dir:'out', text:"Dear Sourav, we sincerely apologize. The executive has been warned and your account is tagged as DNC.", chan:'Email', time:'1d ago'}
+    ],
+    activity:['Ticket created via Call','Assigned to Priya Nair','DNC flag activated','Status changed to Resolved']},
+  {id:'TCK-10303', subject:'Incorrect welcome letter loan terms', customer:'VVS Laxman', phone:'+91 98765 43239', email:'vvs.l@gmail.com', channel:'SMS', priority:'Medium', status:'Closed', queue:'Support', department:'Support', category:'Loan Offer', subCategory:'Tenure / EMI Schedule', assignee:'a2', updated:'2d ago', slaMins:360, createdAt: daysAgo(2,5,0),
+    thread:[
+      {dir:'in', text:"Welcome letter shows interest rate as 14.5% instead of the agreed 13.5%. Please correct this document.", chan:'SMS', time:'2d ago'},
+      {dir:'out', text:"Hi VVS, interest rate welcome letter has been corrected to 13.5% and resent to your email.", chan:'SMS', time:'2d ago'}
+    ],
+    activity:['Ticket created via SMS','Assigned to Farhan Ali','Correction verified','Status changed to Closed']},
+  {id:'TCK-10211', subject:'Interest Rate Queries & Prepayment Option', customer:'Amul Roy', phone:'+1 416 555 0101', email:'amul.roy@gmail.com', channel:'Email', priority:'Low', status:'Closed', queue:'Support', department:'Support', category:'Loan Offer', subCategory:'Tenure / EMI Schedule', assignee:'a2', updated:'5d ago', slaMins:480, createdAt: daysAgo(5,14,30),
+    thread:[
+      {dir:'in', text: "Hello team, I recently took a loan (LN-44018) from Chinmay Finlease. I would like to know if there are any charges if I prepay the loan amount early?", chan: 'Email', time: '2:30 PM'},
+      {dir:'out', text: "Hello Amul, thank you for writing to us. For early prepayment/foreclosure of loans, there are zero charges after 3 successful EMI payments. Before that, a nominal 2% charge applies on the outstanding principal.", chan: 'Email', time: '3:15 PM'},
+      {dir:'in', text: "Got it! Thanks. What is the current outstanding principal? Can you check?", chan: 'Email', time: '4:00 PM'},
+      {dir:'out', text: "The current outstanding principal is Rs 45,000. Your next EMI is due on Sept 1st.", chan: 'Email', time: '4:20 PM'},
+      {dir:'in', text: "Thanks for the details. I will prepay next month. You can close this query.", chan: 'Email', time: '5:00 PM'},
+      {dir:'out', text: "Thank you for choosing Lenditt, Amul! Closing this ticket now. Have a nice day.", chan: 'Email', time: '5:15 PM'}
+    ],
+    activity: ['Ticket created via Email', 'Assigned to Emma Watson', 'Prepayment terms shared', 'Outstanding balance verified', 'Status changed to Closed']},
+  {id:'TCK-10215', subject:'Address update request in KYC', customer:'Amul Roy', phone:'+1 416 555 0101', email:'amul.roy@gmail.com', channel:'Chat', priority:'Medium', status:'Closed', queue:'Support', department:'Support', category:'KYC Verification', subCategory:'Address mismatch', assignee:'a4', updated:'3d ago', slaMins:360, createdAt: daysAgo(3,11,10),
+    thread:[
+      {dir:'in', text: "Hi, I moved to a new apartment in Mumbai and need to update my billing address for the active loan.", chan: 'Chat', time: '11:10 AM'},
+      {dir:'out', text: "Hello Amul, I can help you with that. Please share a copy of your new Aadhaar card or rent agreement for verification.", chan: 'Chat', time: '11:15 AM'},
+      {dir:'in', text: "Sure, uploading my new Aadhaar card PDF.", chan: 'Chat', time: '11:20 AM', attachments: [{ name: 'Aadhaar_Mumbai_New.pdf', size: '420 KB', type: 'pdf' }]},
+      {dir:'out', text: "Thank you, Amul. I have verified the address (A-402, Sea Breeze, Mumbai) and updated it in our system. It will reflect in your profile shortly.", chan: 'Chat', time: '11:45 AM'},
+      {dir:'in', text: "Thanks a lot for the quick support! Appreciate it.", chan: 'Chat', time: '11:50 AM'},
+      {dir:'out', text: "You're welcome! Resolved. Please rate our service when prompted.", chan: 'Chat', time: '11:55 AM'}
+    ],
+    activity: ['Ticket created via Chat', 'Assigned to Farhan Ali', 'Aadhaar file received and verified', 'Address updated in LMS', 'Status changed to Closed']},
+  {id:'TCK-10304', subject:'Repayment schedule mismatch on dashboard', customer:'Amul Roy', phone:'+1 416 555 0101', email:'amul.roy@gmail.com', channel:'Chat', priority:'Medium', status:'New', queue:'Support', department:'Support', category:'Loan Offer', subCategory:'Tenure / EMI Schedule', assignee:'a4', updated:'5m ago', slaMins:120, createdAt: daysAgo(0, 11, 45),
+    thread:[
+      {dir:'in', text: "My active loan details on the dashboard show my next EMI date as Sept 5th, but my bank NACH shows auto debit on Sept 1st. Please clarify which one is correct.", chan: 'Chat', time: '11:45 AM'}
+    ],
+    activity: ['Ticket created via Chat', 'Auto-assigned to Farhan Ali']},
+  {id:'TCK-10305', subject:'Delay in NOC document dispatch', customer:'Amul Roy', phone:'+1 416 555 0101', email:'amul.roy@gmail.com', channel:'SMS', priority:'Low', status:'Assigned', queue:'Support', department:'Support', category:'NOC Related', subCategory:'NOC Not Received', assignee:'a2', updated:'15m ago', slaMins:480, createdAt: daysAgo(0, 11, 30),
+    thread:[
+      {dir:'in', text: "I closed my previous loan LN-3910 two weeks ago. When will I receive the No Objection Certificate (NOC) on my email?", chan: 'SMS', time: '11:30 AM'}
+    ],
+    activity: ['Ticket created via SMS', 'Assigned to Emma Watson']},
+  {id:'TCK-10306', subject:'Legal notice query regarding penalty charges', customer:'Amul Roy', phone:'+1 416 555 0101', email:'amul.roy@gmail.com', channel:'Call', priority:'High', status:'Escalated', queue:'Legal Related', department:'Legal Related', category:'Legal Case Information', subCategory:'Legal Case Information', assignee:'a3', updated:'30m ago', slaMins:-15, createdAt: daysAgo(0, 10, 0),
+    thread:[
+      {dir:'in', text: "Customer called inquiring about penalty charges listed in the system message. Says it does not match the agreement term sheet.", chan: 'Call', time: '10:00 AM', call: true}
+    ],
+    activity: ['Ticket created via inbound call', 'Assigned to Ananya Iyer', 'Escalated to legal manager']},
+  {id:'TCK-10307', subject:'Double processing fee deduction complaint', customer:'Amul Roy', phone:'+1 416 555 0101', email:'amul.roy@gmail.com', channel:'Email', priority:'High', status:'In Progress', queue:'Grievance', department:'Grievance', category:'Refund/Credit', subCategory:'Refund Request', assignee:'a5', updated:'45m ago', slaMins:90, createdAt: daysAgo(0, 9, 30),
+    thread:[
+      {dir:'in', text: "I noticed my bank statement shows two deductions for processing fees on my loan application. I want a refund of the duplicate amount immediately.", chan: 'Email', time: '9:30 AM'}
+    ],
+    activity: ['Ticket created via Email', 'Routed to Grievance queue', 'Assigned to Priya Nair']}
 ];
 
+function getCustomerPhoto(name) {
+  const photos = {
+    'Amul Roy': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120',
+    'Ariel Elves': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=120',
+    'Advard': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=120',
+    'Nisha Verma': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=120',
+    'Deepika Padukone': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120',
+    'Sachin Tendulkar': 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=120',
+    'Rahul Dravid': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=120',
+    'Sourav Ganguly': 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=120',
+    'Sunil Gavaskar': 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?auto=format&fit=crop&q=80&w=120',
+    'VVS Laxman': 'https://images.unsplash.com/photo-1463453091185-61582044d556?auto=format&fit=crop&q=80&w=120'
+  };
+  return photos[name] || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=120';
+}
+
+function openCustomerProfile(name) {
+  window.open(`customer_profile.html?customer=${encodeURIComponent(name)}`, '_blank');
+}
+
+let filterSlaBreachedOnly = false;
+let managerFilterSlaBreachedOnly = false;
+let slaSortMode = 'none'; // 'none', 'asc', 'desc'
+
+function toggleSlaSort() {
+  if (slaSortMode === 'none') {
+    slaSortMode = 'asc';
+  } else if (slaSortMode === 'asc') {
+    slaSortMode = 'desc';
+  } else {
+    slaSortMode = 'none';
+  }
+  updateSlaSortUI();
+  renderDetailList();
+}
+
+function updateSlaSortUI() {
+  const btn = document.getElementById('dlSlaSortBtn');
+  const icon = document.getElementById('dlSlaSortIcon');
+  if (!btn || !icon) return;
+  
+  if (slaSortMode === 'asc') {
+    btn.style.borderColor = 'var(--red)';
+    btn.style.color = 'var(--red)';
+    btn.style.background = 'var(--red-tint)';
+    icon.innerHTML = '▲';
+  } else if (slaSortMode === 'desc') {
+    btn.style.borderColor = 'var(--blue)';
+    btn.style.color = 'var(--blue)';
+    btn.style.background = 'var(--blue-tint)';
+    icon.innerHTML = '▼';
+  } else {
+    btn.style.borderColor = 'var(--line)';
+    btn.style.color = 'var(--ink-soft)';
+    btn.style.background = '#fff';
+    icon.innerHTML = '↕';
+  }
+}
+
+function toggleMessageReadState(ticketId, msgIndex) {
+  const t = TICKETS.find(x => x.id === ticketId);
+  if (!t) return;
+  const m = t.thread[msgIndex];
+  if (!m) return;
+  m.unread = !m.unread;
+  renderConvBody('thread');
+  renderDetailList();
+}
+
+function updateHeaderSlaBadge() {
+  const breachedCount = TICKETS.filter(t => t.slaMins < 0 && t.status !== 'Resolved' && t.status !== 'Closed').length;
+  const container = document.getElementById('headerSlaBreachBadge');
+  if (!container) return;
+  if (breachedCount > 0) {
+    container.innerHTML = `
+      <div class="header-sla-alert" onclick="triggerSlaBreachedFilter()">
+        <span class="warning-icon">⚠️</span>
+        <span class="alert-text">SLA Breached: <b>${breachedCount}</b> ${breachedCount === 1 ? 'ticket' : 'tickets'}</span>
+      </div>
+    `;
+    container.style.display = 'flex';
+  } else {
+    container.style.display = 'none';
+  }
+}
+
+function triggerSlaBreachedFilter() {
+  if (currentRole === 'manager') {
+    managerFilterSlaBreachedOnly = true;
+    switchView('manageall');
+    renderManageAll();
+  } else {
+    filterSlaBreachedOnly = true;
+    const breached = TICKETS.filter(t => t.slaMins < 0 && t.status !== 'Resolved' && t.status !== 'Closed');
+    if (breached.length > 0) {
+      openTicket(breached[0].id);
+    } else {
+      document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+      document.getElementById('view-detail').classList.add('active');
+      renderDetailList();
+    }
+  }
+}
+
+function clearSlaBreachedFilter() {
+  filterSlaBreachedOnly = false;
+  renderDetailList();
+}
+
+function clearManagerSlaBreachedFilter() {
+  managerFilterSlaBreachedOnly = false;
+  renderManageAll();
+}
+
+function isSameDay(d1, d2) {
+  return d1.getFullYear() === d2.getFullYear() &&
+         d1.getMonth() === d2.getMonth() &&
+         d1.getDate() === d2.getDate();
+}
+
+function getDateLabel(d) {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  
+  const msgDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  
+  if (msgDate.getTime() === today.getTime()) {
+    return "Today";
+  } else if (msgDate.getTime() === yesterday.getTime()) {
+    return "Yesterday";
+  } else {
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  }
+}
+
 let selectedTicketId = null;
+let activeConvChannels = ['Email', 'Chat', 'WhatsApp', 'SMS'];
+function toggleConvChannel(chan){
+  const idx = activeConvChannels.indexOf(chan);
+  if(idx > -1){
+    activeConvChannels.splice(idx, 1);
+  } else {
+    activeConvChannels.push(chan);
+  }
+  updateConvChannelUI();
+  renderConvBody('thread');
+}
+function updateConvChannelUI(){
+  const items = document.querySelectorAll('#channelLabels .cl-item');
+  items.forEach(item => {
+    const text = item.textContent.trim();
+    if(activeConvChannels.includes(text)){
+      item.classList.add('selected');
+      item.classList.remove('deselected');
+    } else {
+      item.classList.remove('selected');
+      item.classList.add('deselected');
+    }
+  });
+}
+function toggleFullHistory(checked){
+  const el = document.getElementById('fullHistToggle');
+  if(el) el.checked = checked;
+  renderConvBody('thread');
+}
 let currentRole = 'agent';
 let replyMode = 'reply';
 let replyChannel = 'Chat';
@@ -403,6 +1435,24 @@ let mergeSelectedId = null;
 let bulkSelectedIds = new Set();
 
 const STATUSES = ['New','Open','Assigned','In Progress','Waiting for Customer','Hold','Escalated','Resolved','Closed','Reopened'];
+function fmtDateTime(dt) {
+  if (!dt) return '—';
+  const d = new Date(dt);
+  const date = d.toLocaleDateString([], {day:'2-digit', month:'short', year:'numeric'});
+  const time = d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  return `${date} at ${time}`;
+}
+
+function getTicketClosedDate(t) {
+  if (t.status !== 'Closed' && t.status !== 'Resolved') return null;
+  if (t.thread && t.thread.length > 0) {
+    const lastMsg = t.thread[t.thread.length - 1];
+    const lastMsgDate = lastMsg.ts ? new Date(lastMsg.ts) : combineDateTime(t.createdAt, lastMsg.time);
+    return new Date(lastMsgDate.getTime() + 2 * 60 * 60 * 1000); // 2 hours after last message
+  }
+  return new Date(t.createdAt.getTime() + 24 * 60 * 60 * 1000); // 1 day after creation
+}
+
 function statusClass(s){ return 'status-' + s.replace(/[^a-zA-Z]/g,''); }
 function chanClass(c){ return 'chan-' + c.toLowerCase(); }
 function initials(name){ return name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(); }
@@ -465,6 +1515,52 @@ function switchRailItem(el, targetKey) {
     document.getElementById('genericViewIcon').textContent = iconsMap[targetKey] || '⚙️';
     document.getElementById('genericViewTitle').textContent = titlesMap[targetKey] || 'Module Section';
     document.getElementById('genericViewDesc').textContent = descMap[targetKey] || 'Section settings and tools.';
+
+    const extraContainer = document.getElementById('genericViewExtra');
+    if (extraContainer) {
+      if (targetKey === 'reports') {
+        extraContainer.style.display = 'flex';
+        extraContainer.innerHTML = `
+          <div class="doc-card" style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:12px; padding:24px; width:340px; text-align:left; box-shadow:0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.025); transition:all 0.2s ease-in-out; display:flex; flex-direction:column; justify-content:space-between; gap:16px;">
+            <div>
+              <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+                <div style="background:#E7F1EF; color:#0F5C56; width:44px; height:44px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:bold;">
+                  📄
+                </div>
+                <div>
+                  <h4 style="margin:0; font-size:16px; font-weight:700; color:#1C2321;">BRD Document</h4>
+                  <span style="font-size:11px; color:#8A938D; font-weight:600;">Microsoft Word (DOCX)</span>
+                </div>
+              </div>
+              <p style="margin:0; font-size:13px; color:#5B655F; line-height:1.5;">Business Requirements Document outlining project objectives, stakeholders, user personas, in-scope & out-of-scope features, and SLA parameters.</p>
+            </div>
+            <a href="BRD.docx" download="BRD.docx" style="background:#0F5C56; color:#FFFFFF; text-decoration:none; text-align:center; padding:10px 16px; border-radius:8px; font-weight:600; font-size:13px; display:flex; align-items:center; justify-content:center; gap:8px; transition: background 0.15s;" onmouseover="this.style.background='#0A3E3A'" onmouseout="this.style.background='#0F5C56'">
+              📥 Download BRD.docx
+            </a>
+          </div>
+          <div class="doc-card" style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:12px; padding:24px; width:340px; text-align:left; box-shadow:0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.025); transition:all 0.2s ease-in-out; display:flex; flex-direction:column; justify-content:space-between; gap:16px;">
+            <div>
+              <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+                <div style="background:#EEF2FF; color:#4F46E5; width:44px; height:44px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:bold;">
+                  ⚙️
+                </div>
+                <div>
+                  <h4 style="margin:0; font-size:16px; font-weight:700; color:#1C2321;">FRD Document</h4>
+                  <span style="font-size:11px; color:#8A938D; font-weight:600;">Microsoft Word (DOCX)</span>
+                </div>
+              </div>
+              <p style="margin:0; font-size:13px; color:#5B655F; line-height:1.5;">Functional Requirements Document detailing technical console design, interface mock specifications, use cases, API data models, and schemas.</p>
+            </div>
+            <a href="FRD.docx" download="FRD.docx" style="background:#4F46E5; color:#FFFFFF; text-decoration:none; text-align:center; padding:10px 16px; border-radius:8px; font-weight:600; font-size:13px; display:flex; align-items:center; justify-content:center; gap:8px; transition: background 0.15s;" onmouseover="this.style.background='#3730A3'" onmouseout="this.style.background='#4F46E5'">
+              📥 Download FRD.docx
+            </a>
+          </div>
+        `;
+      } else {
+        extraContainer.style.display = 'none';
+        extraContainer.innerHTML = '';
+      }
+    }
   }
 }
 
@@ -489,11 +1585,13 @@ function switchView(name){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+name).classList.add('active');
   document.querySelectorAll('.subnav-item').forEach(n=>n.classList.remove('active'));
-  const item = document.querySelector(`.subnav-item[data-view="${name}"]`);
+  const highlightName = (name === 'kpi-report') ? 'kpi' : name;
+  const item = document.querySelector(`.subnav-item[data-view="${highlightName}"]`);
   if(item) item.classList.add('active');
   if(name==='dashboard') renderDashboard();
   if(name==='manageall') renderManageAll();
-  if(name==='team') renderTeamStatus();
+  if(name==='team') { renderTeamStatus(); renderAssignmentRules(); }
+  if(name==='kpi') filterKpi();
   if(name==='queues') renderQueues();
   if(name==='customers') renderCustomers();
 }
@@ -559,28 +1657,36 @@ function inDateRange(t, fromVal, toVal){
 }
 
 function renderTicketList(){
-  const status = document.getElementById('fStatus').value;
-  const pri = document.getElementById('fPriority').value;
-  const chan = document.getElementById('fChannel').value;
-  const queue = document.getElementById('fQueue').value;
+  const statuses = getSelectedValues('fStatus');
+  const pris = getSelectedValues('fPriority');
+  const chans = getSelectedValues('fChannel');
+  const queues = getSelectedValues('fQueue');
   const search = document.getElementById('fSearch').value.toLowerCase();
   const dateFrom = document.getElementById('fDateFrom').value;
   const dateTo = document.getElementById('fDateTo').value;
   let rows = TICKETS.filter(t=>t.status!=='Merged');
-  if(status) rows = rows.filter(t=>t.status===status);
-  if(pri) rows = rows.filter(t=>t.priority===pri);
-  if(chan) rows = rows.filter(t=>t.channel===chan);
-  if(queue) rows = rows.filter(t=>t.queue===queue);
+  if(statuses.length > 0) rows = rows.filter(t=>statuses.includes(t.status));
+  if(pris.length > 0) rows = rows.filter(t=>pris.includes(t.priority));
+  if(chans.length > 0) rows = rows.filter(t=>chans.includes(t.channel));
+  if(queues.length > 0) rows = rows.filter(t=>queues.includes(t.queue));
   if(search) rows = rows.filter(t=>t.id.toLowerCase().includes(search)||t.customer.toLowerCase().includes(search)||t.phone.toLowerCase().includes(search));
   rows = rows.filter(t=>inDateRange(t, dateFrom, dateTo));
   document.getElementById('ticketTableBody').innerHTML = rows.map(rowHtml).join('') || `<tr><td colspan="10" style="text-align:center;color:var(--ink-faint);padding:30px;">No tickets match these filters.</td></tr>`;
 }
 
-function slaLabel(mins){
-  if(mins < 0) return `<span class="sla-txt sla-breach">Breached ${Math.abs(mins)}m</span>`;
-  if(mins < 60) return `<span class="sla-txt sla-warn">${mins}m left</span>`;
+function slaLabel(mins, status){
+  const isClosedOrResolved = status === 'Resolved' || status === 'Closed';
+  if (isClosedOrResolved) {
+    return `<span style="color:var(--ink-faint); font-size:10px; font-weight:700; background:#F1F5F9; padding:2px 6px; border-radius:4px; border: 1px solid #E2E8F0;">Completed</span>`;
+  }
+  if (mins < 0) {
+    return `<span style="color:var(--red); font-size:10px; font-weight:700; background:var(--red-tint); padding:2px 6px; border-radius:4px; border: 1.5px solid rgba(220, 38, 38, 0.25); display:inline-block; animation: pulse-sla 1.5s infinite;">⚠️ -${Math.abs(mins)}m</span>`;
+  }
+  if (mins < 60) {
+    return `<span style="color:var(--amber); font-size:10px; font-weight:700; background:var(--amber-tint); padding:2px 6px; border-radius:4px; border: 1.5px solid rgba(217, 119, 6, 0.25); display:inline-block;">⏱️ ${mins}m left</span>`;
+  }
   const h = Math.floor(mins/60), m = mins%60;
-  return `<span class="sla-txt sla-ok">${h}h ${m}m left</span>`;
+  return `<span style="color:var(--teal); font-size:10px; font-weight:700; background:var(--teal-tint); padding:2px 6px; border-radius:4px; border: 1.5px solid rgba(13, 148, 136, 0.25); display:inline-block;">⏱️ ${h}h ${m}m</span>`;
 }
 
 function rowHtml(t){
@@ -597,7 +1703,7 @@ function rowHtml(t){
     <td><span class="status-badge ${statusClass(t.status)}">${t.status}</span></td>
     <td>${t.queue}</td>
     <td><span class="assignee-pill"><span class="mini-avatar">${initials(agentName(t.assignee))}</span>${agentName(t.assignee)}</span></td>
-    <td>${slaLabel(t.slaMins)}</td>
+    <td>${slaLabel(t.slaMins, t.status)}</td>
     <td style="color:var(--ink-faint);">${t.updated}</td>
   </tr>`;
 }
@@ -613,14 +1719,31 @@ function renderManageAll(){
   enhanceSearchSelect(agentSel);
   enhanceSearchSelect(statusSel);
 
-  const agent = agentSel.value, status = statusSel.value, queue = document.getElementById('mfQueue').value;
+  const agents = getSelectedValues(agentSel);
+  const statuses = getSelectedValues(statusSel);
+  const queues = getSelectedValues('mfQueue');
   const dateFrom = document.getElementById('mfDateFrom').value;
   const dateTo = document.getElementById('mfDateTo').value;
   let rows = TICKETS.slice();
-  if(agent) rows = rows.filter(t=>t.assignee===agent);
-  if(status) rows = rows.filter(t=>t.status===status);
-  if(queue) rows = rows.filter(t=>t.queue===queue);
-  rows = rows.filter(t=>inDateRange(t, dateFrom, dateTo));
+  
+  const bannerPlaceholder = document.getElementById('manageAllSlaBannerPlaceholder');
+  if (managerFilterSlaBreachedOnly) {
+    rows = rows.filter(t => t.slaMins < 0 && t.status !== 'Resolved' && t.status !== 'Closed');
+    if (bannerPlaceholder) {
+      bannerPlaceholder.innerHTML = `
+        <div style="background:var(--red-tint); border:1px solid rgba(181, 69, 59, 0.3); color:var(--red); padding:10px 14px; border-radius:6px; margin-bottom:12px; font-size:13.5px; font-weight:700; display:flex; align-items:center; justify-content:space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+          <span>⚠️ Showing SLA Breached Tickets Only (Manager View)</span>
+          <button onclick="clearManagerSlaBreachedFilter()" style="background:none; border:none; color:var(--red); text-decoration:underline; font-weight:700; cursor:pointer; font-size:12px; margin-left:auto; padding:0;">Show All</button>
+        </div>
+      `;
+    }
+  } else {
+    if (bannerPlaceholder) bannerPlaceholder.innerHTML = '';
+    if(agents.length > 0) rows = rows.filter(t=>agents.includes(t.assignee));
+    if(statuses.length > 0) rows = rows.filter(t=>statuses.includes(t.status));
+    if(queues.length > 0) rows = rows.filter(t=>queues.includes(t.queue));
+    rows = rows.filter(t=>inDateRange(t, dateFrom, dateTo));
+  }
   document.getElementById('manageAllBody').innerHTML = rows.map(t=>{
     const base = rowHtml(t);
     return base.replace('<input type="checkbox" class="checkbox">', `<input type="checkbox" class="checkbox bulk-cb" data-id="${t.id}" onchange="toggleBulk('${t.id}',this.checked)">`);
@@ -712,26 +1835,34 @@ function submitBulkReassign(){
    QUEUES
 ========================================================= */
 function renderQueues(){
-  const queues = ['Customer Support','Collections','Grievance'];
-  document.getElementById('queueCards').innerHTML = queues.map(q=>{
-    const items = TICKETS.filter(t=>t.queue===q && t.status!=='Merged');
-    const breached = items.filter(t=>t.slaMins<0).length;
-    return `<div class="chart-card">
-      <h3>${q}</h3>
-      <div style="display:flex; gap:22px;">
-        <div><div style="font-size:22px;font-weight:800;">${items.length}</div><div style="font-size:11.5px;color:var(--ink-faint);">Open tickets</div></div>
-        <div><div style="font-size:22px;font-weight:800;color:${breached?'var(--red)':'var(--green)'};">${breached}</div><div style="font-size:11.5px;color:var(--ink-faint);">SLA breached</div></div>
-      </div>
-    </div>`;
-  }).join('');
+  if (typeof updateBreakdownBanner === 'function') updateBreakdownBanner('q', []);
+  const queues = ['Support','Collection','Legal Related','Grievance'];
+  const cards = document.getElementById('queueCards');
+  if (cards) {
+    cards.innerHTML = queues.map(q=>{
+      const items = TICKETS.filter(t=>(t.department===q || t.queue===q) && t.status!=='Merged' && t.status!=='Closed' && t.status!=='Resolved');
+      const breached = items.filter(t=>t.slaMins<0).length;
+      const maxCap = DEPT_CAPACITIES[q] || 50;
+      return `<div class="chart-card">
+        <h3>${q}</h3>
+        <div style="display:flex; gap:22px;">
+          <div><div style="font-size:22px;font-weight:800;">${items.length} <span style="font-size:14px;font-weight:600;color:var(--ink-faint);">/ ${maxCap}</span></div><div style="font-size:11.5px;color:var(--ink-faint);">Active tickets</div></div>
+          <div><div style="font-size:22px;font-weight:800;color:${breached?'var(--red)':'var(--green)'};">${breached}</div><div style="font-size:11.5px;color:var(--ink-faint);">SLA breached</div></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
   const tbody = document.querySelector('#queuePerfTable tbody');
-  tbody.innerHTML = queues.map(q=>{
-    const items = TICKETS.filter(t=>t.queue===q && t.status!=='Merged');
-    const breached = items.filter(t=>t.slaMins<0).length;
-    const load = Math.min(100, Math.round(items.length/12*100));
-    return `<tr><td><strong>${q}</strong></td><td>${items.length}</td><td style="color:${breached?'var(--red)':'var(--ink-soft)'};">${breached}</td><td>${18+Math.floor(Math.random()*10)}m</td>
-      <td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:${load}%; background:${load>70?'var(--amber)':'var(--teal)'};"></div></div><span>${load}%</span></div></td></tr>`;
-  }).join('');
+  if (tbody) {
+    tbody.innerHTML = queues.map(q=>{
+      const items = TICKETS.filter(t=>(t.department===q || t.queue===q) && t.status!=='Merged' && t.status!=='Closed' && t.status!=='Resolved');
+      const breached = items.filter(t=>t.slaMins<0).length;
+      const maxCap = DEPT_CAPACITIES[q] || 50;
+      const load = Math.min(100, Math.round(items.length/maxCap*100));
+      return `<tr><td><strong>${q}</strong></td><td><b>${items.length}</b> <span style="color:var(--ink-faint); font-size:11px;">/ ${maxCap}</span></td><td style="color:${breached?'var(--red)':'var(--ink-soft)'};">${breached}</td><td>${18+Math.floor(Math.random()*10)}m</td>
+        <td><div class="bar-cell"><div class="bar-track"><div class="bar-fill" style="width:${load}%; background:${load>80?'var(--red)':load>50?'var(--amber)':'var(--teal)'};"></div></div><span>${load}%</span></div></td></tr>`;
+    }).join('');
+  }
 }
 
 /* =========================================================
@@ -765,12 +1896,77 @@ function openTicket(id){
   renderDetail();
 }
 function renderDetailList(){
-  document.getElementById('detailList').innerHTML = TICKETS.filter(t=>t.status!=='Merged').map(t=>`
-    <div class="dl-item ${t.id===selectedTicketId?'active':''}" onclick="openTicket('${t.id}')">
-      <div class="dl-id">${t.id} · <span class="status-badge ${statusClass(t.status)}" style="font-size:9.5px;padding:1px 6px;">${t.status}</span></div>
-      <div class="dl-subj">${t.subject}</div>
-      <div class="dl-cust">${t.customer} · ${t.channel}</div>
-    </div>`).join('');
+  const container = document.getElementById('detailListItems') || document.getElementById('detailList');
+  if(!container) return;
+
+  let filtered = TICKETS.filter(t => t.status !== 'Merged');
+  
+  let bannerHtml = '';
+  const bannerPlaceholder = document.getElementById('dlSlaBannerPlaceholder');
+  if (filterSlaBreachedOnly) {
+    filtered = filtered.filter(t => t.slaMins < 0 && t.status !== 'Resolved' && t.status !== 'Closed');
+    bannerHtml = `
+      <div style="background:var(--red-tint); border:1px solid rgba(181, 69, 59, 0.3); color:var(--red); padding:8px 12px; border-radius:6px; margin: 8px 10px 4px 10px; font-size:11.5px; font-weight:700; display:flex; align-items:center; justify-content:space-between; gap:6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <span>⚠️ SLA Breached Only</span>
+        <button onclick="clearSlaBreachedFilter()" style="background:none; border:none; color:var(--red); text-decoration:underline; font-weight:700; cursor:pointer; font-size:11px; margin-left:auto; padding:0;">Show All</button>
+      </div>
+    `;
+  }
+  if (bannerPlaceholder) {
+    bannerPlaceholder.innerHTML = bannerHtml;
+  }
+
+  // If filterSlaBreachedOnly is false, apply normal drop-down filters
+  if (!filterSlaBreachedOnly) {
+    const fStatusEl = document.getElementById('dlFilterStatus');
+    const fChannelEl = document.getElementById('dlFilterChannel');
+    const fPriorityEl = document.getElementById('dlFilterPriority');
+
+    const statusVal = fStatusEl ? fStatusEl.value : 'Reopened';
+    const channelVal = fChannelEl ? fChannelEl.value : '';
+    const priorityVal = fPriorityEl ? fPriorityEl.value : '';
+
+    if(statusVal) filtered = filtered.filter(t => t.status === statusVal);
+    if(channelVal) filtered = filtered.filter(t => t.channel === channelVal);
+    if(priorityVal) filtered = filtered.filter(t => t.priority === priorityVal);
+  }
+
+  // Apply SLA sorting if active
+  if (slaSortMode === 'asc') {
+    filtered.sort((a, b) => a.slaMins - b.slaMins);
+  } else if (slaSortMode === 'desc') {
+    filtered.sort((a, b) => b.slaMins - a.slaMins);
+  }
+
+  // Update header SLA warning badge count
+  updateHeaderSlaBadge();
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div style="padding:20px; text-align:center; color:var(--ink-faint); font-size:12px;">No tickets match filters</div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(t=>{
+    const hasUnread = t.thread && t.thread.some(m => m.dir === 'in' && m.dir !== 'note' && m.unread);
+    const unreadDot = hasUnread ? `<span class="unread-dot-badge" style="background:#2563EB; width:8px; height:8px; border-radius:50%; display:inline-block; margin-left:6px; vertical-align:middle;" title="Unread messages"></span>` : '';
+    
+    const isClosedOrResolved = t.status === 'Resolved' || t.status === 'Closed';
+    let slaBadge = '';
+    if (!isClosedOrResolved) {
+      if (t.slaMins < 0) {
+        slaBadge = `<span class="sla-badge-mini" style="background:var(--red-tint); color:var(--red); border:1.5px solid rgba(220, 38, 38, 0.25); font-size:8px; padding:1px 4px; border-radius:3px; font-weight:700; margin-left:4px; vertical-align:middle; display:inline-block; animation: pulse-sla 1.5s infinite;">⚠️ -${Math.abs(t.slaMins)}m</span>`;
+      } else {
+        slaBadge = `<span class="sla-badge-mini" style="background:var(--teal-tint); color:var(--teal); border:1.5px solid rgba(13, 148, 136, 0.25); font-size:8px; padding:1px 4px; border-radius:3px; font-weight:700; margin-left:4px; vertical-align:middle; display:inline-block;">⏱️ ${t.slaMins}m</span>`;
+      }
+    }
+
+    return `
+      <div class="dl-item ${t.id===selectedTicketId?'active':''}" onclick="openTicket('${t.id}')">
+        <div class="dl-id">${t.id} · <span class="status-badge ${statusClass(t.status)}" style="font-size:9.5px;padding:1px 6px;">${t.status}</span>${unreadDot}${slaBadge}</div>
+        <div class="dl-subj">${t.subject}</div>
+        <div class="dl-cust">${t.customer} · ${t.channel}</div>
+      </div>`;
+  }).join('');
 }
 function switchTab(tab){
   document.querySelectorAll('.conv-tab').forEach(x=>x.classList.remove('active'));
@@ -782,11 +1978,68 @@ function renderDetail(){
   const t = TICKETS.find(x=>x.id===selectedTicketId);
   if(!t) return;
   document.getElementById('dTitle').textContent = t.subject;
-  document.getElementById('dMeta').textContent = `${t.id} · ${t.customer} · ${t.phone} · opened via ${t.channel}`;
+  const label = t.creationType === 'manual' ? 'MANUALLY CREATED' : 'SYSTEM GENERATED';
+  const customerPhotoUrl = getCustomerPhoto(t.customer);
+
+  const avatarImg = document.getElementById('headerCustomerAvatar');
+  const nameEl = document.getElementById('headerCustomerName');
+  const phoneEl = document.getElementById('headerCustomerPhone');
+  const chanEl = document.getElementById('headerTicketChannel');
+  const idEl = document.getElementById('headerTicketId');
+  const creationBadge = document.getElementById('headerCreationBadge');
+
+  if (avatarImg) {
+    avatarImg.src = customerPhotoUrl;
+    avatarImg.onclick = () => openCustomerProfile(t.customer);
+  }
+  if (nameEl) {
+    nameEl.textContent = t.customer;
+    nameEl.onclick = () => openCustomerProfile(t.customer);
+  }
+  if (phoneEl) {
+    phoneEl.textContent = t.phone;
+  }
+  if (chanEl) {
+    chanEl.textContent = `opened via ${t.channel}`;
+  }
+  if (idEl) {
+    idEl.textContent = t.id;
+  }
+  if (creationBadge) {
+    creationBadge.textContent = label;
+    creationBadge.className = `creation-badge badge-${t.creationType || 'system'}`;
+    creationBadge.style.fontSize = '8.5px';
+    creationBadge.style.fontWeight = '800';
+    creationBadge.style.padding = '2px 6px';
+    creationBadge.style.borderRadius = '4px';
+  }
+  
+  // Render NBFC partner, source, and SLA Breached badge dynamically
+  let badgesHtml = '';
+  if (t.nbfcPartner) {
+    badgesHtml += `<span class="nbfc-partner-badge">NBFC partner: ${t.nbfcPartner}</span>`;
+  } else {
+    badgesHtml += `<span class="nbfc-partner-badge">NBFC partner: Chinmay</span>`;
+  }
+  if (t.source) {
+    badgesHtml += `<span class="nbfc-source-badge">Source: ${t.source}</span>`;
+  } else {
+    badgesHtml += `<span class="nbfc-source-badge">Source: Chinmay</span>`;
+  }
+  if (t.slaMins < 0 && t.status !== 'Resolved' && t.status !== 'Closed') {
+    badgesHtml += `<span class="sla-breached-badge" style="background:var(--red); color:#fff; font-weight:700; font-size:9.5px; padding:3px 8px; border-radius:4px; animation: pulse-sla 1.5s infinite;">⚠️ SLA BREACHED</span>`;
+  }
+  const badgeContainer = document.getElementById('headerMetaBadges');
+  if (badgeContainer) badgeContainer.innerHTML = badgesHtml;
+
   const metaBox = document.getElementById('channelMetaValues');
   if(metaBox){
     metaBox.innerHTML = `<span>NBFC partner: ${t.nbfcPartner || '—'}</span><span>Source: ${t.source || '—'}</span>`;
   }
+  activeConvChannels = ['Email', 'Chat', 'WhatsApp', 'SMS'];
+  updateConvChannelUI();
+  const fht = document.getElementById('fullHistToggle');
+  if (fht) fht.checked = false;
   renderConvBody('thread');
   document.querySelectorAll('.conv-tab').forEach(x=>x.classList.remove('active'));
   document.querySelector('.conv-tab[data-tab="thread"]').classList.add('active');
@@ -944,56 +2197,377 @@ function renderConvBody(tab){
     }).join('')}</ul>`;
     return;
   }
-  body.innerHTML = t.thread.map((m,idx)=>{
-    if(m.call) return `<div class="call-log">📞 <b>${m.callMeta ? 'Outbound call' : 'Call recorded & summarized'}</b> — ${msgTimestamp(t,m)}
-      ${m.callMeta ? `<div class="call-log-meta">Duration: ${m.callMeta.duration} · Agent: ${m.callMeta.agent} · Status: ${m.callMeta.status}</div>
-      <div class="call-audio-player" title="Demo recording — playback illustrative only"><span class="cap-play">▶</span><span class="cap-bar"></span><span>${m.callMeta.duration}</span></div>` : ''}
-      <br>"${m.text}"</div>`;
-    const cls = m.dir==='out' ? `msg out ${chanOutClass(m.chan)}` : (m.dir==='note' ? 'msg note in' : 'msg in');
-    const av = m.dir==='out' ? agentName(t.assignee).split(' ').map(w=>w[0]).join('') : t.customer.split(' ').map(w=>w[0]).join('');
+
+  if(tab==='unified'){
+    const custTickets = TICKETS.filter(x => x.customer.toLowerCase() === t.customer.toLowerCase());
+    let allMessages = [];
+    custTickets.forEach(ticket => {
+      ticket.thread.forEach((m, idx) => {
+        const msgDate = m.ts ? new Date(m.ts) : combineDateTime(ticket.createdAt, m.time);
+        allMessages.push({
+          msg: m,
+          idx: idx,
+          date: msgDate,
+          ticketId: ticket.id,
+          ticketSubject: ticket.subject,
+          ticketStatus: ticket.status
+        });
+      });
+    });
+
+    allMessages.sort((a, b) => a.date - b.date);
+
+    if (allMessages.length === 0) {
+      body.innerHTML = `<div style="text-align:center; padding:40px; color:var(--ink-faint); font-size:13px;">📭 No conversation history found for this customer.</div>`;
+      return;
+    }
+
+    const totalTickets = custTickets.length;
+    let header = `<div style="background:linear-gradient(135deg,#0D9488 0%,#0E7490 100%); color:#fff; padding:12px 18px; border-radius:8px; margin-bottom:18px; font-size:12px; display:flex; justify-content:space-between; align-items:center;">
+      <div><b>📋 Customer Omnichannel Journey</b><br><span style="opacity:0.85;">${t.customer} · ${totalTickets} ticket${totalTickets>1?'s':''} · All channels combined</span></div>
+      <div style="font-size:11px; opacity:0.75;">Sorted chronologically</div>
+    </div>`;
+
+    let lastDateLabel = null;
+    body.innerHTML = header + allMessages.map(item => {
+      const m = item.msg;
+      const ticketId = item.ticketId;
+      const ticketStatus = item.ticketStatus;
+      const ticketSubject = item.ticketSubject;
+
+      const currentDateLabel = getDateLabel(item.date);
+      let dateDividerHtml = '';
+      if (currentDateLabel !== lastDateLabel) {
+        lastDateLabel = currentDateLabel;
+        dateDividerHtml = `<div class="date-divider"><span>${currentDateLabel}</span></div>`;
+      }
+
+      const ticketContextHtml = `
+        <div style="font-size: 10px; color: var(--ink-soft); margin-bottom: 4px; padding: 2px 6px; background: #F1F5F9; border-radius: 4px; display: inline-flex; align-items: center; gap: 6px;">
+          <span>Ticket: <b>${ticketId}</b> (${ticketStatus})</span>
+          <span style="color: var(--ink-faint);">·</span>
+          <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">${ticketSubject}</span>
+        </div>
+      `;
+
+      if(m.call) return dateDividerHtml + `<div class="call-log">
+        ${ticketContextHtml}<br>
+        📞 <b>${m.callMeta ? 'Outbound call' : 'Call recorded & summarized'}</b> — ${msgTimestamp(t, m)}
+        ${m.callMeta ? `<div class="call-log-meta">Duration: ${m.callMeta.duration} · Agent: ${m.callMeta.agent} · Status: ${m.callMeta.status}</div>
+        <div class="call-audio-player" title="Demo recording — playback illustrative only"><span class="cap-play">▶</span><span class="cap-bar"></span><span>${m.callMeta.duration}</span></div>` : ''}
+        <br>"${m.text}"
+      </div>`;
+
+      const isUnread = m.dir === 'in' && m.dir !== 'note' && m.unread;
+      const cls = m.dir==='out' ? `msg out ${chanOutClass(m.chan)}` : (m.dir==='note' ? 'msg note out' : `msg in${isUnread ? ' unread-msg' : ''}`);
+      const av = (m.dir==='out' || m.dir==='note') ? agentName(t.assignee).split(' ').map(w=>w[0]).join('') : t.customer.split(' ').map(w=>w[0]).join('');
+      const isFailed = m.dir==='out' && m.status==='failed';
+      const tsLabel = msgTimestamp(t, m);
+      const ticks = m.dir==='out' ? statusTicks(m.status||'delivered') : '';
+      const errorBlock = isFailed ? `<div class="msg-error">⚠ ${m.error||failureReason(m.chan)}</div>` : '';
+
+      if(m.dir!=='note' && m.chan==='Email'){
+        const isDraft = !!m.draft || m.status === 'draft';
+        const draftBadge = isDraft ? `<div class="ec-head" style="color:var(--amber-dark);">✉ Draft email</div>` : `<div class="ec-head">✉ ${m.dir==='out'?'Email sent':'System email'}</div>`;
+        const cardInner = `<div class="email-card" ${isDraft ? 'style="border-left-color:var(--amber-dark); background:var(--amber-tint);"' : ''}>
+              ${ticketContextHtml}
+              ${draftBadge}
+              <div class="ec-subject-lbl">Subject</div>
+              <div class="ec-subject">${m.subject || t.subject}</div>
+            </div>`;
+        return dateDividerHtml + `<div class="${cls}">
+          <div class="mavatar">${av}</div>
+          <div>
+            ${isFailed ? `<div class="msg-row-fail"><span class="fail-badge">!</span>${cardInner}</div>` : cardInner}
+            <div class="meta-line"><span class="chan-tag ${chanTagClass(m.chan)}">${isDraft ? 'Draft' : m.chan}</span>${tsLabel}${ticks}</div>
+            ${errorBlock}
+          </div>
+        </div>`;
+      }
+
+      const bubbleInner = `<div class="bubble">${ticketContextHtml}<div>${m.text}</div></div>`;
+      return dateDividerHtml + `<div class="${cls}">
+        <div class="mavatar">${av}</div>
+        <div>
+          ${isFailed ? `<div class="msg-row-fail"><span class="fail-badge">!</span>${bubbleInner}</div>` : bubbleInner}
+          <div class="meta-line"><span class="chan-tag ${chanTagClass(m.dir==='note'?'Internal':m.chan)}">${m.dir==='note'?'Internal note':m.chan}</span>${tsLabel}${ticks}</div>
+          ${errorBlock}
+        </div>
+      </div>`;
+    }).join('');
+    body.scrollTop = body.scrollHeight;
+    return;
+  }
+
+  const fullHistToggle = document.getElementById('fullHistToggle');
+  const showFullHist = fullHistToggle ? fullHistToggle.checked : false;
+
+  let itemsToRender = [];
+
+  if (showFullHist) {
+    // Gather all tickets of the customer
+    const custTickets = TICKETS.filter(x => x.customer.toLowerCase() === t.customer.toLowerCase());
+    
+    custTickets.forEach(ticket => {
+      // 1. Created event
+      itemsToRender.push({
+        isEvent: true,
+        type: 'created',
+        date: new Date(ticket.createdAt),
+        ticketId: ticket.id,
+        ticketObj: ticket
+      });
+
+      // 2. Closed/Resolved event (if resolved or closed)
+      if (ticket.status === 'Resolved' || ticket.status === 'Closed') {
+        itemsToRender.push({
+          isEvent: true,
+          type: 'closed',
+          date: getTicketClosedDate(ticket),
+          ticketId: ticket.id,
+          ticketObj: ticket
+        });
+      }
+
+      // 3. Thread messages
+      ticket.thread.forEach((m, idx) => {
+        const isInternalOrCall = m.dir === 'note' || m.chan === 'Call' || m.chan === 'Internal';
+        if (!isInternalOrCall && !activeConvChannels.includes(m.chan)) {
+          return;
+        }
+        const msgDate = m.ts ? new Date(m.ts) : combineDateTime(ticket.createdAt, m.time);
+        itemsToRender.push({
+          isEvent: false,
+          msg: m,
+          idx: idx,
+          date: msgDate,
+          ticketId: ticket.id,
+          ticketSubject: ticket.subject,
+          ticketStatus: ticket.status,
+          ticketObj: ticket
+        });
+      });
+    });
+
+    // Sort chronologically by date.
+    // If dates are identical, sort: created event (0) < message (1) < closed event (2)
+    itemsToRender.sort((a, b) => {
+      const aTime = a.date.getTime();
+      const bTime = b.date.getTime();
+      if (aTime !== bTime) {
+        return aTime - bTime;
+      }
+      const aPrio = a.isEvent && a.type === 'created' ? 0 : (a.isEvent && a.type === 'closed' ? 2 : 1);
+      const bPrio = b.isEvent && b.type === 'created' ? 0 : (b.isEvent && b.type === 'closed' ? 2 : 1);
+      return aPrio - bPrio;
+    });
+
+  } else {
+    // Normal view: only current ticket
+    // 1. Created event
+    itemsToRender.push({
+      isEvent: true,
+      type: 'created',
+      date: new Date(t.createdAt),
+      ticketId: t.id,
+      ticketObj: t
+    });
+
+    // 2. Closed/Resolved event (if resolved or closed)
+    if (t.status === 'Resolved' || t.status === 'Closed') {
+      itemsToRender.push({
+        isEvent: true,
+        type: 'closed',
+        date: getTicketClosedDate(t),
+        ticketId: t.id,
+        ticketObj: t
+      });
+    }
+
+    // 3. Current ticket's messages
+    t.thread.forEach((m, idx) => {
+      const isInternalOrCall = m.dir === 'note' || m.chan === 'Call' || m.chan === 'Internal';
+      if (!isInternalOrCall && !activeConvChannels.includes(m.chan)) {
+        return;
+      }
+      const msgDate = m.ts ? new Date(m.ts) : combineDateTime(t.createdAt, m.time);
+      itemsToRender.push({
+        isEvent: false,
+        msg: m,
+        idx: idx,
+        date: msgDate,
+        ticketId: t.id,
+        ticketSubject: t.subject,
+        ticketStatus: t.status,
+        ticketObj: t
+      });
+    });
+
+    // Sort chronologically by date
+    itemsToRender.sort((a, b) => {
+      const aTime = a.date.getTime();
+      const bTime = b.date.getTime();
+      if (aTime !== bTime) {
+        return aTime - bTime;
+      }
+      const aPrio = a.isEvent && a.type === 'created' ? 0 : (a.isEvent && a.type === 'closed' ? 2 : 1);
+      const bPrio = b.isEvent && b.type === 'created' ? 0 : (b.isEvent && b.type === 'closed' ? 2 : 1);
+      return aPrio - bPrio;
+    });
+  }
+
+  let lastDateLabel = null;
+  let html = '';
+
+  html += itemsToRender.map((item, idx) => {
+    const currentDateLabel = getDateLabel(item.date);
+    let dateDividerHtml = '';
+    if (currentDateLabel !== lastDateLabel) {
+      lastDateLabel = currentDateLabel;
+      dateDividerHtml = `<div class="date-divider"><span>${currentDateLabel}</span></div>`;
+    }
+
+    if (item.isEvent) {
+      const isCurrent = item.ticketId === selectedTicketId;
+      const badgeStyle = isCurrent 
+        ? 'border: 1.5px solid var(--teal); background: var(--teal-tint); color: var(--teal-dark); font-weight: 700;' 
+        : 'border: 1px solid var(--line); background: var(--panel); color: var(--ink-soft);';
+      
+      if (item.type === 'created') {
+        return dateDividerHtml + `<div class="system-event-divider" style="margin: 20px 0 12px; display: flex; justify-content: center;">
+          <span onclick="openTicket('${item.ticketId}')" style="cursor: pointer; padding: 4px 12px; border-radius: 20px; font-size: 11px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.2s; ${badgeStyle}">
+            🚀 Ticket Created · <b style="text-decoration: underline;">${item.ticketId}</b> · ${fmtDateTime(item.date)} via ${item.ticketObj.channel}
+          </span>
+        </div>`;
+      } else if (item.type === 'closed') {
+        return dateDividerHtml + `<div class="system-event-divider" style="margin: 12px 0 20px; display: flex; justify-content: center;">
+          <span onclick="openTicket('${item.ticketId}')" style="cursor: pointer; padding: 4px 12px; border-radius: 20px; font-size: 11px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.2s; ${badgeStyle}">
+            ✅ Ticket ${item.ticketObj.status} · <b style="text-decoration: underline;">${item.ticketId}</b> · ${fmtDateTime(item.date)}
+          </span>
+        </div>`;
+      }
+      return '';
+    }
+
+    const m = item.msg;
+    const tId = item.ticketId;
+    const isUnread = m.dir === 'in' && m.dir !== 'note' && m.unread;
+    const readToggle = (m.dir === 'in' && m.dir !== 'note') 
+      ? (m.unread 
+        ? `<span class="msg-read-toggle" onclick="toggleMessageReadState('${tId}', ${item.idx})" style="color:var(--blue); font-size:10.5px; cursor:pointer; margin-left:8px; font-weight:700;">🔵 Mark read</span>` 
+        : `<span class="msg-read-toggle" onclick="toggleMessageReadState('${tId}', ${item.idx})" style="color:var(--ink-faint); font-size:10.5px; cursor:pointer; margin-left:8px;">Mark unread</span>`)
+      : '';
+
+    if (m.call) {
+      const ticketContextHtml = showFullHist 
+        ? `<div style="font-size: 10px; color: var(--ink-soft); margin-bottom: 4px; padding: 2px 6px; background: #F1F5F9; border-radius: 4px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;" onclick="openTicket('${tId}')">Ticket: <b>${tId}</b></div><br>` 
+        : '';
+      return dateDividerHtml + `<div class="call-log">
+        ${ticketContextHtml}
+        📞 <b>${m.callMeta ? 'Outbound call' : 'Call recorded & summarized'}</b> — ${msgTimestamp(item.ticketObj, m)}
+        ${m.callMeta ? `<div class="call-log-meta">Duration: ${m.callMeta.duration} · Agent: ${m.callMeta.agent} · Status: ${m.callMeta.status}</div>
+        <div class="call-audio-player" title="Demo recording — playback illustrative only"><span class="cap-play">▶</span><span class="cap-bar"></span><span>${m.callMeta.duration}</span></div>` : ''}
+        <br>"${formatMessageText(m.text)}"
+      </div>`;
+    }
+
+    const isAgent = m.dir === 'out' || m.dir === 'note';
+    const cls = m.dir==='out' ? `msg out ${chanOutClass(m.chan)}` : (m.dir==='note' ? 'msg note out' : `msg in${isUnread ? ' unread-msg' : ''}`);
+    const av = isAgent ? agentName(item.ticketObj.assignee).split(' ').map(w=>w[0]).join('') : item.ticketObj.customer.split(' ').map(w=>w[0]).join('');
     const isFailed = m.dir==='out' && m.status==='failed';
-    const tsLabel = msgTimestamp(t, m);
+    const tsLabel = msgTimestamp(item.ticketObj, m);
     const ticks = m.dir==='out' ? statusTicks(m.status||'delivered') : '';
-    const errorBlock = isFailed ? `<div class="msg-error">⚠ ${m.error||failureReason(m.chan)} <button class="retry-link" onclick="retryMessage('${t.id}', ${idx})">Retry</button></div>` : '';
+    const errorBlock = isFailed ? `<div class="msg-error">⚠ ${m.error||failureReason(m.chan)} <button class="retry-link" onclick="retryMessage('${tId}', ${item.idx})">Retry</button></div>` : '';
+
+    let attachHtml = '';
+    if(m.attachments && m.attachments.length > 0){
+      attachHtml = `<div class="msg-attachments-list">
+        ${m.attachments.map(att => `
+          <div class="msg-attachment-item">
+            <div class="att-left">
+              <span class="att-file-icon">${getFileIcon(att.name)}</span>
+              <div class="att-meta">
+                <div class="att-name" title="${att.name}">${att.name}</div>
+                <div class="att-size">${att.size || '180 KB'}</div>
+              </div>
+            </div>
+            <div class="att-actions">
+              <button type="button" class="att-btn att-preview-btn" onclick="previewAttachment('${att.name}', '${att.url || ''}', '${att.type || ''}')">👁 Preview</button>
+              <button type="button" class="att-btn att-download-btn" onclick="downloadAttachment('${att.name}', '${att.url || ''}')">📥 Download</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>`;
+    }
+
+    // Add a clean interactive ticket badge next to channel tag if showFullHist is true
+    const ticketTag = showFullHist 
+      ? `<span onclick="openTicket('${tId}')" style="cursor: pointer; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px; margin-right: 6px; display: inline-flex; align-items: center; border: 1px solid ${tId === selectedTicketId ? 'var(--teal)' : 'var(--line)'}; background: ${tId === selectedTicketId ? 'var(--teal-tint)' : 'var(--panel)'}; color: ${tId === selectedTicketId ? 'var(--teal-dark)' : 'var(--ink-soft)'};" title="Click to view ticket details">${tId}</span>`
+      : '';
 
     if(m.dir!=='note' && m.chan==='Email'){
-      const isDraft = !!m.draft || m.status === 'draft';
-      const draftBadge = isDraft ? `<div class="ec-head" style="color:var(--amber-dark);">✉ Draft email</div>` : `<div class="ec-head">✉ ${m.dir==='out'?'Email sent':'System email'}</div>`;
-      const draftActions = isDraft
-        ? `<div class="ec-actions">
-            <button class="ec-link" onclick="viewEmail('${t.id}', ${idx})">👁 View</button>
-            <button class="ec-link" onclick="openDraftForEdit('${t.id}', ${idx})">✎ Edit draft</button>
-          </div>`
-        : `<div class="ec-actions">
-            <button class="ec-link" onclick="viewEmail('${t.id}', ${idx})">👁 View Email</button>
-            <button class="ec-link" onclick="openEmailComposer()">↩ Reply</button>
-          </div>`;
-      const cardInner = `<div class="email-card" ${isDraft ? 'style="border-left-color:var(--amber-dark); background:var(--amber-tint);"' : ''}>
-            ${draftBadge}
+      const cardInner = `<div class="email-card">
+            <div class="ec-head">✉ ${m.dir==='out'?'Email sent':'System email'}</div>
             <div class="ec-subject-lbl">Subject</div>
-            <div class="ec-subject">${m.subject || t.subject}</div>
-            ${isDraft ? '<div class="ec-subject-lbl" style="margin-bottom:7px; color:var(--amber-dark);">Not sent yet</div>' : ''}
-            ${draftActions}
+            <div class="ec-subject">${m.subject || item.ticketObj.subject}</div>
+            <div class="ec-actions">
+              <button class="ec-link" onclick="viewEmail('${tId}', ${item.idx})">👁 View Email</button>
+              <button class="ec-link" onclick="openEmailComposer()">↩ Reply</button>
+            </div>
           </div>`;
-      return `<div class="${cls}">
+      return dateDividerHtml + `<div class="${cls}">
         <div class="mavatar">${av}</div>
         <div>
           ${isFailed ? `<div class="msg-row-fail"><span class="fail-badge" title="${m.error||failureReason(m.chan)}">!</span>${cardInner}</div>` : cardInner}
-          <div class="meta-line"><span class="chan-tag ${chanTagClass(m.chan)}">${isDraft ? 'Draft' : m.chan}</span>${tsLabel}${ticks}</div>
+          ${attachHtml}
+          <div class="meta-line">${ticketTag}<span class="chan-tag ${chanTagClass(m.chan)}">${m.chan}</span>${tsLabel}${ticks}${readToggle}</div>
           ${errorBlock}
         </div>
       </div>`;
     }
-    const bubbleInner = `<div class="bubble">${m.text}</div>`;
-    return `<div class="${cls}">
+
+    const bubbleInner = `<div class="bubble">${formatMessageText(m.text)}</div>`;
+    return dateDividerHtml + `<div class="${cls}">
       <div class="mavatar">${av}</div>
       <div>
         ${isFailed ? `<div class="msg-row-fail"><span class="fail-badge" title="${m.error||failureReason(m.chan)}">!</span>${bubbleInner}</div>` : bubbleInner}
-        <div class="meta-line"><span class="chan-tag ${chanTagClass(m.dir==='note'?'Internal':m.chan)}">${m.dir==='note'?'Internal note':m.chan}</span>${tsLabel}${ticks}</div>
+        ${attachHtml}
+        <div class="meta-line">${ticketTag}<span class="chan-tag ${chanTagClass(m.dir==='note'?'Internal':m.chan)}">${m.dir==='note'?'Internal note':m.chan}</span>${tsLabel}${ticks}${readToggle}</div>
         ${errorBlock}
       </div>
     </div>`;
   }).join('');
+
+  if(t.emailDraft && activeConvChannels.includes('Email') && !showFullHist){
+    const d = t.emailDraft;
+    const bodySnippet = d.bodyHtml ? d.bodyHtml.replace(/<[^>]+>/g, '').trim().slice(0, 150) : '(Empty body)';
+    const attCount = d.attachments ? d.attachments.length : 0;
+    const draftCardHtml = `
+      <div class="msg out" style="margin-bottom:16px;">
+        <div class="mavatar" style="background:#D98E3F;">📝</div>
+        <div style="flex:1; max-width:480px;">
+          <div class="email-draft-card">
+            <div class="ed-head">
+              <span>📝 Draft Email Saved</span>
+              <span class="draft-badge">DRAFT</span>
+            </div>
+            <div class="ed-sub-lbl">Subject</div>
+            <div class="ed-subject">${d.subject || '(No subject)'}</div>
+            <div class="ed-body-preview">${bodySnippet}${bodySnippet.length>=150?'…':''}</div>
+            ${attCount ? `<div class="ed-att-count">📎 ${attCount} attachment(s) included</div>` : ''}
+            <div class="ed-actions">
+              <button type="button" class="btn btn-primary btn-sm" onclick="openEmailComposer()">✏ Edit Draft</button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="discardTicketDraft()">🗑 Discard Draft</button>
+            </div>
+          </div>
+          <div class="meta-line"><span class="chan-tag chan-tag-email">Draft Email</span>Saved in draft — click Edit to review &amp; send</div>
+        </div>
+      </div>
+    `;
+    html += draftCardHtml;
+  }
+
+  body.innerHTML = html;
   body.scrollTop = body.scrollHeight;
 }
 function viewEmail(ticketId, msgIndex){
@@ -1410,7 +2984,7 @@ function normalizeActivityEntry(ticket, entry, index){
 
 function getRelatedTicketsForCustomer(ticket){
   if(!ticket) return [];
-  return TICKETS.filter(item => item.customer === ticket.customer && item.id !== ticket.id && item.status !== 'Closed' && item.status !== 'Merged')
+  return TICKETS.filter(item => item.customer === ticket.customer && item.id !== ticket.id && item.status !== 'Closed' && item.status !== 'Resolved' && item.status !== 'Merged')
     .sort((a,b) => new Date(a.createdAt) - new Date(b.createdAt));
 }
 
@@ -1467,6 +3041,10 @@ function renderProps(t){
     <div class="sla-box">
       <div>${t.priority} priority target</div>
       <div class="big ${t.slaMins<0?'sla-breach':(t.slaMins<60?'sla-warn':'sla-ok')}">${t.slaMins<0? 'Breached by '+Math.abs(t.slaMins)+'m' : t.slaMins+'m remaining'}</div>
+    </div>
+    <div style="margin-top: 10px; font-size: 11px; display: flex; flex-direction: column; gap: 6px; padding: 10px; background: var(--panel); border-radius: 6px; border: 1px solid var(--line-soft);">
+      <div style="display:flex; justify-content:space-between;"><span>Created:</span><b>${fmtDateTime(t.createdAt)}</b></div>
+      <div style="display:flex; justify-content:space-between;"><span>Closed:</span><b>${(t.status==='Closed'||t.status==='Resolved')? fmtDateTime(getTicketClosedDate(t)) : '—'}</b></div>
     </div>
 
     <h4>Customer</h4>
@@ -1542,6 +3120,10 @@ function setReplyMode(mode){
   toggle.checked = mode==='note';
   label.classList.toggle('on', mode==='note');
   updateReplyPlaceholder();
+  const replyText = document.getElementById('replyText');
+  if (replyText) {
+    replyText.classList.toggle('internal-active', mode==='note');
+  }
 }
 function setReplyChannel(chan){
   replyChannel = chan;
@@ -1595,8 +3177,29 @@ function highlightMatch(text, q){
    onchange-based code keeps working unchanged.
 ========================================================= */
 let __sselSeq = 0;
+
+function isMultipleSelect(select) {
+  return select.multiple || [
+    'fStatus', 'fPriority', 'fChannel', 'fQueue', 'fCategory', 'fSubCategory',
+    'mfAgent', 'mfStatus', 'mfQueue', 'mfCategory', 'mfSubCategory',
+    'kpiFilterCreated', 'kpiFilterDept', 'kpiFilterNBFC', 'kpiFilterClosed', 'kpiFilterTeammate',
+    'kpiReportFilterStatus', 'kpiReportFilterChannel', 'kpiReportFilterPriority'
+  ].includes(select.id);
+}
+
+function getSelectedValues(selectIdOrElement) {
+  const select = typeof selectIdOrElement === 'string' ? document.getElementById(selectIdOrElement) : selectIdOrElement;
+  if (!select) return [];
+  if (select.selectedValues) {
+    return select.selectedValues.filter(v => v !== "" && String(v).toLowerCase() !== "all");
+  }
+  const val = select.value;
+  return (val && String(val).toLowerCase() !== "all") ? [val] : [];
+}
+
 function enhanceSearchSelect(select){
   if(!select || select.tagName !== 'SELECT') return;
+  if(select.classList.contains('no-enhance')) return;
   if(select.dataset.sselDone==='1'){ refreshSearchSelect(select); return; }
   select.dataset.sselDone = '1';
 
@@ -1606,18 +3209,27 @@ function enhanceSearchSelect(select){
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.className = 'ssel-btn';
-  btn.innerHTML = `<span class="ssel-btn-label"></span><span class="ssel-caret">▾</span>`;
+  btn.innerHTML = `<span class="ssel-btn-label"></span><span class="ssel-badge" style="display:none;"></span><span class="ssel-caret">▾</span>`;
 
   const panel = document.createElement('div');
   panel.className = 'ssel-panel';
   const pid = 'ssel_panel_' + (++__sselSeq);
   panel.id = pid;
-  panel.innerHTML = `<input type="text" class="ssel-search" placeholder="Search…"><div class="ssel-list"></div>`;
+  panel.innerHTML = `
+    <div class="ssel-search-wrap">
+      <input type="text" class="ssel-search" placeholder="Search…">
+      <span class="ssel-search-clear">&times;</span>
+    </div>
+    <div class="ssel-list"></div>
+  `;
 
   wrap.appendChild(btn);
   wrap.appendChild(panel);
   select.classList.add('ssel-native-hidden');
   select.parentNode.insertBefore(wrap, select.nextSibling);
+
+  const searchInput = panel.querySelector('.ssel-search');
+  const clearBtn = panel.querySelector('.ssel-search-clear');
 
   btn.addEventListener('click', (e)=>{
     e.stopPropagation();
@@ -1626,26 +3238,113 @@ function enhanceSearchSelect(select){
     if(!isOpen){
       panel.classList.add('show');
       btn.classList.add('ssel-open');
-      const search = panel.querySelector('.ssel-search');
-      search.value = '';
+      searchInput.value = '';
+      clearBtn.style.display = 'none';
       renderSselList(select, panel, '');
-      setTimeout(()=>search.focus(), 10);
+
+      // Dynamic positioning based on screen space:
+      const rect = btn.getBoundingClientRect();
+      const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+      const spaceBelow = viewportHeight - rect.bottom;
+      
+      // Let's assume maximum height of panel is 280px (margin/padding + max 220px list + search box)
+      if (spaceBelow < 280 && rect.top > spaceBelow) {
+        panel.style.top = 'auto';
+        panel.style.bottom = 'calc(100% + 4px)';
+        panel.classList.add('ssel-open-up');
+      } else {
+        panel.style.top = 'calc(100% + 4px)';
+        panel.style.bottom = 'auto';
+        panel.classList.remove('ssel-open-up');
+      }
+
+      setTimeout(()=>searchInput.focus(), 10);
     }
   });
-  panel.querySelector('.ssel-search').addEventListener('input', (e)=>renderSselList(select, panel, e.target.value));
+
+  searchInput.addEventListener('input', (e) => {
+    const val = e.target.value;
+    clearBtn.style.display = val ? 'inline-block' : 'none';
+    renderSselList(select, panel, val);
+  });
+
+  clearBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    searchInput.value = '';
+    clearBtn.style.display = 'none';
+    searchInput.focus();
+    renderSselList(select, panel, '');
+  });
+
   panel.addEventListener('click', e=>e.stopPropagation());
+
+  const isMultiple = isMultipleSelect(select);
+  if (!select.selectedValues) {
+    if (isMultiple) {
+      const isAllVal = (val) => val === "" || String(val).toLowerCase() === "all";
+      const defaultOpt = Array.from(select.options).find(o => isAllVal(o.value)) || select.options[0];
+      select.selectedValues = defaultOpt ? [defaultOpt.value] : [""];
+    } else {
+      select.selectedValues = [select.value];
+    }
+  }
 
   updateSselLabel(select);
   renderSselList(select, panel, '');
 }
+
 function updateSselLabel(select){
   const wrap = select.nextElementSibling;
   if(!wrap || !wrap.classList.contains('ssel')) return;
   const label = wrap.querySelector('.ssel-btn-label');
-  const opt = select.options[select.selectedIndex];
-  label.textContent = opt ? opt.textContent : '';
-  label.classList.toggle('ssel-placeholder', !opt || opt.value==='');
+  const badge = wrap.querySelector('.ssel-badge');
+
+  const isAllVal = (val) => val === "" || String(val).toLowerCase() === "all";
+
+  const isMultiple = isMultipleSelect(select);
+
+  if (!select.selectedValues) {
+    if (isMultiple) {
+      const defaultOpt = Array.from(select.options).find(o => isAllVal(o.value)) || select.options[0];
+      select.selectedValues = defaultOpt ? [defaultOpt.value] : [""];
+    } else {
+      select.selectedValues = [select.value];
+    }
+  }
+
+  if (!isMultiple) {
+    const selectedOpt = Array.from(select.options).find(o => select.selectedValues.includes(o.value)) || select.options[0];
+    label.textContent = selectedOpt ? selectedOpt.textContent : '';
+    label.classList.remove('ssel-placeholder');
+    if (badge) badge.style.display = 'none';
+  } else {
+    const selectedOpts = Array.from(select.options).filter(o => !isAllVal(o.value) && select.selectedValues.includes(o.value));
+    const count = selectedOpts.length;
+    const totalNonAll = Array.from(select.options).filter(o => !isAllVal(o.value)).length;
+    
+    const isAllSelected = select.selectedValues.some(isAllVal) || count === totalNonAll || count === 0;
+
+    if (isAllSelected) {
+      const allOpt = Array.from(select.options).find(o => isAllVal(o.value)) || select.options[0];
+      label.textContent = allOpt ? allOpt.textContent : 'All';
+      label.classList.add('ssel-placeholder');
+      if (badge) badge.style.display = 'none';
+    } else {
+      label.classList.remove('ssel-placeholder');
+      if (badge) {
+        badge.style.display = 'inline-flex';
+        badge.textContent = count;
+      }
+      const names = selectedOpts.map(o => o.textContent);
+      if (names.length <= 2) {
+        label.textContent = names.join(', ');
+      } else {
+        label.textContent = `${count} selected`;
+      }
+    }
+  }
 }
+
 function renderSselList(select, panel, query){
   const list = panel.querySelector('.ssel-list');
   const q = (query||'').trim().toLowerCase();
@@ -1655,24 +3354,118 @@ function renderSselList(select, panel, query){
     list.innerHTML = `<div class="ssel-empty">No matches for "${query}"</div>`;
     return;
   }
-  list.innerHTML = filtered.map(o=>{
-    const sel = o.value===select.value ? ' selected' : '';
+
+  const isAllVal = (val) => val === "" || String(val).toLowerCase() === "all";
+  const isMultiple = isMultipleSelect(select);
+
+  if (!select.selectedValues) {
+    if (isMultiple) {
+      const defaultOpt = Array.from(select.options).find(o => isAllVal(o.value)) || select.options[0];
+      select.selectedValues = defaultOpt ? [defaultOpt.value] : [""];
+    } else {
+      select.selectedValues = [select.value];
+    }
+  }
+
+  const selectedVals = select.selectedValues;
+  const sorted = filtered.slice().sort((a, b) => {
+    // Keep "All" always at the very top (first position)
+    if (isAllVal(a.value)) return -1;
+    if (isAllVal(b.value)) return 1;
+
+    const aSel = selectedVals.includes(a.value);
+    const bSel = selectedVals.includes(b.value);
+    if (aSel && !bSel) return -1;
+    if (!aSel && bSel) return 1;
+    return opts.indexOf(a) - opts.indexOf(b);
+  });
+
+  list.innerHTML = sorted.map(o=>{
+    const sel = selectedVals.includes(o.value) ? ' selected' : '';
     return `<div class="ssel-item${sel}" data-val="${String(o.value).replace(/"/g,'&quot;')}">${highlightMatch(o.textContent, query)}</div>`;
   }).join('');
+
   list.querySelectorAll('.ssel-item').forEach(item=>{
-    item.addEventListener('click', ()=>{
-      select.value = item.dataset.val;
+    item.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const val = item.dataset.val;
+
+      if (!isMultiple) {
+        select.selectedValues = [val];
+        select.value = val;
+        select.dispatchEvent(new Event('change', {bubbles:true}));
+        updateSselLabel(select);
+        panel.classList.remove('show');
+        const btn = panel.previousElementSibling;
+        if (btn) btn.classList.remove('ssel-open');
+        return;
+      }
+
+      const allOpt = Array.from(select.options).find(o => isAllVal(o.value));
+      const allVal = allOpt ? allOpt.value : "";
+      
+      const isClickedAll = isAllVal(val);
+
+      if (isClickedAll) {
+        const isAllCurrentlySelected = select.selectedValues.some(isAllVal) || (select.selectedValues.length >= Array.from(select.options).length - 1);
+        if (isAllCurrentlySelected) {
+          // Deselect all
+          select.selectedValues = [];
+        } else {
+          // Select all options
+          select.selectedValues = Array.from(select.options).map(o => o.value);
+        }
+      } else {
+        // Toggle individual selection
+        let currentSel = select.selectedValues.filter(v => !isAllVal(v));
+        const idx = currentSel.indexOf(val);
+        if (idx > -1) {
+          currentSel.splice(idx, 1);
+        } else {
+          currentSel.push(val);
+        }
+
+        // If we selected all individual options, automatically select "All" too
+        const nonAllVals = Array.from(select.options).filter(o => !isAllVal(o.value)).map(o => o.value);
+        const allSelected = nonAllVals.every(v => currentSel.includes(v));
+        if (allSelected && allOpt) {
+          if (!currentSel.includes(allVal)) currentSel.push(allVal);
+        } else if (allOpt) {
+          // Otherwise, make sure "All" is not in currentSel
+          currentSel = currentSel.filter(v => !isAllVal(v));
+        }
+        select.selectedValues = currentSel;
+      }
+
+      select.value = select.selectedValues.includes(allVal) ? allVal : (select.selectedValues[0] || "");
       select.dispatchEvent(new Event('change', {bubbles:true}));
       updateSselLabel(select);
-      panel.classList.remove('show');
-      const btn = panel.previousElementSibling;
-      if(btn) btn.classList.remove('ssel-open');
+
+      // Reset/clear the search box when an option is selected
+      const search = panel.querySelector('.ssel-search');
+      if (search) search.value = '';
+      const clearBtn = panel.querySelector('.ssel-search-clear');
+      if (clearBtn) clearBtn.style.display = 'none';
+
+      // Re-render list with query reset to empty
+      renderSselList(select, panel, '');
     });
   });
 }
+
 function refreshSearchSelect(select){
   const wrap = select.nextElementSibling;
   if(!wrap || !wrap.classList.contains('ssel')) return;
+
+  const isMultiple = isMultipleSelect(select);
+  if (!isMultiple) {
+    select.selectedValues = [select.value];
+  } else {
+    if (select.value === "") {
+      select.selectedValues = [""];
+    }
+  }
+
   updateSselLabel(select);
   const panel = wrap.querySelector('.ssel-panel');
   const q = panel.querySelector('.ssel-search').value || '';
@@ -1743,36 +3536,60 @@ function openCreateTicket(){
   const assigneeSel = document.getElementById('ctAssignee');
   assigneeSel.innerHTML = `<option value="">Auto-assign (skill-based)</option>` + AGENTS.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
   enhanceSearchSelect(assigneeSel);
-  const queueSel = document.getElementById('ctQueue');
-  const categorySel = document.getElementById('ctCategory');
-  queueSel.value = 'Customer Support';
-  syncCreateTicketCategoryOptions();
-  queueSel.onchange = syncCreateTicketCategoryOptions;
+  
+  if (typeof onDepartmentChange === 'function') {
+    onDepartmentChange('ct');
+  }
+
   ['ctCustomer','ctSubject','ctDesc'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('modalCreate').classList.add('show');
 }
+
 function submitCreateTicket(){
   const custInput = document.getElementById('ctCustomer').value.trim();
   const subject = document.getElementById('ctSubject').value.trim() || 'New customer request';
   if(!custInput){ showToast('Enter a customer name or phone to continue'); return; }
   const match = CUSTOMERS.find(c=>c.name.toLowerCase()===custInput.toLowerCase());
   const priority = document.getElementById('ctPriority').value;
-  const assigneeVal = document.getElementById('ctAssignee').value || AGENTS[Math.floor(Math.random()*AGENTS.length)].id;
+  const deptVal = document.getElementById('ctQueue').value || 'Support';
+  const catVal = document.getElementById('ctCategory').value || 'General Query';
+  const chanVal = document.getElementById('ctChannel').value;
+  const langVal = document.getElementById('ctLanguage') ? document.getElementById('ctLanguage').value : 'English';
+
+  let assigneeVal = document.getElementById('ctAssignee').value;
+  if (!assigneeVal) {
+    assigneeVal = findSkillBasedAssignee(chanVal, catVal, priority, langVal);
+    if (!assigneeVal) {
+      const allowedAgentIds = DEPT_AGENTS[deptVal] || [];
+      if (allowedAgentIds.length > 0) {
+        assigneeVal = allowedAgentIds[Math.floor(Math.random() * allowedAgentIds.length)];
+      } else {
+        assigneeVal = AGENTS[Math.floor(Math.random() * AGENTS.length)].id;
+      }
+    }
+  }
+
+  const assignedAgent = AGENTS.find(a => a.id === assigneeVal);
+  if (assignedAgent) {
+    assignedAgent.assigned = (assignedAgent.assigned || 0) + 1;
+  }
+
   const newId = 'TCK-' + (10239 + TICKETS.length);
   const slaTarget = priority==='High' ? 240 : priority==='Medium' ? 720 : 1440;
   const t = {
-    id:newId, subject, customer: match? match.name : custInput, phone: match? match.phone : '—',
-    channel: document.getElementById('ctChannel').value, priority, status:'New',
-    queue: document.getElementById('ctQueue').value, assignee: assigneeVal, updated:'just now', slaMins:slaTarget, createdAt: new Date(),
-    category: document.getElementById('ctCategory').value,
-    thread:[{dir:'in', text: document.getElementById('ctDesc').value || '(No description provided)', chan: document.getElementById('ctChannel').value, time:'now'}],
+    id:newId, subject, customer: match? match.name : custInput, phone: match? match.phone : '-',
+    channel: chanVal, priority, status:'New',
+    queue: deptVal, assignee: assigneeVal, updated:'just now', slaMins:slaTarget, createdAt: new Date(),
+    category: catVal,
+    language: langVal,
+    thread:[{dir:'in', text: document.getElementById('ctDesc').value || '(No description provided)', chan: chanVal, time:'now'}],
     activity:['Ticket manually created by agent', `Assigned to ${agentName(assigneeVal)}`]
   };
   TICKETS.unshift(t);
   closeModal('modalCreate');
   showToast(`Ticket ${newId} created and assigned to ${agentName(assigneeVal)}`);
   renderTicketList();
-  if(currentRole==='manager') renderManageAll();
+  if (typeof currentRole !== 'undefined' && currentRole === 'manager') renderManageAll();
 }
 
 /* =========================================================
@@ -2169,6 +3986,995 @@ function renderDashboard(){
 renderTicketList();
 refreshHeaderStatus();
 enhanceAllSelects(document);
+function getCustomerNbfc(customerName) {
+  if (!customerName) return 'Others';
+  const hash = customerName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  if (hash % 5 === 0) return 'TAPADIYA CAPITAL PRIVATE';
+  return 'Chinmay Finlease Limited';
+}
+
+function renderDonutChart(elementId, data, totalVal) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  
+  const total = data.reduce((sum, item) => sum + item.value, 0);
+  let accumulatedAngle = 0;
+  
+  let svgContent = `<svg width="100" height="100" viewBox="0 0 100 100" style="transform: rotate(-90deg); flex-shrink:0;">`;
+  
+  if (total === 0) {
+    svgContent += `<circle cx="50" cy="50" r="38" fill="none" stroke="#334155" stroke-width="10" />`;
+  } else {
+    data.forEach(item => {
+      const percentage = item.value / total;
+      const angle = percentage * 360;
+      const circumference = 2 * Math.PI * 38;
+      const strokeLength = percentage * circumference;
+      const strokeOffset = circumference - (accumulatedAngle / 360 * circumference);
+      
+      svgContent += `
+        <circle cx="50" cy="50" r="38" fill="none" stroke="${item.color}" stroke-width="10"
+                stroke-dasharray="${strokeLength} ${circumference}"
+                stroke-dashoffset="${strokeOffset}" />
+      `;
+      accumulatedAngle += angle;
+    });
+  }
+  
+  svgContent += `
+    <circle cx="50" cy="50" r="30" fill="#1A233D" />
+    <text x="50" y="50" fill="#F8FAFC" font-size="12" font-weight="700" text-anchor="middle" dominant-baseline="central" style="transform: rotate(90deg); transform-origin: 50px 50px;">${totalVal}</text>
+  </svg>`;
+  
+  let legendHtml = `<div style="display: flex; align-items: center; gap: 14px; width: 100%;">`;
+  legendHtml += `<div>${svgContent}</div>`;
+  legendHtml += `<div style="font-size: 11px; color: #94A3B8; display: flex; flex-direction: column; gap: 4px; overflow: hidden; text-overflow: ellipsis;">`;
+  data.forEach(item => {
+    legendHtml += `
+      <div style="display: flex; align-items: center; gap: 6px; white-space: nowrap;">
+        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: ${item.color}; flex-shrink:0;"></span>
+        <span style="overflow: hidden; text-overflow: ellipsis; max-width: 130px;" title="${item.label}">${item.label}: <strong>${item.value}</strong></span>
+      </div>
+    `;
+  });
+  legendHtml += `</div></div>`;
+  
+  el.innerHTML = legendHtml;
+}
+
+function renderHorizontalBarChart(elementId, data, maxVal = 20) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  
+  if (data.length === 0) {
+    el.innerHTML = `<div style="color: #64748B; font-size: 11px; text-align: center; padding-top: 30px;">No data</div>`;
+    return;
+  }
+  
+  let html = '';
+  data.forEach(item => {
+    const widthPct = Math.max(5, Math.min(100, (item.value / maxVal) * 100));
+    html += `
+      <div style="margin-bottom: 6px;">
+        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #E2E8F0; margin-bottom: 2px;">
+          <span style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 140px;" title="${item.label}">${item.label}</span>
+          <span style="font-weight: 700; color: #94A3B8;">${item.value}</span>
+        </div>
+        <div style="width: 100%; height: 6px; background: #334155; border-radius: 3px; overflow: hidden;">
+          <div style="width: ${widthPct}%; height: 100%; background: #FDE047; border-radius: 3px;"></div>
+        </div>
+      </div>
+    `;
+  });
+  el.innerHTML = html;
+}
+
+function renderVerticalBarChart(elementId, data, maxVal = 3) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  
+  if (data.length === 0) {
+    el.innerHTML = `<div style="color: #64748B; font-size: 11px; text-align: center; padding-top: 30px;">No data</div>`;
+    return;
+  }
+  
+  let html = '';
+  data.forEach(item => {
+    const heightPct = Math.max(10, Math.min(100, (item.value / maxVal) * 100));
+    html += `
+      <div style="display: flex; flex-direction: column; align-items: center; flex: 1; height: 100%; justify-content: flex-end;">
+        <div style="font-size: 9px; font-weight: 700; color: #FDE047; margin-bottom: 2px;">${item.value.toFixed(2)}h</div>
+        <div style="width: 16px; height: ${heightPct}%; background: #FDE047; border-radius: 3px 3px 0 0;"></div>
+        <div style="font-size: 9px; color: #94A3B8; margin-top: 4px; text-align: center; width: 44px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.label}">${item.label}</div>
+      </div>
+    `;
+  });
+  el.innerHTML = html;
+}
+
+function filterKpi() {
+  const createdFilter = getSelectedValues('kpiFilterCreated');
+  const deptFilter = getSelectedValues('kpiFilterDept');
+  const nbfcFilter = getSelectedValues('kpiFilterNBFC');
+  const closedFilter = getSelectedValues('kpiFilterClosed');
+  const teammateFilter = getSelectedValues('kpiFilterTeammate');
+
+  let tix = [...TICKETS];
+  
+  if (deptFilter.length > 0) {
+    tix = tix.filter(t => deptFilter.includes(t.department));
+  }
+  
+  if (nbfcFilter.length > 0) {
+    tix = tix.filter(t => nbfcFilter.includes(getCustomerNbfc(t.customer)));
+  }
+
+  if (teammateFilter.length > 0) {
+    tix = tix.filter(t => teammateFilter.includes(t.assignee));
+  }
+
+  if (closedFilter.length > 0) {
+    tix = tix.filter(t => {
+      if (closedFilter.includes('Today') && (t.status === 'Resolved' || t.status === 'Closed')) return true;
+      if (closedFilter.includes('Yesterday') && (t.status === 'Resolved' || t.status === 'Closed') && t.id.charCodeAt(t.id.length-1) % 2 === 0) return true;
+      return false;
+    });
+  }
+
+  if (createdFilter.length > 0) {
+    const todayStr = new Date().toDateString();
+    const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toDateString();
+    const oneWeekAgo = new Date(); oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    tix = tix.filter(t => {
+      const tDate = new Date(t.createdAt || new Date());
+      if (createdFilter.includes('Today') && tDate.toDateString() === todayStr) return true;
+      if (createdFilter.includes('Yesterday') && tDate.toDateString() === yesterdayStr) return true;
+      if (createdFilter.includes('This Week') && tDate >= oneWeekAgo) return true;
+      return false;
+    });
+  }
+
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+  const dateStr = now.toLocaleDateString([], {day: '2-digit', month: 'short', year: 'numeric'});
+  document.getElementById('kpiAsOfTime').textContent = `As of ${dateStr}, ${timeStr} • Viewing as Network view`;
+  document.querySelectorAll('.kpi-time').forEach(el => el.textContent = `As of ${dateStr}, ${timeStr}`);
+
+  let avgFrt = 0.73;
+  if (deptFilter.includes('Support')) avgFrt = 0.65;
+  if (deptFilter.includes('Collection')) avgFrt = 0.85;
+  document.getElementById('valAvgFrt').textContent = avgFrt.toFixed(2);
+
+  const uniqueCusts = new Set(tix.map(t => t.customer)).size || 78;
+  document.getElementById('valUniqueCases').textContent = uniqueCusts;
+
+  let contactCount = tix.reduce((sum, t) => sum + (t.thread ? t.thread.length : 1), 0) || 116;
+  document.getElementById('valContactCount').textContent = contactCount;
+
+  let reopens = tix.filter(t => t.activity && t.activity.some(a => a.toLowerCase().includes('reopen'))).length || 23;
+  document.getElementById('valReopenCount').textContent = reopens;
+
+  let totalSlaEligible = tix.length || 127;
+  let violatedSla = tix.filter(t => t.slaMins < 0).length;
+  let slaPct = totalSlaEligible > 0 ? ((totalSlaEligible - violatedSla) / totalSlaEligible * 100) : 97.4;
+  if (slaPct > 100) slaPct = 100;
+  document.getElementById('valSlaAdherence').textContent = slaPct.toFixed(1) + '%';
+
+  // Channel-Wise SLA
+  const channels = ['Email', 'Phone', 'WhatsApp', 'App'];
+  let totalCasesAll = 0;
+  let totalAdheredAll = 0;
+  
+  let chanHtml = channels.map(c => {
+    let cTix = tix.filter(t => t.channel === c || (c === 'Phone' && t.channel === 'Call') || (c === 'App' && t.channel === 'Chat'));
+    let totalC = cTix.length || (c === 'Email' ? 41 : c === 'Phone' ? 31 : c === 'WhatsApp' ? 34 : 21);
+    let breachedC = cTix.filter(t => t.slaMins < 0).length || (c === 'Email' ? 7 : 0);
+    let adheredC = totalC - breachedC;
+    let adherencePct = totalC > 0 ? (adheredC / totalC * 100) : (c === 'Email' ? 82.00 : 100.00);
+    
+    totalCasesAll += totalC;
+    totalAdheredAll += adheredC;
+    
+    return `
+      <tr>
+        <td style="padding: 6px 4px;">${c}</td>
+        <td style="padding: 6px 4px;">0</td>
+        <td style="padding: 6px 4px;">${totalC}</td>
+        <td style="padding: 6px 4px; text-align: right; color: ${adherencePct >= 90 ? '#10B981' : '#F59E0B'}; font-weight: 700;">${adherencePct.toFixed(2)}%</td>
+      </tr>
+    `;
+  }).join('');
+  
+  let totalAdherenceAllPct = totalCasesAll > 0 ? (totalAdheredAll / totalCasesAll * 100) : 87.40;
+  chanHtml += `
+    <tr style="border-top: 1px solid #475569; font-weight: 700; color: #F8FAFC;">
+      <td style="padding: 6px 4px;">Total</td>
+      <td style="padding: 6px 4px;">0</td>
+      <td style="padding: 6px 4px;">${totalCasesAll}</td>
+      <td style="padding: 6px 4px; text-align: right; color: #10B981;">${totalAdherenceAllPct.toFixed(2)}%</td>
+    </tr>
+  `;
+  document.getElementById('tblChannelSla').innerHTML = chanHtml;
+
+  renderDonutChart('donutChatNps', [
+    { value: 2, color: '#10B981', label: 'Promoter (9-10)' },
+    { value: 1, color: '#EF4444', label: 'Detractor (0-6)' }
+  ], '40%');
+
+  renderDonutChart('donutEmailNps', [
+    { value: 1, color: '#10B981', label: 'Promoter' },
+    { value: 2, color: '#EF4444', label: 'Detractor' }
+  ], '20%');
+
+  const tapadiaCount = tix.filter(t => getCustomerNbfc(t.customer) === 'TAPADIYA CAPITAL PRIVATE').length || 4;
+  const chinmayCount = tix.filter(t => getCustomerNbfc(t.customer) === 'Chinmay Finlease Limited').length || 11;
+  const otherCount = uniqueCusts - tapadiaCount - chinmayCount || 63;
+  renderDonutChart('donutNbfc', [
+    { value: chinmayCount, color: '#8B5CF6', label: 'Chinmay Finlease' },
+    { value: tapadiaCount, color: '#EC4899', label: 'Tapadia Capital' },
+    { value: Math.max(0, otherCount), color: '#3B82F6', label: 'Others' }
+  ], uniqueCusts);
+
+  const requestCount = tix.filter(t => t.category !== 'Dispute' && t.category !== 'Declined Profile').length || 161;
+  const complaintCount = tix.filter(t => t.category === 'Dispute' || t.category === 'Declined Profile').length || 6;
+  const totalClass = requestCount + complaintCount;
+  document.getElementById('tblClassification').innerHTML = `
+    <tr>
+      <td style="padding: 6px 4px;">Complaint</td>
+      <td style="padding: 6px 4px;">${complaintCount}</td>
+      <td style="padding: 6px 4px; text-align: right;">${(complaintCount/totalClass*100).toFixed(2)}%</td>
+    </tr>
+    <tr>
+      <td style="padding: 6px 4px;">Request</td>
+      <td style="padding: 6px 4px;">${requestCount}</td>
+      <td style="padding: 6px 4px; text-align: right;">${(requestCount/totalClass*100).toFixed(2)}%</td>
+    </tr>
+    <tr style="border-top: 1px solid #475569; font-weight: 700; color: #F8FAFC;">
+      <td style="padding: 6px 4px;">Total</td>
+      <td style="padding: 6px 4px;">${totalClass}</td>
+      <td style="padding: 6px 4px; text-align: right;">100.00%</td>
+    </tr>
+  `;
+
+  renderVerticalBarChart('chartAvgFrtByAgent', [
+    { label: 'Asma V.', value: 0.63 },
+    { label: 'Thor O.', value: 0.62 },
+    { label: 'Loki O.', value: 0.21 },
+    { label: 'Jahnvi D.', value: 2.12 }
+  ], 2.5);
+
+  renderHorizontalBarChart('chartUniqueCustomerTeam', [
+    { label: 'Kiran Shah', value: 19 },
+    { label: 'Pushpa Singh', value: 11 },
+    { label: 'Chat Support', value: 4 },
+    { label: 'Mitesh Panchal', value: 2 },
+    { label: 'Shreya Chhetri', value: 2 },
+    { label: 'Sujoy Banerjee', value: 1 }
+  ], 20);
+
+  renderHorizontalBarChart('chartClosedCaseCategory', [
+    { label: 'Salary verification', value: 23 },
+    { label: 'Declined Profile', value: 18 },
+    { label: 'E-Mandate', value: 13 },
+    { label: 'Notification', value: 8 },
+    { label: 'Disbursement Pending', value: 6 }
+  ], 25);
+
+  renderHorizontalBarChart('chartCloseCaseSubCategory', [
+    { label: 'Settlement', value: 13 },
+    { label: 'Referral', value: 12 },
+    { label: 'Repayment', value: 4 },
+    { label: 'Manual Payment', value: 3 },
+    { label: 'Waiver Link', value: 2 }
+  ], 15);
+
+  document.getElementById('tblAgentwiseChatNps').innerHTML = `
+    <tr>
+      <td style="padding: 6px 4px; font-weight: 600;">Kiran Shah</td>
+      <td style="padding: 6px 4px;">WhatsApp</td>
+      <td style="padding: 6px 4px;">7</td>
+      <td style="padding: 6px 4px; text-align: right; font-weight: 700; color: #10B981;">42.86%</td>
+    </tr>
+    <tr>
+      <td style="padding: 6px 4px; font-weight: 600;">Sujoy Banerjee</td>
+      <td style="padding: 6px 4px;">WhatsApp</td>
+      <td style="padding: 6px 4px;">2</td>
+      <td style="padding: 6px 4px; text-align: right; font-weight: 700; color: #10B981;">50.00%</td>
+    </tr>
+    <tr style="border-top: 1px solid #475569; font-weight: 700; color: #F8FAFC;">
+      <td style="padding: 6px 4px;">Total</td>
+      <td style="padding: 6px 4px;">-</td>
+      <td style="padding: 6px 4px;">9</td>
+      <td style="padding: 6px 4px; text-align: right; color: #10B981;">44.44%</td>
+    </tr>
+  `;
+
+  document.getElementById('tblAgentwiseEmailNps').innerHTML = `
+    <tr>
+      <td style="padding: 6px 4px; font-weight: 600;">Kiran Shah</td>
+      <td style="padding: 6px 4px;">20</td>
+      <td style="padding: 6px 4px; text-align: right; font-weight: 700; color: #EF4444;">20.00%</td>
+    </tr>
+    <tr style="border-top: 1px solid #475569; font-weight: 700; color: #F8FAFC;">
+      <td style="padding: 6px 4px;">Total</td>
+      <td style="padding: 6px 4px;">20</td>
+      <td style="padding: 6px 4px; text-align: right; color: #EF4444;">20.00%</td>
+    </tr>
+  `;
+
+  document.getElementById('tblTeammatePerformanceChannel').innerHTML = `
+    <tr>
+      <td style="padding: 8px 6px; font-weight: 600;">Kiran Shah</td>
+      <td style="padding: 8px 6px;">Email</td>
+      <td style="padding: 8px 6px;">0.63</td>
+      <td style="padding: 8px 6px; text-align: right;">13</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px 6px; font-weight: 600;">Mitesh Panchal</td>
+      <td style="padding: 8px 6px;">Email</td>
+      <td style="padding: 8px 6px;">0.62</td>
+      <td style="padding: 8px 6px; text-align: right;">13</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px 6px; font-weight: 600;">Pushpa Singh</td>
+      <td style="padding: 8px 6px;">Email</td>
+      <td style="padding: 8px 6px;">0.62</td>
+      <td style="padding: 8px 6px; text-align: right;">11</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px 6px; font-weight: 600;">Chat Support</td>
+      <td style="padding: 8px 6px;">Chat</td>
+      <td style="padding: 8px 6px;">0.21</td>
+      <td style="padding: 8px 6px; text-align: right;">7</td>
+    </tr>
+    <tr style="border-top: 1px solid #475569; font-weight: 700; color: #F8FAFC;">
+      <td style="padding: 8px 6px;">Total</td>
+      <td style="padding: 8px 6px;">-</td>
+      <td style="padding: 8px 6px;">0.73</td>
+      <td style="padding: 8px 6px; text-align: right;">56</td>
+    </tr>
+  `;
+
+  document.getElementById('tblSlaAdherenceAgentChannel').innerHTML = `
+    <tr>
+      <td style="padding: 8px 6px; font-weight: 600;">Chat Support</td>
+      <td style="padding: 8px 6px;">App</td>
+      <td style="padding: 8px 6px;">0</td>
+      <td style="padding: 8px 6px;">3</td>
+      <td style="padding: 8px 6px; text-align: right; color: #10B981; font-weight: 700;">100%</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px 6px; font-weight: 600;">Kiran Shah</td>
+      <td style="padding: 8px 6px;">Email</td>
+      <td style="padding: 8px 6px;">3</td>
+      <td style="padding: 8px 6px;">20</td>
+      <td style="padding: 8px 6px; text-align: right; color: #F59E0B; font-weight: 700;">85%</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px 6px; font-weight: 600;">Kiran Shah</td>
+      <td style="padding: 8px 6px;">WhatsApp</td>
+      <td style="padding: 8px 6px;">0</td>
+      <td style="padding: 8px 6px;">7</td>
+      <td style="padding: 8px 6px; text-align: right; color: #10B981; font-weight: 700;">100%</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px 6px; font-weight: 600;">Mitesh Panchal</td>
+      <td style="padding: 8px 6px;">Email</td>
+      <td style="padding: 8px 6px;">0</td>
+      <td style="padding: 8px 6px;">12</td>
+      <td style="padding: 8px 6px; text-align: right; color: #10B981; font-weight: 700;">100%</td>
+    </tr>
+    <tr style="border-top: 1px solid #475569; font-weight: 700; color: #F8FAFC;">
+      <td style="padding: 8px 6px;">Total</td>
+      <td style="padding: 8px 6px;">-</td>
+      <td style="padding: 8px 6px;">3</td>
+      <td style="padding: 8px 6px;">56</td>
+      <td style="padding: 8px 6px; text-align: right; color: #10B981; font-weight: 700;">94.6%</td>
+    </tr>
+  `;
+}
+
+let currentKpiReportType = '';
+let kpiReportFilteredData = [];
+
+function openKpiReport(reportType) {
+  currentKpiReportType = reportType;
+  
+  // Clear any existing filters in the report view page
+  document.getElementById('kpiReportSearch').value = '';
+  document.getElementById('kpiReportFilterStatus').value = 'All';
+  document.getElementById('kpiReportFilterChannel').value = 'All';
+  document.getElementById('kpiReportFilterPriority').value = 'All';
+
+  updateKpiReportPage();
+  switchView('kpi-report');
+}
+
+function updateKpiReportPage() {
+  const titleEl = document.getElementById('kpiReportPageTitle');
+  const subEl = document.getElementById('kpiReportPageSub');
+  const headEl = document.getElementById('kpiReportPageHead');
+  const bodyEl = document.getElementById('kpiReportPageBody');
+  const countEl = document.getElementById('kpiReportPageCount');
+  const filterSummaryEl = document.getElementById('kpiReportPageActiveFilters');
+
+  if (!titleEl || !subEl || !headEl || !bodyEl || !countEl) return;
+
+  // Let's filter tickets using the active KPI dashboard filters first!
+  const createdFilter = document.getElementById('kpiFilterCreated').value;
+  const deptFilter = document.getElementById('kpiFilterDept').value;
+  const nbfcFilter = document.getElementById('kpiFilterNBFC').value;
+  const closedFilter = document.getElementById('kpiFilterClosed').value;
+
+  let tix = [...TICKETS];
+  if (deptFilter !== 'All') tix = tix.filter(t => t.department === deptFilter);
+  if (nbfcFilter !== 'All') tix = tix.filter(t => getCustomerNbfc(t.customer) === nbfcFilter);
+  if (closedFilter === 'Today') {
+    tix = tix.filter(t => t.status === 'Resolved' || t.status === 'Closed');
+  } else if (closedFilter === 'Yesterday') {
+    tix = tix.filter(t => (t.status === 'Resolved' || t.status === 'Closed') && t.id.charCodeAt(t.id.length-1) % 2 === 0);
+  }
+
+  // Now apply the report page filters:
+  const searchVal = document.getElementById('kpiReportSearch').value.toLowerCase();
+  const statusVal = document.getElementById('kpiReportFilterStatus').value;
+  const chanVal = document.getElementById('kpiReportFilterChannel').value;
+  const priorityVal = document.getElementById('kpiReportFilterPriority').value;
+
+  if (searchVal) {
+    tix = tix.filter(t => 
+      t.id.toLowerCase().includes(searchVal) || 
+      t.customer.toLowerCase().includes(searchVal) || 
+      t.subject.toLowerCase().includes(searchVal)
+    );
+  }
+  if (statusVal !== 'All') {
+    tix = tix.filter(t => t.status === statusVal);
+  }
+  if (chanVal !== 'All') {
+    tix = tix.filter(t => t.channel === chanVal || (chanVal === 'Call' && t.channel === 'Call') || (chanVal === 'Chat' && t.channel === 'Chat'));
+  }
+  if (priorityVal !== 'All') {
+    tix = tix.filter(t => t.priority === priorityVal);
+  }
+
+  kpiReportFilteredData = tix;
+
+  let title = '';
+  let sub = '';
+  let headers = '';
+  let rows = '';
+
+  switch (currentKpiReportType) {
+    case 'avg_frt':
+      title = 'Agent Average Response Time Report';
+      sub = 'Calculates average response times in business hours for each agent based on their closed cases.';
+      headers = `<tr><th>Agent Name</th><th>Assigned Cases</th><th>Average FRT</th><th>CSAT Rating</th></tr>`;
+      
+      const frtData = [
+        { name: 'Asma Vohra', cases: 14, frt: 0.63, csat: 4.4 },
+        { name: 'Thor Odinson', cases: 11, frt: 0.62, csat: 4.5 },
+        { name: 'Loki Odinson', cases: 9, frt: 0.21, csat: 4.9 },
+        { name: 'jahnvi Darji', cases: 16, frt: 2.12, csat: 4.1 }
+      ];
+      rows = frtData.map(d => `
+        <tr>
+          <td><span class="assignee-pill"><span class="mini-avatar">${initials(d.name)}</span>${d.name}</span></td>
+          <td>${d.cases}</td>
+          <td style="font-weight: 700; color: var(--red);">${d.frt}h</td>
+          <td>⭐ ${d.csat}</td>
+        </tr>
+      `).join('');
+      break;
+
+    case 'unique_cases':
+      title = 'Unique Customer Cases Report';
+      sub = 'Lists all unique customer cases currently tracked, filtered by active selection criteria.';
+      headers = `<tr><th>Ticket ID</th><th>Customer</th><th>Subject</th><th>Channel</th><th>Priority</th><th>Status</th><th>NBFC Partner</th></tr>`;
+      
+      rows = tix.map(t => `
+        <tr>
+          <td><strong>${t.id}</strong></td>
+          <td>${t.customer}</td>
+          <td>${t.subject}</td>
+          <td><span class="status-badge ${chanClass(t.channel)}">${t.channel}</span></td>
+          <td><span class="status-badge ${t.priority==='High'?'status-open':t.priority==='Medium'?'status-pending':'status-resolved'}">${t.priority}</span></td>
+          <td><span class="status-badge ${statusClass(t.status)}">${t.status}</span></td>
+          <td>${getCustomerNbfc(t.customer)}</td>
+        </tr>
+      `).join('');
+      break;
+
+    case 'contact_count':
+      title = 'Total Contact Count Detail Report';
+      sub = 'Displays message threads and contact interactions for each customer ticket.';
+      headers = `<tr><th>Ticket ID</th><th>Customer</th><th>Subject</th><th>Channel</th><th>Status</th><th>Total Interactions</th></tr>`;
+      
+      rows = tix.map(t => `
+        <tr>
+          <td><strong>${t.id}</strong></td>
+          <td>${t.customer}</td>
+          <td>${t.subject}</td>
+          <td><span class="status-badge ${chanClass(t.channel)}">${t.channel}</span></td>
+          <td><span class="status-badge ${statusClass(t.status)}">${t.status}</span></td>
+          <td style="font-weight: 700; color: var(--teal);">${t.thread ? t.thread.length : 1} messages</td>
+        </tr>
+      `).join('');
+      break;
+
+    case 'sla_adherence':
+      title = 'SLA Adherence Report';
+      sub = 'Lists tickets showing priority level, SLA remaining duration, and adherence status.';
+      headers = `<tr><th>Ticket ID</th><th>Subject</th><th>Priority</th><th>SLA Status</th><th>Remaining Time</th><th>Assignee</th></tr>`;
+      
+      rows = tix.map(t => {
+        const isBreached = t.slaMins < 0;
+        return `
+          <tr>
+            <td><strong>${t.id}</strong></td>
+            <td>${t.subject}</td>
+            <td><span class="status-badge ${t.priority==='High'?'status-open':t.priority==='Medium'?'status-pending':'status-resolved'}">${t.priority}</span></td>
+            <td><span class="status-badge ${isBreached?'status-Closed':'status-Resolved'}">${isBreached?'Breached':'Adhered'}</span></td>
+            <td style="font-weight: 700; color: ${isBreached?'var(--red)':'var(--green)'};">${t.slaMins} mins</td>
+            <td>${agentName(t.assignee)}</td>
+          </tr>
+        `;
+      }).join('');
+      break;
+
+    case 'reopen_count':
+      title = 'Reopen Case Count Report';
+      sub = 'Lists tickets that have been reopened after initial resolution.';
+      headers = `<tr><th>Ticket ID</th><th>Subject</th><th>Department</th><th>Status</th><th>Assignee</th></tr>`;
+      
+      const reopenedTix = tix.filter(t => t.activity && t.activity.some(a => a.toLowerCase().includes('reopen')));
+      if (reopenedTix.length === 0) {
+        rows = `<tr><td colspan="5" style="text-align: center; color: var(--ink-faint); padding: 20px;">No reopened tickets found for the active filter.</td></tr>`;
+      } else {
+        rows = reopenedTix.map(t => `
+          <tr>
+            <td><strong>${t.id}</strong></td>
+            <td>${t.subject}</td>
+            <td>${t.department}</td>
+            <td><span class="status-badge status-open">${t.status}</span></td>
+            <td>${agentName(t.assignee)}</td>
+          </tr>
+        `).join('');
+      }
+      break;
+
+    case 'chat_feedback':
+      title = 'Chat NPS & Customer Feedback Report';
+      sub = 'Displays Net Promoter Score (NPS) surveys completed by customers after WhatsApp or Chat sessions.';
+      headers = `<tr><th>Ticket ID</th><th>Customer</th><th>Channel</th><th>NPS Rating</th><th>NPS Classification</th></tr>`;
+      
+      const chatFeedbacks = [
+        { id: 'TCK-10221', customer: 'Priya Sharma', channel: 'WhatsApp', rating: 9, class: 'Promoter (9-10)' },
+        { id: 'TCK-10224', customer: 'Rohan Mehta', channel: 'Chat', rating: 3, class: 'Detractor (0-6)' },
+        { id: 'TCK-10227', customer: 'Amit Patel', channel: 'WhatsApp', rating: 10, class: 'Promoter (9-10)' }
+      ];
+      rows = chatFeedbacks.map(f => `
+        <tr>
+          <td><strong>${f.id}</strong></td>
+          <td>${f.customer}</td>
+          <td>${f.channel}</td>
+          <td style="font-weight: 700; color: var(--purple);">⭐ ${f.rating} / 10</td>
+          <td><span class="status-badge ${f.rating >= 9 ? 'status-Resolved' : 'status-Closed'}">${f.class}</span></td>
+        </tr>
+      `).join('');
+      break;
+
+    case 'email_nps':
+      title = 'Email NPS & Customer Survey Report';
+      sub = 'Displays Net Promoter Score (NPS) surveys completed by customers after Email interactions.';
+      headers = `<tr><th>Ticket ID</th><th>Customer</th><th>Channel</th><th>NPS Rating</th><th>NPS Classification</th></tr>`;
+      
+      const emailFeedbacks = [
+        { id: 'TCK-10219', customer: 'Sunita Rao', channel: 'Email', rating: 2, class: 'Detractor (0-6)' },
+        { id: 'TCK-10225', customer: 'Vikram Singh', channel: 'Email', rating: 8, class: 'Passive (7-8)' },
+        { id: 'TCK-10232', customer: 'Neha Gupta', channel: 'Email', rating: 9, class: 'Promoter (9-10)' }
+      ];
+      rows = emailFeedbacks.map(f => `
+        <tr>
+          <td><strong>${f.id}</strong></td>
+          <td>${f.customer}</td>
+          <td>${f.channel}</td>
+          <td style="font-weight: 700; color: var(--purple);">⭐ ${f.rating} / 10</td>
+          <td><span class="status-badge ${f.rating >= 9 ? 'status-Resolved' : f.rating >= 7 ? 'status-pending' : 'status-Closed'}">${f.class}</span></td>
+        </tr>
+      `).join('');
+      break;
+
+    case 'nbfc_cases':
+      title = 'NBFC Partner Unique Customer Cases Distribution';
+      sub = 'Displays case distribution broken down by the lending NBFC partner.';
+      headers = `<tr><th>NBFC Partner</th><th>Unique Cases Count</th><th>Percentage</th></tr>`;
+      
+      const nbfcData = [
+        { name: 'Chinmay Finlease Limited', count: tix.filter(t => getCustomerNbfc(t.customer) === 'Chinmay Finlease Limited').length || 11, color: '#8B5CF6' },
+        { name: 'TAPADIYA CAPITAL PRIVATE', count: tix.filter(t => getCustomerNbfc(t.customer) === 'TAPADIYA CAPITAL PRIVATE').length || 4, color: '#EC4899' },
+        { name: 'Others / Unassigned', count: Math.max(0, tix.length - 15) || 63, color: '#3B82F6' }
+      ];
+      const totalNbfc = nbfcData.reduce((s, i) => s + i.count, 0);
+      rows = nbfcData.map(d => `
+        <tr>
+          <td><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${d.color}; margin-right:8px;"></span>${d.name}</td>
+          <td style="font-weight: 700;">${d.count}</td>
+          <td>${totalNbfc > 0 ? (d.count/totalNbfc*100).toFixed(2) : '0'}%</td>
+        </tr>
+      `).join('');
+      break;
+
+    case 'case_classification':
+      title = 'Classification of Case Report';
+      sub = 'Lists volume of cases categorized under Requests vs. Complaints.';
+      headers = `<tr><th>Classification</th><th>Record Count</th><th>Percentage</th></tr>`;
+      
+      const reqCount = tix.filter(t => t.category !== 'Dispute' && t.category !== 'Declined Profile').length || 161;
+      const compCount = tix.filter(t => t.category === 'Dispute' || t.category === 'Declined Profile').length || 6;
+      const totalCls = reqCount + compCount;
+      
+      rows = `
+        <tr>
+          <td><strong>Request</strong></td>
+          <td>${reqCount}</td>
+          <td>${(reqCount/totalCls*100).toFixed(2)}%</td>
+        </tr>
+        <tr>
+          <td><strong>Complaint</strong></td>
+          <td>${compCount}</td>
+          <td>${(compCount/totalCls*100).toFixed(2)}%</td>
+        </tr>
+      `;
+      break;
+
+    case 'channel_sla':
+      title = 'Channel-Wise SLA Adherence Report';
+      sub = 'Calculates SLA breaches and adherence rate across communication channels.';
+      headers = `<tr><th>Channel</th><th>Cases Breached</th><th>Total Cases</th><th>Adherence %</th></tr>`;
+      
+      const chanData = ['Email', 'Phone', 'WhatsApp', 'App'].map(c => {
+        const cTix = tix.filter(t => t.channel === c || (c === 'Phone' && t.channel === 'Call') || (c === 'App' && t.channel === 'Chat'));
+        const total = cTix.length || (c === 'Email' ? 41 : c === 'Phone' ? 31 : c === 'WhatsApp' ? 34 : 21);
+        const breached = cTix.filter(t => t.slaMins < 0).length || (c === 'Email' ? 7 : 0);
+        return { channel: c, breached, total, pct: total > 0 ? ((total-breached)/total*100) : 100 };
+      });
+      rows = chanData.map(d => `
+        <tr>
+          <td><strong>${d.channel}</strong></td>
+          <td>${d.breached}</td>
+          <td>${d.total}</td>
+          <td style="font-weight: 700; color: ${d.pct >= 90 ? 'var(--green)' : 'var(--orange)'};">${d.pct.toFixed(2)}%</td>
+        </tr>
+      `).join('');
+      break;
+
+    default:
+      title = 'KPI Report Details';
+      sub = 'Detailed records representing the selected KPI metrics.';
+      headers = `<tr><th>Ticket ID</th><th>Customer</th><th>Subject</th><th>Department</th><th>Status</th></tr>`;
+      rows = tix.slice(0, 10).map(t => `
+        <tr>
+          <td><strong>${t.id}</strong></td>
+          <td>${t.customer}</td>
+          <td>${t.subject}</td>
+          <td>${t.department}</td>
+          <td>${t.status}</td>
+        </tr>
+      `).join('');
+  }
+
+  titleEl.textContent = title;
+  subEl.textContent = sub;
+  headEl.innerHTML = headers;
+  bodyEl.innerHTML = rows || `<tr><td colspan="10" style="text-align: center; color: var(--ink-soft); padding: 30px;">No matching records found for active filters.</td></tr>`;
+  countEl.textContent = `Showing ${tix.length} matching records`;
+  filterSummaryEl.textContent = `Dashboard Filters: Dept=${deptFilter}, NBFC=${nbfcFilter}, Closed=${closedFilter} | Active Report Filters: Search="${searchVal || 'None'}", Status=${statusVal}, Channel=${chanVal}, Priority=${priorityVal}`;
+}
+
+function exportKpiReportToCSV() {
+  if (!kpiReportFilteredData || kpiReportFilteredData.length === 0) {
+    showToast('No records to export');
+    return;
+  }
+  let csv = 'Ticket ID,Customer,Subject,Channel,Priority,Status,Department\n';
+  kpiReportFilteredData.forEach(t => {
+    csv += `"${t.id}","${t.customer.replace(/"/g, '""')}","${t.subject.replace(/"/g, '""')}","${t.channel}","${t.priority}","${t.status}","${t.department}"\n`;
+  });
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  link.setAttribute("href", url);
+  link.setAttribute("download", `${currentKpiReportType}_report_export.csv`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast('Report CSV file exported successfully.');
+}
+
+function refreshKpiData() {
+  filterKpi();
+  showToast('KPI Dashboard data re-calculated successfully.');
+}
+
+/* ---------- Channelwise Agent Assignments ---------- */
+function renderChannelAssignments() {
+  const body = document.getElementById('channelAssignmentsBody');
+  if (!body) return;
+
+  if (CHANNEL_ASSIGNMENTS.length === 0) {
+    body.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--ink-faint);padding:20px;">No channel-wise assignments configured.</td></tr>`;
+    return;
+  }
+
+  const now = new Date();
+
+  body.innerHTML = CHANNEL_ASSIGNMENTS.map(ca => {
+    const start = new Date(`${ca.startDate}T${ca.startTime}:00`);
+    const end = new Date(`${ca.endDate}T${ca.endTime}:00`);
+    
+    let currentStatus = ca.status;
+    if (ca.status === 'Active' && (now < start || now > end)) {
+      currentStatus = now > end ? 'Expired' : 'Scheduled';
+    }
+
+    let statusClass = 'status-badge status-Resolved'; // green/Active
+    if (currentStatus === 'Paused') statusClass = 'status-badge status-Closed'; // grey
+    else if (currentStatus === 'Expired') statusClass = 'status-badge status-Closed'; // grey
+    else if (currentStatus === 'Scheduled') statusClass = 'status-badge status-Open'; // blue
+
+    const activePeriod = `${ca.startDate} ${ca.startTime} to ${ca.endDate} ${ca.endTime}`;
+    const statusBtnText = ca.status === 'Active' ? 'Pause' : 'Activate';
+
+    return `
+      <tr>
+        <td style="font-weight: 600; color: #0F172A;">${ca.agentName}</td>
+        <td>${ca.dept}</td>
+        <td><span class="chan-badge chan-badge-${ca.channel.toLowerCase()}" style="background:#E2E8F0; color:#475569; padding: 2px 6px; border-radius: 4px; font-size: 11px;">${ca.channel}</span></td>
+        <td style="font-size:12px; color:var(--ink-soft);">${activePeriod}</td>
+        <td><span class="${statusClass}">${currentStatus}</span></td>
+        <td style="text-align: right;">
+          <button class="btn btn-ghost btn-sm" onclick="toggleChannelAssignmentStatus('${ca.id}')" style="margin-right: 4px;" ${currentStatus === 'Expired' ? 'disabled' : ''}>${statusBtnText}</button>
+          <button class="btn btn-ghost btn-sm" onclick="deleteChannelAssignment('${ca.id}')" style="color: var(--red);">Delete</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function openAddChannelAssignmentModal() {
+  // Populate department dropdown
+  const deptSelect = document.getElementById('caDept');
+  if (deptSelect) {
+    deptSelect.innerHTML = '<option value="">Select Department</option>' + 
+      Object.keys(DEPT_AGENTS).map(d => `<option value="${d}">${d}</option>`).join('');
+  }
+
+  // Reset agent dropdown
+  const agentSelect = document.getElementById('caAgent');
+  if (agentSelect) {
+    agentSelect.innerHTML = '<option value="">Select Agent</option>';
+  }
+
+  document.getElementById('caChannel').value = '';
+  
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('caStartDate').value = today;
+  document.getElementById('caEndDate').value = today;
+  document.getElementById('caStartTime').value = '09:00';
+  document.getElementById('caEndTime').value = '18:00';
+
+  // Open modal
+  const modal = document.getElementById('modalAddChannelAssignment');
+  modal.classList.add('show');
+  
+  // Enhance selects inside modal
+  enhanceAllSelects(modal);
+}
+
+function onCaDeptChange() {
+  const dept = document.getElementById('caDept').value;
+  const agentSelect = document.getElementById('caAgent');
+  if (!agentSelect) return;
+
+  if (!dept) {
+    agentSelect.innerHTML = '<option value="">Select Agent</option>';
+  } else {
+    const agentIds = DEPT_AGENTS[dept] || [];
+    agentSelect.innerHTML = '<option value="">Select Agent</option>' + 
+      AGENTS.filter(a => agentIds.includes(a.id)).map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+  }
+  
+  // Trigger enhance select updates
+  refreshSearchSelect(agentSelect);
+}
+
+function resetChannelAssignmentForm() {
+  document.getElementById('caDept').value = '';
+  if (document.getElementById('caDept').selectedValues) {
+    document.getElementById('caDept').selectedValues = [''];
+  }
+  refreshSearchSelect(document.getElementById('caDept'));
+
+  const agentSelect = document.getElementById('caAgent');
+  agentSelect.innerHTML = '<option value="">Select Agent</option>';
+  if (agentSelect.selectedValues) {
+    agentSelect.selectedValues = [''];
+  }
+  refreshSearchSelect(agentSelect);
+
+  document.getElementById('caChannel').value = '';
+  if (document.getElementById('caChannel').selectedValues) {
+    document.getElementById('caChannel').selectedValues = [''];
+  }
+  refreshSearchSelect(document.getElementById('caChannel'));
+
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('caStartDate').value = today;
+  document.getElementById('caEndDate').value = today;
+  document.getElementById('caStartTime').value = '09:00';
+  document.getElementById('caEndTime').value = '18:00';
+
+  showToast('Form reset successfully.');
+}
+
+function saveChannelAssignment() {
+  const dept = document.getElementById('caDept').value;
+  const agentId = document.getElementById('caAgent').value;
+  const channel = document.getElementById('caChannel').value;
+  const startDate = document.getElementById('caStartDate').value;
+  const startTime = document.getElementById('caStartTime').value;
+  const endDate = document.getElementById('caEndDate').value;
+  const endTime = document.getElementById('caEndTime').value;
+
+  if (!dept || !agentId || !channel || !startDate || !startTime || !endDate || !endTime) {
+    showToast('Please fill in all fields.');
+    return;
+  }
+
+  const start = new Date(`${startDate}T${startTime}:00`);
+  const end = new Date(`${endDate}T${endTime}:00`);
+  if (start >= end) {
+    showToast('Start date & time must be before end date & time.');
+    return;
+  }
+
+  const agent = AGENTS.find(a => a.id === agentId);
+  if (!agent) {
+    showToast('Selected agent not found.');
+    return;
+  }
+
+  // Validate if the agent has the selected channel skill
+  const hasSkill = agent.skills && agent.skills.channels.includes(channel);
+  if (!hasSkill) {
+    showToast(`Validation Warning: ${agent.name} does not have the ${channel} skill set! Please configure this skill first.`);
+    return;
+  }
+
+  const newAssignment = {
+    id: 'ca_' + Date.now(),
+    dept,
+    agentId,
+    agentName: agent.name,
+    channel,
+    startDate,
+    startTime,
+    endDate,
+    endTime,
+    status: 'Active'
+  };
+
+  CHANNEL_ASSIGNMENTS.push(newAssignment);
+  closeModal('modalAddChannelAssignment');
+  showToast('Channel-wise agent assignment created successfully.');
+  
+  // Update views
+  renderTeamStatus();
+  renderChannelAssignments();
+}
+
+function toggleChannelAssignmentStatus(id) {
+  const ca = CHANNEL_ASSIGNMENTS.find(x => x.id === id);
+  if (ca) {
+    ca.status = ca.status === 'Active' ? 'Paused' : 'Active';
+    showToast(`Assignment for ${ca.agentName} has been ${ca.status.toLowerCase()}.`);
+    renderChannelAssignments();
+    renderTeamStatus();
+  }
+}
+
+function deleteChannelAssignment(id) {
+  const idx = CHANNEL_ASSIGNMENTS.findIndex(x => x.id === id);
+  if (idx > -1) {
+    const ca = CHANNEL_ASSIGNMENTS[idx];
+    CHANNEL_ASSIGNMENTS.splice(idx, 1);
+    showToast(`Assignment for ${ca.agentName} deleted.`);
+    renderChannelAssignments();
+    renderTeamStatus();
+  }
+}
+
+let statusDropdownOpen = false;
+let channelDropdownOpen = false;
+
+function toggleChannelDropdown(e){
+  if(e) e.stopPropagation();
+  channelDropdownOpen = !channelDropdownOpen;
+  if(channelDropdownOpen) {
+    buildChannelOptionsList();
+    statusDropdownOpen = false;
+    const sMenu = document.getElementById('statusDropdownMenu');
+    if (sMenu) sMenu.classList.remove('show');
+  }
+  document.getElementById('channelDropdownMenu').classList.toggle('show', channelDropdownOpen);
+}
+
+function buildChannelOptionsList(){
+  const me = AGENTS.find(a=>a.id===CURRENT_AGENT_ID);
+  if(!me) return;
+  const list = document.getElementById('channelOptionsList');
+  if(!list) return;
+  
+  const channels = ['Email', 'WhatsApp', 'Chat', 'Call'];
+  list.innerHTML = channels.map(ch => {
+    const hasSkill = me.skills && me.skills.channels.includes(ch);
+    return `
+      <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; color: var(--ink); margin: 4px 0;">
+        <input type="checkbox" name="activeChan" value="${ch}" ${hasSkill ? 'checked' : ''} onchange="toggleAgentChannel('${ch}', this.checked)">
+        <span>${ch}</span>
+      </label>
+    `;
+  }).join('');
+}
+
+function toggleAgentChannel(channel, checked) {
+  const me = AGENTS.find(a=>a.id===CURRENT_AGENT_ID);
+  if(!me) return;
+  
+  if(!me.skills) me.skills = { channels: [], languages: [] };
+  
+  const idx = me.skills.channels.indexOf(channel);
+  if(checked && idx === -1) {
+    me.skills.channels.push(channel);
+    me.log.unshift({
+      ts: Date.now(), 
+      text: `Added active channel: ${channel} (self-reassign to manage workload)`, 
+      actor: me.name, 
+      by: 'agent'
+    });
+    showToast(`You have reassigned yourself to the ${channel} channel.`);
+  } else if(!checked && idx > -1) {
+    me.skills.channels.splice(idx, 1);
+    me.log.unshift({
+      ts: Date.now(), 
+      text: `Removed active channel: ${channel} (self-reassign to manage workload)`, 
+      actor: me.name, 
+      by: 'agent'
+    });
+    showToast(`You have stopped receiving tickets from the ${channel} channel.`);
+  }
+  
+  refreshHeaderStatus();
+  if(document.getElementById('view-team').classList.contains('active')) renderTeamStatus();
+}
+
+function refreshHeaderStatus(){
+  const me = AGENTS.find(a=>a.id===CURRENT_AGENT_ID);
+  if(!me) return;
+  document.getElementById('headerAvatarInitials').textContent = initials(me.name);
+  document.getElementById('statusPillLabel').textContent = me.status;
+  document.getElementById('headerStatusDot').style.background = STATUS_COLOR[me.status];
+  
+  const channelPillLabel = document.getElementById('channelPillLabel');
+  if (channelPillLabel) {
+    const activeChans = (me.skills && me.skills.channels.length > 0) ? me.skills.channels.join(', ') : 'None';
+    channelPillLabel.textContent = `Channels: ${activeChans}`;
+  }
+}
+
 setInterval(()=>{
   refreshHeaderStatus();
   if(document.getElementById('view-team').classList.contains('active')) renderTeamStatus();

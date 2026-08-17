@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer LMS Profile - Chinmay Finlease</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F8FAFC;
+      --paper: #FFFFFF;
+      --ink: #0F172A;
+      --ink-soft: #475569;
+      --ink-faint: #94A3B8;
+      --line: #E2E8F0;
+      
+      --teal: #0D9488;
+      --teal-tint: #F0FDFA;
+      --teal-dark: #115E59;
+      
+      --blue: #2563EB;
+      --blue-tint: #EFF6FF;
+      
+      --amber: #D97706;
+      --amber-tint: #FEF3C7;
+      --amber-dark: #78350F;
+      
+      --red: #DC2626;
+      --red-tint: #FEF2F2;
+      
+      --green: #16A34A;
+      --green-tint: #F0FDF4;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg);
+      color: var(--ink);
+      line-height: 1.5;
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    }
+
+    .profile-header-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .profile-avatar-large {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--teal);
+      box-shadow: 0 4px 12px rgba(13, 148, 136, 0.2);
+    }
+
+    .profile-title-block h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .profile-meta-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-loan-stage {
+      background: var(--teal-tint);
+      color: var(--teal);
+      border: 1px solid rgba(13, 148, 136, 0.2);
+    }
+
+    .badge-kyc {
+      background: var(--green-tint);
+      color: var(--green);
+      border: 1px solid rgba(22, 163, 74, 0.2);
+    }
+
+    .profile-contact-info {
+      font-size: 13.5px;
+      color: var(--ink-soft);
+      display: flex;
+      gap: 16px;
+      margin-top: 6px;
+    }
+
+    .profile-contact-info span b {
+      color: var(--ink);
+    }
+
+    .brand-block img {
+      height: 40px;
+    }
+
+    /* Grid Layout */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .profile-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    }
+
+    .card-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px 24px;
+    }
+
+    .info-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .info-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--ink-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 2px;
+    }
+
+    .info-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    /* Table styles */
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    th {
+      font-weight: 800;
+      color: var(--ink-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 10px 12px;
+      border-bottom: 2px solid var(--line);
+      font-size: 10px;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      color: var(--ink-soft);
+      font-weight: 500;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .status-pill {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .status-success { background: var(--green-tint); color: var(--green); }
+    .status-pending { background: var(--amber-tint); color: var(--amber); }
+    .status-failed { background: var(--red-tint); color: var(--red); }
+
+    .ticket-list-card {
+      grid-column: span 2;
+    }
+
+    @media (max-width: 900px) {
+      .ticket-list-card {
+        grid-column: span 1;
+      }
+    }
+
+    .pri-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .pri-High { background: var(--red-tint); color: var(--red); }
+    .pri-Medium { background: var(--amber-tint); color: var(--amber); }
+    .pri-Low { background: var(--blue-tint); color: var(--blue); }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="profile-header-left">
+        <img id="custAvatar" class="profile-avatar-large" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=120" alt="avatar" />
+        <div class="profile-title-block">
+          <h1 id="custName">Customer Details</h1>
+          <div class="profile-meta-row">
+            <span class="badge badge-loan-stage" id="loanStageBadge">LMS: Active Loan</span>
+            <span class="badge badge-kyc" id="kycStatusBadge">KYC Verified</span>
+          </div>
+          <div class="profile-contact-info">
+            <span>Phone: <b id="custPhone">—</b></span>
+            <span>Email: <b id="custEmail">—</b></span>
+          </div>
+        </div>
+      </div>
+      <div class="brand-block">
+        <img src="https://static.wixstatic.com/media/8c15c6_7cf08434d39e4492a55322f12f3f7a4d~mv2.png" alt="Chinmay Finlease" />
+      </div>
+    </header>
+
+    <div class="profile-grid">
+      <!-- Card 1: LMS Details -->
+      <div class="card">
+        <h2 class="card-title">💵 Loan Management System (LMS)</h2>
+        <div class="info-list">
+          <div class="info-item">
+            <span class="info-label">Loan Account ID</span>
+            <span class="info-value" id="loanIdVal">LN-44018</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Disbursable Amount</span>
+            <span class="info-value" id="loanAmtVal">₹ 1,50,000</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Interest Rate</span>
+            <span class="info-value">13.5% p.a. (Fixed)</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Tenure</span>
+            <span class="info-value">12 Months</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Next EMI Amount</span>
+            <span class="info-value" id="emiAmtVal">₹ 13,437</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Next EMI Due Date</span>
+            <span class="info-value">05 Sep 2026</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Disbursal Status</span>
+            <span class="info-value" id="disbursalStatusVal" style="color: var(--green);">Disbursed</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Lending Partner</span>
+            <span class="info-value">Tapstart / ONDC desk</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: KYC & Banking Info -->
+      <div class="card">
+        <h2 class="card-title">🛡️ Verification & Banking</h2>
+        <div class="info-list">
+          <div class="info-item">
+            <span class="info-label">PAN Card Status</span>
+            <span class="info-value" style="color: var(--green);">✓ Verified (******491K)</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Aadhaar E-Sign</span>
+            <span class="info-value" style="color: var(--green);">✓ Completed</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Salary Bank Account</span>
+            <span class="info-value">HDFC Bank Ltd.</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Account Number</span>
+            <span class="info-value">XXXX XXXX 8812</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">IFSC Code</span>
+            <span class="info-value">HDFC0000240</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Auto-Debit mandate</span>
+            <span class="info-value" style="color: var(--green);">Active (NACH/e-Mandate)</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Residential Status</span>
+            <span class="info-value">Self Owned (Rented/Co-living)</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">LMS Logs Status</span>
+            <span class="info-value" style="color: var(--green);">All Clear</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: Repayment History -->
+      <div class="card" style="grid-column: span 2;">
+        <h2 class="card-title">💳 Repayment History & Transaction logs</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Transaction ID</th>
+                <th>Due Date</th>
+                <th>Paid Date &amp; Time</th>
+                <th>EMI Amount</th>
+                <th>Payment Mode</th>
+                <th>Transaction Status</th>
+              </tr>
+            </thead>
+            <tbody id="repayTableBody">
+              <tr>
+                <td><strong>TXN-88204910</strong></td>
+                <td>05 Aug 2026</td>
+                <td>05 Aug 2026, 10:14 AM</td>
+                <td>₹ 13,437</td>
+                <td>Auto-debit NACH</td>
+                <td><span class="status-pill status-success">Success</span></td>
+              </tr>
+              <tr>
+                <td><strong>TXN-88120495</strong></td>
+                <td>05 Jul 2026</td>
+                <td>05 Jul 2026, 09:30 AM</td>
+                <td>₹ 13,437</td>
+                <td>UPI Gateway (Manual)</td>
+                <td><span class="status-pill status-success">Success</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Card 4: Omnichannel Support Tickets -->
+      <div class="card ticket-list-card">
+        <h2 class="card-title">💬 Omnichannel Ticket logs (Support History)</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Ticket ID</th>
+                <th>Subject</th>
+                <th>Channel</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Updated</th>
+              </tr>
+            </thead>
+            <tbody id="ticketsTableBody">
+              <tr>
+                <td colspan="6" style="text-align: center; color: var(--ink-faint);">Loading support history...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Stock photos
+    function getCustomerPhoto(name) {
+      const photos = {
+        'Amul Roy': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120',
+        'Ariel Elves': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=120',
+        'Advard': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=120',
+        'Nisha Verma': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=120',
+        'Deepika Padukone': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120',
+        'Sachin Tendulkar': 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=120',
+        'Rahul Dravid': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=120',
+        'Sourav Ganguly': 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=120',
+        'Sunil Gavaskar': 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?auto=format&fit=crop&q=80&w=120',
+        'VVS Laxman': 'https://images.unsplash.com/photo-1463453091185-61582044d556?auto=format&fit=crop&q=80&w=120'
+      };
+      return photos[name] || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=120';
+    }
+
+    // Embed matching ticket info from parent database to display fully dynamic data
+    const TICKETS = [
+      {id:'TCK-10231', subject:'EMI deducted twice this month', customer:'Amul Roy', phone:'+1 416 555 0101', email:'amul.roy@gmail.com', channel:'WhatsApp', priority:'High', status:'In Progress', queue:'Collection', department:'Collection', updated:'2m ago'},
+      {id:'TCK-10233', subject:'Loan disbursal delayed beyond promised time', customer:'Ariel Elves', phone:'+1 905 555 0134', email:'ariel.elves@gmail.com', channel:'Call', priority:'High', status:'Escalated', queue:'Support', department:'Support', updated:'4m ago'},
+      {id:'TCK-10237', subject:'Duplicate: EMI deducted twice', customer:'Amul Roy', phone:'+1 416 555 0101', email:'amul.roy@gmail.com', channel:'Email', priority:'Medium', status:'Reopened', queue:'Collection', department:'Collection', updated:'8m ago'},
+      {id:'TCK-10238', subject:'App crashes on loan application step 3', customer:'Advard', phone:'+1 647 555 0119', email:'advard@gmail.com', channel:'Chat', priority:'Low', status:'Reopened', queue:'Support', department:'Support', updated:'1h ago'},
+      {id:'TCK-10242', subject:'Clarification needed on legal notice received', customer:'Vikramaditya Rao', phone:'+1 905 555 0244', email:'vikram.rao@gmail.com', channel:'Call', priority:'High', status:'Escalated', queue:'Legal Related', department:'Legal Related', updated:'1h ago'},
+      {id:'TCK-10248', subject:'Repayment tenure extension request', customer:'Nisha Verma', phone:'+1 437 555 0311', email:'nisha.verma@gmail.com', channel:'WhatsApp', priority:'Medium', status:'Reopened', queue:'Collection', department:'Collection', updated:'3h ago'},
+      {id:'TCK-10249', subject:'Escalated review of unresolved fee dispute', customer:'Varun Dhawan', phone:'+1 647 555 0322', email:'varun.d@gmail.com', channel:'Call', priority:'High', status:'Escalated', queue:'Grievance', department:'Grievance', updated:'20m ago'},
+      {id:'TCK-10276', subject:'Interest rate mismatched in welcome letter', customer:'Kareena Kapoor', phone:'+91 98765 43212', email:'kareena.k@gmail.com', channel:'Call', priority:'High', status:'Escalated', queue:'Grievance', department:'Grievance', updated:'15m ago'},
+      {id:'TCK-10299', subject:'Unable to link Aadhaar with loan account', customer:'Sunil Gavaskar', phone:'+91 98765 43235', email:'sunil.g@gmail.com', channel:'WhatsApp', priority:'High', status:'New', queue:'Support', department:'Support', updated:'2m ago'},
+      {id:'TCK-10300', subject:'Repayment auto-debit failure penalty dispute', customer:'Sachin Tendulkar', phone:'+91 98765 43236', email:'sachin.t@gmail.com', channel:'Chat', priority:'Medium', status:'Assigned', queue:'Collection', department:'Collection', updated:'15m ago'},
+      {id:'TCK-10301', subject:'Foreclosure notice clarification request', customer:'Rahul Dravid', phone:'+91 98765 43237', email:'rahul.d@gmail.com', channel:'Email', priority:'High', status:'In Progress', queue:'Legal Related', department:'Legal Related', updated:'30m ago'},
+      {id:'TCK-10302', subject:'Dispute on recovery executive calling hours', customer:'Sourav Ganguly', phone:'+91 98765 43238', email:'sourav.g@gmail.com', channel:'Call', priority:'Low', status:'Resolved', queue:'Grievance', department:'Grievance', updated:'1d ago'},
+      {id:'TCK-10303', subject:'Incorrect welcome letter loan terms', customer:'VVS Laxman', phone:'+91 98765 43239', email:'vvs.l@gmail.com', channel:'SMS', priority:'Medium', status:'Closed', queue:'Support', department:'Support', updated:'2d ago'}
+    ];
+
+    window.onload = function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const customerName = urlParams.get('customer') || 'Amul Roy';
+      
+      // Update basic fields
+      document.getElementById('custName').textContent = customerName;
+      document.getElementById('custAvatar').src = getCustomerPhoto(customerName);
+      
+      // Find customer tickets
+      const customerTickets = TICKETS.filter(t => t.customer.toLowerCase() === customerName.toLowerCase());
+      
+      if (customerTickets.length > 0) {
+        const firstTix = customerTickets[0];
+        document.getElementById('custPhone').textContent = firstTix.phone || '—';
+        document.getElementById('custEmail').textContent = firstTix.email || '—';
+        document.getElementById('loanStageBadge').textContent = `LMS Stage: ${firstTix.department === 'Support' ? 'Active' : 'Collection Related'}`;
+        document.getElementById('emiAmtVal').textContent = firstTix.priority === 'High' ? '₹ 22,480' : '₹ 13,437';
+        document.getElementById('loanAmtVal').textContent = firstTix.priority === 'High' ? '₹ 2,50,000' : '₹ 1,50,000';
+        document.getElementById('loanIdVal').textContent = firstTix.priority === 'High' ? 'LN-88120' : 'LN-44018';
+      } else {
+        document.getElementById('custPhone').textContent = '+91 98765 43201';
+        document.getElementById('custEmail').textContent = customerName.toLowerCase().replace(/\s+/g, '') + '@gmail.com';
+      }
+
+      // Populate tickets table
+      const ticketsTableBody = document.getElementById('ticketsTableBody');
+      if (customerTickets.length > 0) {
+        ticketsTableBody.innerHTML = customerTickets.map(t => `
+          <tr>
+            <td><strong>${t.id}</strong></td>
+            <td>${t.subject}</td>
+            <td><span class="badge" style="background:#F1F5F9; color:#475569; border:1px solid #CBD5E1;">${t.channel}</span></td>
+            <td><span class="pri-badge pri-${t.priority}">${t.priority}</span></td>
+            <td><span class="badge" style="background: #FEF3C7; color: #D97706; border:1px solid rgba(217, 119, 6, 0.2);">${t.status}</span></td>
+            <td>${t.updated}</td>
+          </tr>
+        `).join('');
+      } else {
+        ticketsTableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--ink-faint);">No ticket logs logged for this customer.</td></tr>`;
+      }
+
+      // Populate transaction logs (dynamically simulated)
+      const repayTableBody = document.getElementById('repayTableBody');
+      const isHighPriority = customerTickets.length > 0 && customerTickets[0].priority === 'High';
+      const emiVal = isHighPriority ? '₹ 22,480' : '₹ 13,437';
+      repayTableBody.innerHTML = `
+        <tr>
+          <td><strong>TXN-90214812</strong></td>
+          <td>05 Aug 2026</td>
+          <td>05 Aug 2026, 10:14 AM</td>
+          <td>${emiVal}</td>
+          <td>Auto-debit NACH</td>
+          <td><span class="status-pill status-success">Success</span></td>
+        </tr>
+        <tr>
+          <td><strong>TXN-90119804</strong></td>
+          <td>05 Jul 2026</td>
+          <td>05 Jul 2026, 09:30 AM</td>
+          <td>${emiVal}</td>
+          <td>UPI Gateway (Manual)</td>
+          <td><span class="status-pill status-success">Success</span></td>
+        </tr>
+      `;
+    };
+  </script>
+</body>
+</html>
