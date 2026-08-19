@@ -398,12 +398,12 @@ button { font-family: var(--sans); cursor: pointer; }
 
 .view { display: none; flex: 1; overflow: auto; padding: 20px 24px; }
 .view.active { display: flex; flex-direction: column; }
-.view-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+.view-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; flex-shrink: 0; }
 .view-title { font-size: 18px; font-weight: 800; color: var(--ink); letter-spacing: -.01em; }
 .view-sub { font-size: 12px; color: var(--ink-faint); margin-top: 2px; }
 
 /* Filter bar */
-.filterbar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
+.filterbar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; flex-shrink: 0; }
 .filterbar select, .filterbar input[type=text] {
   border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 6px 10px; font-size: 12px; color: var(--ink-soft);
 }
@@ -423,6 +423,7 @@ button { font-family: var(--sans); cursor: pointer; }
   margin-bottom: 14px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  flex-shrink: 0;
 }
 
 .db-dept-row {
@@ -724,7 +725,8 @@ table.tickets tr.trow:hover { background: var(--teal-tint); }
 
 /* Ticket Detail (3-pane) */
 #view-detail { padding: 0; }
-.detail-shell { display: grid; grid-template-columns: 260px 1fr 280px; flex: 1; overflow: hidden; }
+.detail-shell { display: grid; grid-template-columns: 260px 1fr 280px; flex: 1; overflow: hidden; transition: grid-template-columns 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+.detail-shell.expand-other-tix { grid-template-columns: 260px 1fr 580px; }
 .detail-list { border-right: 1px solid var(--line); background: var(--panel); overflow-y: auto; }
 .detail-list .dl-item { padding: 11px 14px; border-bottom: 1px solid var(--line-soft); cursor: pointer; }
 .detail-list .dl-item:hover { background: var(--teal-tint); }
@@ -1024,8 +1026,73 @@ table.tickets tr.trow:hover { background: var(--teal-tint); }
 }
 
 /* Other Open Tickets Table of Customer (Red Highlight 2) */
+.other-tix-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin: 16px 0 7px;
+}
+.other-tix-header-row h4 {
+  margin: 0 !important;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--ink-faint);
+  font-weight: 700;
+}
+.other-tix-ctrls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.btn-tix-expand {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-tix-expand:hover {
+  background: var(--teal-tint);
+  color: var(--teal-dark);
+  border-color: var(--teal);
+}
+.btn-tix-expand.active-expanded {
+  background: #FEF3C7;
+  color: #92400E;
+  border-color: #FCD34D;
+}
+.btn-tix-expand.active-expanded:hover {
+  background: #FDE68A;
+}
+.count-badge-subtle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: var(--teal-tint);
+  color: var(--teal-dark);
+  border: 1px solid var(--teal-mid);
+}
 .other-tix-wrap {
   background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; margin-bottom: 12px; overflow-x: auto;
+  transition: all 0.2s ease;
+}
+.other-tix-wrap.other-tix-expanded-wrap {
+  background: #FFFFFF;
+  border-color: var(--teal-mid);
+  box-shadow: 0 2px 8px rgba(15, 92, 86, 0.06);
 }
 .other-tix-table { width: 100%; border-collapse: collapse; font-size: 10.5px; }
 .other-tix-table th {
@@ -1034,6 +1101,9 @@ table.tickets tr.trow:hover { background: var(--teal-tint); }
 .other-tix-table td { padding: 5px 3px; border-bottom: 1px solid var(--line-soft); vertical-align: middle; white-space: nowrap; }
 .other-tix-table tr.other-tix-row { cursor: pointer; transition: background .12s ease; }
 .other-tix-table tr.other-tix-row:hover { background: var(--teal-tint); }
+.other-tix-table-expanded { font-size: 11px; }
+.other-tix-table-expanded th { font-size: 8.5px; padding: 6px 5px; }
+.other-tix-table-expanded td { padding: 6px 5px; }
 .tix-link-btn { color: var(--teal); font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 2px; }
 .tix-link-btn:hover { text-decoration: underline; color: var(--teal-dark); }
 
@@ -2641,6 +2711,29 @@ th.sortable-header:hover .sortable-icon {
 </div>
 
 <!-- ============ MODALS ============ -->
+
+<!-- Other Open Tickets Expanded Modal -->
+<div class="modal-overlay" id="modalOtherTickets">
+  <div class="modal modal-merge-wide" style="max-width: 920px; width: 95%;">
+    <div class="modal-head">
+      <div>
+        <h3>Other open tickets of this customer</h3>
+        <div id="otherTicketsModalSubtitle" style="font-size:12px; color:var(--ink-soft); margin-top:2px;"></div>
+      </div>
+      <button class="close" onclick="closeModal('modalOtherTickets')">✕</button>
+    </div>
+    <div class="modal-body" style="padding-bottom: 8px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px;">
+        <input type="text" id="modalOtherTixSearch" placeholder="Search tickets by ID, subject, department, channel..." oninput="renderModalOtherTicketsTable()" style="flex:1; border:1px solid var(--line); border-radius:6px; padding:7px 10px; font-size:12px; outline:none; font-family:var(--sans);">
+        <span id="modalOtherTixCount" style="font-size:12px; font-weight:700; color:var(--teal); white-space:nowrap;"></span>
+      </div>
+      <div id="modalOtherTicketsContent" style="max-height: 440px; overflow-y: auto; border: 1px solid var(--line); border-radius: 6px;"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modalOtherTickets')">Close</button>
+    </div>
+  </div>
+</div>
 
 <!-- Add Assignment Rule Modal -->
 <div class="modal-overlay" id="modalAddRule">
@@ -7649,6 +7742,59 @@ function shareFeedbackLink(){
   showToast('Customer feedback link sent to thread');
 }
 
+let isOtherTicketsExpanded = false;
+
+function toggleOtherTicketsExpand() {
+  isOtherTicketsExpanded = !isOtherTicketsExpanded;
+  const shell = document.querySelector('.detail-shell');
+  if (shell) {
+    shell.classList.toggle('expand-other-tix', isOtherTicketsExpanded);
+  }
+  const currentTicket = TICKETS.find(x => x.id === selectedTicketId);
+  if (currentTicket) renderProps(currentTicket);
+}
+
+function getFrtInfo(t) {
+  const firstReply = (t.thread || []).find(m => m.dir === 'out');
+  let targetMins = 15;
+  if (t.priority === 'High') targetMins = 15;
+  else if (t.priority === 'Medium') targetMins = 30;
+  else targetMins = 60;
+
+  if (firstReply) {
+    let frtAchievedMins = 8;
+    if (t.priority === 'High') frtAchievedMins = Math.min(12, Math.max(3, (t.id.charCodeAt(t.id.length - 1) % 10) + 4));
+    else if (t.priority === 'Medium') frtAchievedMins = Math.min(25, Math.max(8, (t.id.charCodeAt(t.id.length - 1) % 15) + 8));
+    else frtAchievedMins = Math.min(45, Math.max(15, (t.id.charCodeAt(t.id.length - 1) % 20) + 15));
+
+    return {
+      status: 'Achieved',
+      statusText: `${frtAchievedMins}m (Met Target)`,
+      badgeClass: 'sla-ok',
+      targetText: `${targetMins}m target`,
+      timeStr: firstReply.time || '10:05 AM',
+      achieved: true,
+      frtMins: frtAchievedMins
+    };
+  } else {
+    const now = new Date();
+    const created = t.createdAt ? new Date(t.createdAt) : now;
+    const elapsedMins = Math.max(0, Math.floor((now - created) / 60000));
+    const remainingMins = targetMins - elapsedMins;
+    const isBreached = remainingMins < 0;
+
+    return {
+      status: 'Pending',
+      statusText: isBreached ? `Breached by ${Math.abs(remainingMins)}m` : `${remainingMins}m remaining`,
+      badgeClass: isBreached ? 'sla-breach' : (remainingMins < 10 ? 'sla-warn' : 'sla-ok'),
+      targetText: `${targetMins}m target`,
+      timeStr: 'Awaiting first agent reply',
+      achieved: false,
+      frtMins: remainingMins
+    };
+  }
+}
+
 function renderProps(t){
   const managerOnlyFeedback = currentRole === 'manager' ? `<button class="btn btn-ghost btn-sm" onclick="shareFeedbackLink()">⭐ Share feedback link</button>` : '';
 
@@ -7663,8 +7809,17 @@ function renderProps(t){
     }
   }
 
+  const frt = getFrtInfo(t);
+  const otherTicketsCount = TICKETS.filter(x => x.customer === t.customer && x.id !== t.id && x.status !== 'Merged' && x.status !== 'Closed' && x.status !== 'Resolved').length;
+
+  const shell = document.querySelector('.detail-shell');
+  if (shell) {
+    shell.classList.toggle('expand-other-tix', isOtherTicketsExpanded);
+  }
+
   document.getElementById('propsPanel').innerHTML = `
-    <h4>Ticket properties</h4>
+    <!-- 1. Ticket properties -->
+    <h4 style="margin-top:0;">Ticket properties</h4>
     <div class="prop-row"><label>Status</label>
       <select onchange="updateTicketField('status', this.value)">${STATUSES.map(s=>`<option ${s===t.status?'selected':''}>${s}</option>`).join('')}</select>
     </div>
@@ -7683,19 +7838,51 @@ function renderProps(t){
     <div class="prop-row"><label>Category</label><input type="text" value="${t.category||'—'}" readonly></div>
     <div class="prop-row"><label>Sub category</label><input type="text" value="${t.subCategory||'—'}" readonly></div>
 
+    <!-- 2. Ticket actions -->
+    <h4>Ticket actions</h4>
+    <div class="action-grid">
+      <button class="btn btn-ghost btn-sm" onclick="openMerge()">⇄ Merge</button>
+      <button class="btn btn-ghost btn-sm" onclick="openEscalate()">▲ Escalate</button>
+      <button class="btn btn-ghost btn-sm" onclick="openReassign()">↻ Reassign</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeTicket()">⏹ Close</button>
+      ${managerOnlyFeedback}
+    </div>
+
+    <!-- 3. SLA -->
     <h4>SLA</h4>
     <div class="sla-box">
-      <div>${t.priority} priority target</div>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>${t.priority} priority target</div>
+        <span style="font-size:9.5px; font-weight:700; color:var(--ink-faint); text-transform:uppercase;">Resolution SLA</span>
+      </div>
       <div class="big ${t.slaMins<0?'sla-breach':(t.slaMins<60?'sla-warn':'sla-ok')}">${t.slaMins<0? 'Breached by '+Math.abs(t.slaMins)+'m' : t.slaMins+'m remaining'}</div>
     </div>
-    <div style="margin-top: 10px; font-size: 11px; display: flex; flex-direction: column; gap: 6px; padding: 10px; background: var(--panel); border-radius: 6px; border: 1px solid var(--line-soft);">
+    <div style="margin-top: 8px; font-size: 11px; display: flex; flex-direction: column; gap: 6px; padding: 10px; background: var(--panel); border-radius: 6px; border: 1px solid var(--line-soft);">
       <div style="display:flex; justify-content:space-between;"><span>Created:</span><b>${fmtDateTime(t.createdAt)}</b></div>
       <div style="display:flex; justify-content:space-between;"><span>Closed:</span><b>${(t.status==='Closed'||t.status==='Resolved')? fmtDateTime(getTicketClosedDate(t)) : '—'}</b></div>
     </div>
 
-    <h4>Customer</h4>
+    <!-- 4. FRT -->
+    <h4>FRT</h4>
+    <div class="sla-box">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>${frt.targetText}</div>
+        <span style="font-size:9.5px; font-weight:700; color:var(--ink-faint); text-transform:uppercase;">First Response</span>
+      </div>
+      <div class="big ${frt.badgeClass}">${frt.statusText}</div>
+    </div>
+    <div style="margin-top: 8px; font-size: 11px; display: flex; flex-direction: column; gap: 6px; padding: 10px; background: var(--panel); border-radius: 6px; border: 1px solid var(--line-soft);">
+      <div style="display:flex; justify-content:space-between;"><span>FRT Target:</span><b>${frt.targetText}</b></div>
+      <div style="display:flex; justify-content:space-between;"><span>${frt.achieved ? 'First response at:' : 'Status:'}</span><b>${frt.timeStr}</b></div>
+    </div>
+
+    <!-- 5. Customer Details -->
+    <h4>Customer Details</h4>
     <div class="customer-card">
-      <div class="cname">${t.customer}</div>
+      <div class="cname" style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;" onclick="openCustomerProfile('${t.customer}')" title="Click to view Customer Profile">
+        <span>${t.customer}</span>
+        <span style="font-size:10px; font-weight:600; color:var(--teal); text-decoration:underline;">Profile ↗</span>
+      </div>
       <div class="crow"><span>Phone</span><span>${t.phone}</span></div>
       <div class="crow"><span>Loan ID</span><span>LN-44018</span></div>
       <div class="crow"><span>Loan stage</span><span>EMI active</span></div>
@@ -7704,18 +7891,23 @@ function renderProps(t){
       <div class="crow"><span>Preferred channel</span><span>${t.channel}</span></div>
     </div>
 
-    <h4>OTHER OPEN TICKETS OF THIS CUSTOMER</h4>
-    <div class="other-tix-wrap">
-      ${renderOtherOpenTicketsTable(t)}
+    <!-- 6. OTHER OPEN TICKETS OF THIS CUSTOMER -->
+    <div class="other-tix-header-row">
+      <div style="display:flex; align-items:center; gap:6px;">
+        <h4>OTHER OPEN TICKETS OF THIS CUSTOMER</h4>
+        ${otherTicketsCount > 0 ? `<span class="count-badge-subtle">${otherTicketsCount}</span>` : ''}
+      </div>
+      <div class="other-tix-ctrls">
+        <button class="btn-tix-expand ${isOtherTicketsExpanded ? 'active-expanded' : ''}" onclick="toggleOtherTicketsExpand()" title="${isOtherTicketsExpanded ? 'Minimize back to sidebar as it is right now' : 'Expand to see other tickets properly'}">
+          <span>${isOtherTicketsExpanded ? '⤡ Minimize' : '⤢ Expand'}</span>
+        </button>
+        <button class="btn-tix-expand" onclick="openOtherTicketsModal()" title="Open full popup dialog for all open tickets">
+          <span>⛶ Modal</span>
+        </button>
+      </div>
     </div>
-
-    <h4>Quick actions</h4>
-    <div class="action-grid">
-      <button class="btn btn-ghost btn-sm" onclick="openMerge()">⇄ Merge</button>
-      <button class="btn btn-ghost btn-sm" onclick="openEscalate()">▲ Escalate</button>
-      <button class="btn btn-ghost btn-sm" onclick="openReassign()">↻ Reassign</button>
-      <button class="btn btn-ghost btn-sm" onclick="closeTicket()">⏹ Close</button>
-      ${managerOnlyFeedback}
+    <div class="other-tix-wrap ${isOtherTicketsExpanded ? 'other-tix-expanded-wrap' : ''}">
+      ${renderOtherOpenTicketsTable(t, isOtherTicketsExpanded)}
     </div>
   `;
   enhanceAllSelects(document.getElementById('propsPanel'));
@@ -7727,23 +7919,71 @@ function getChannelIconBadge(chan){
   return `<span class="chan-badge ${chanClass(chan)}" title="Channel: ${chan}" style="font-size:11px; padding:2px 6px; cursor:help;">${icon}</span>`;
 }
 
-function renderOtherOpenTicketsTable(currentTicket){
+function renderOtherOpenTicketsTable(currentTicket, isExpanded = false){
   let otherTickets = TICKETS.filter(x => x.customer === currentTicket.customer && x.id !== currentTicket.id && x.status !== 'Merged' && x.status !== 'Closed' && x.status !== 'Resolved');
   if(otherTickets.length === 0){
-    return `<div style="font-size:11.5px; color:var(--ink-faint); padding:6px 0; text-align:center;">No other open tickets for this customer</div>`;
+    return `<div style="font-size:11.5px; color:var(--ink-faint); padding:10px 0; text-align:center;">No other open tickets for this customer</div>`;
   }
 
   const sort = sortState.othertix;
   if(sort.field){
     sortArray(otherTickets, sort.field, sort.asc, (ot, field) => {
       if(field === 'dept') return ot.department || ot.queue || 'Support';
-      if(field === 'createdAt') return ot.createdAt ? ot.createdAt.getTime() : 0;
+      if(field === 'createdAt') return ot.createdAt ? (new Date(ot.createdAt)).getTime() : 0;
+      if(field === 'subject') return (ot.subject || '').toLowerCase();
+      if(field === 'priority') {
+        const pMap = { High: 3, Medium: 2, Low: 1 };
+        return pMap[ot.priority] || 0;
+      }
       return ot[field];
     });
   }
 
   const p = n => String(n).padStart(2, '0');
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  if (isExpanded) {
+    return `
+      <table class="other-tix-table other-tix-table-expanded">
+        <thead>
+          <tr>
+            <th class="sortable-header" onclick="toggleSortOtherTix('id')">Ticket${sortIcon('othertix', 'id')}</th>
+            <th class="sortable-header" onclick="toggleSortOtherTix('subject')">Subject / Query${sortIcon('othertix', 'subject')}</th>
+            <th class="sortable-header" onclick="toggleSortOtherTix('dept')">Dept${sortIcon('othertix', 'dept')}</th>
+            <th class="sortable-header" onclick="toggleSortOtherTix('channel')">Chan${sortIcon('othertix', 'channel')}</th>
+            <th class="sortable-header" onclick="toggleSortOtherTix('priority')">Priority${sortIcon('othertix', 'priority')}</th>
+            <th class="sortable-header" onclick="toggleSortOtherTix('createdAt')">Created${sortIcon('othertix', 'createdAt')}</th>
+            <th class="sortable-header" onclick="toggleSortOtherTix('status')">Status${sortIcon('othertix', 'status')}</th>
+            <th style="text-align:center;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${otherTickets.map(ot => {
+            const d = ot.createdAt ? new Date(ot.createdAt) : new Date();
+            const displayH = d.getHours() % 12 === 0 ? 12 : d.getHours() % 12;
+            const ap = d.getHours() < 12 ? 'AM' : 'PM';
+            const createdStr = `${months[d.getMonth()]} ${p(d.getDate())}, ${displayH}:${p(d.getMinutes())} ${ap}`;
+            const deptStr = ot.department || ot.queue || 'Support';
+            return `
+              <tr class="other-tix-row" title="Click to view ${ot.id}" onclick="openTicket('${ot.id}')">
+                <td style="white-space:nowrap;"><a href="?ticket=${ot.id}" target="_blank" class="tix-link-btn" onclick="event.preventDefault(); openTicketInNewTab('${ot.id}')">${ot.id} ↗</a></td>
+                <td style="font-weight:600; color:var(--ink); max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${ot.subject || ''}">${ot.subject || '—'}</td>
+                <td style="white-space:nowrap;"><span class="dept-pill" style="font-size:9.5px; padding:1px 5px;">${deptStr}</span></td>
+                <td style="white-space:nowrap;">${getChannelIconBadge(ot.channel)} <span style="font-size:10px; margin-left:2px;">${ot.channel}</span></td>
+                <td style="white-space:nowrap;"><span style="font-size:9.5px; font-weight:700; padding:1px 5px; border-radius:3px; ${ot.priority==='High'?'background:var(--red-tint);color:var(--red);':ot.priority==='Medium'?'background:var(--amber-tint);color:var(--amber-dark);':'background:var(--green-tint);color:var(--green);'}">${ot.priority}</span></td>
+                <td style="font-size:10px; color:var(--ink-faint); white-space:nowrap;">${createdStr}</td>
+                <td style="white-space:nowrap;"><span class="status-badge ${statusClass(ot.status)}" style="font-size:9.5px; padding:1px 5px;">${ot.status}</span></td>
+                <td style="white-space:nowrap; text-align:center;">
+                  <button class="btn btn-ghost btn-sm" style="padding:1px 6px; font-size:10px;" onclick="event.stopPropagation(); openTicket('${ot.id}')">View</button>
+                  <button class="btn btn-ghost btn-sm" style="padding:1px 6px; font-size:10px; margin-left:2px;" onclick="event.stopPropagation(); openTicketInNewTab('${ot.id}')">↗</button>
+                </td>
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      </table>
+    `;
+  }
 
   return `
     <table class="other-tix-table">
@@ -7772,6 +8012,91 @@ function renderOtherOpenTicketsTable(currentTicket){
               <td style="white-space:nowrap;">${getChannelIconBadge(ot.channel)}</td>
               <td style="font-size:9.5px; color:var(--ink-faint); white-space:nowrap;">${createdStr}</td>
               <td style="white-space:nowrap;"><span class="status-badge ${statusClass(ot.status)}" style="font-size:9.5px; padding:1px 5px;">${ot.status}</span></td>
+            </tr>
+          `;
+        }).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+function openOtherTicketsModal(){
+  const t = TICKETS.find(x=>x.id===selectedTicketId);
+  if(!t) return;
+  const subEl = document.getElementById('otherTicketsModalSubtitle');
+  if(subEl) subEl.textContent = `Customer: ${t.customer} (${t.phone || 'LN-44018'}) — Current Ticket: ${t.id}`;
+  const searchEl = document.getElementById('modalOtherTixSearch');
+  if(searchEl) searchEl.value = '';
+  renderModalOtherTicketsTable();
+  document.getElementById('modalOtherTickets').classList.add('show');
+}
+
+function renderModalOtherTicketsTable(){
+  const t = TICKETS.find(x=>x.id===selectedTicketId);
+  if(!t) return;
+  const searchEl = document.getElementById('modalOtherTixSearch');
+  const q = searchEl ? searchEl.value.trim().toLowerCase() : '';
+  
+  let otherTickets = TICKETS.filter(x => x.customer === t.customer && x.id !== t.id && x.status !== 'Merged' && x.status !== 'Closed' && x.status !== 'Resolved');
+  
+  if (q) {
+    otherTickets = otherTickets.filter(x => 
+      x.id.toLowerCase().includes(q) ||
+      (x.subject && x.subject.toLowerCase().includes(q)) ||
+      (x.department && x.department.toLowerCase().includes(q)) ||
+      (x.channel && x.channel.toLowerCase().includes(q)) ||
+      (x.status && x.status.toLowerCase().includes(q))
+    );
+  }
+
+  const countEl = document.getElementById('modalOtherTixCount');
+  if(countEl) countEl.textContent = `${otherTickets.length} open ticket${otherTickets.length === 1 ? '' : 's'}`;
+
+  const container = document.getElementById('modalOtherTicketsContent');
+  if(!container) return;
+
+  if(otherTickets.length === 0){
+    container.innerHTML = `<div style="font-size:12.5px; color:var(--ink-faint); padding:30px; text-align:center;">No other open tickets found for this customer</div>`;
+    return;
+  }
+
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const p = n => String(n).padStart(2, '0');
+
+  container.innerHTML = `
+    <table class="other-tix-table" style="font-size:12px;">
+      <thead>
+        <tr style="background:#F8FAFC;">
+          <th style="padding:8px 10px; font-size:10.5px;">Ticket ID</th>
+          <th style="padding:8px 10px; font-size:10.5px;">Subject / Query</th>
+          <th style="padding:8px 10px; font-size:10.5px;">Department</th>
+          <th style="padding:8px 10px; font-size:10.5px;">Channel</th>
+          <th style="padding:8px 10px; font-size:10.5px;">Priority</th>
+          <th style="padding:8px 10px; font-size:10.5px;">Created</th>
+          <th style="padding:8px 10px; font-size:10.5px;">Status</th>
+          <th style="padding:8px 10px; font-size:10.5px; text-align:center;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${otherTickets.map(ot => {
+          const d = ot.createdAt ? new Date(ot.createdAt) : new Date();
+          const displayH = d.getHours() % 12 === 0 ? 12 : d.getHours() % 12;
+          const ap = d.getHours() < 12 ? 'AM' : 'PM';
+          const createdStr = `${months[d.getMonth()]} ${p(d.getDate())}, ${displayH}:${p(d.getMinutes())} ${ap}`;
+          const deptStr = ot.department || ot.queue || 'Support';
+          return `
+            <tr class="other-tix-row" style="border-bottom:1px solid var(--line-soft);">
+              <td style="padding:8px 10px; font-weight:700;"><a href="?ticket=${ot.id}" target="_blank" class="tix-link-btn" onclick="event.preventDefault(); openTicketInNewTab('${ot.id}')">${ot.id} ↗</a></td>
+              <td style="padding:8px 10px; font-weight:600; color:var(--ink); max-width:240px;">${ot.subject || '—'}</td>
+              <td style="padding:8px 10px;"><span class="dept-pill" style="font-size:10px; padding:2px 6px;">${deptStr}</span></td>
+              <td style="padding:8px 10px;">${getChannelIconBadge(ot.channel)} <span style="font-size:11px; margin-left:4px;">${ot.channel}</span></td>
+              <td style="padding:8px 10px;"><span style="font-size:10px; font-weight:700; padding:2px 6px; border-radius:4px; ${ot.priority==='High'?'background:var(--red-tint);color:var(--red);':ot.priority==='Medium'?'background:var(--amber-tint);color:var(--amber-dark);':'background:var(--green-tint);color:var(--green);'}">${ot.priority}</span></td>
+              <td style="padding:8px 10px; color:var(--ink-soft); font-size:11px;">${createdStr}</td>
+              <td style="padding:8px 10px;"><span class="status-badge ${statusClass(ot.status)}" style="font-size:10px; padding:2px 6px;">${ot.status}</span></td>
+              <td style="padding:8px 10px; text-align:center; white-space:nowrap;">
+                <button class="btn btn-ghost btn-sm" style="padding:2px 8px; font-size:10.5px;" onclick="closeModal('modalOtherTickets'); openTicket('${ot.id}')">Switch Ticket</button>
+                <button class="btn btn-ghost btn-sm" style="padding:2px 8px; font-size:10.5px; margin-left:4px;" onclick="openTicketInNewTab('${ot.id}')">Open Tab ↗</button>
+              </td>
             </tr>
           `;
         }).join('')}

@@ -2988,6 +2988,59 @@ function getRelatedTicketsForCustomer(ticket){
     .sort((a,b) => new Date(a.createdAt) - new Date(b.createdAt));
 }
 
+let isOtherTicketsExpanded = false;
+
+function toggleOtherTicketsExpand() {
+  isOtherTicketsExpanded = !isOtherTicketsExpanded;
+  const shell = document.querySelector('.detail-shell');
+  if (shell) {
+    shell.classList.toggle('expand-other-tix', isOtherTicketsExpanded);
+  }
+  const currentTicket = TICKETS.find(x => x.id === selectedTicketId);
+  if (currentTicket) renderProps(currentTicket);
+}
+
+function getFrtInfo(t) {
+  const firstReply = (t.thread || []).find(m => m.dir === 'out');
+  let targetMins = 15;
+  if (t.priority === 'High') targetMins = 15;
+  else if (t.priority === 'Medium') targetMins = 30;
+  else targetMins = 60;
+
+  if (firstReply) {
+    let frtAchievedMins = 8;
+    if (t.priority === 'High') frtAchievedMins = Math.min(12, Math.max(3, (t.id.charCodeAt(t.id.length - 1) % 10) + 4));
+    else if (t.priority === 'Medium') frtAchievedMins = Math.min(25, Math.max(8, (t.id.charCodeAt(t.id.length - 1) % 15) + 8));
+    else frtAchievedMins = Math.min(45, Math.max(15, (t.id.charCodeAt(t.id.length - 1) % 20) + 15));
+
+    return {
+      status: 'Achieved',
+      statusText: `${frtAchievedMins}m (Met Target)`,
+      badgeClass: 'sla-ok',
+      targetText: `${targetMins}m target`,
+      timeStr: firstReply.time || '10:05 AM',
+      achieved: true,
+      frtMins: frtAchievedMins
+    };
+  } else {
+    const now = new Date();
+    const created = t.createdAt ? new Date(t.createdAt) : now;
+    const elapsedMins = Math.max(0, Math.floor((now - created) / 60000));
+    const remainingMins = targetMins - elapsedMins;
+    const isBreached = remainingMins < 0;
+
+    return {
+      status: 'Pending',
+      statusText: isBreached ? `Breached by ${Math.abs(remainingMins)}m` : `${remainingMins}m remaining`,
+      badgeClass: isBreached ? 'sla-breach' : (remainingMins < 10 ? 'sla-warn' : 'sla-ok'),
+      targetText: `${targetMins}m target`,
+      timeStr: 'Awaiting first agent reply',
+      achieved: false,
+      frtMins: remainingMins
+    };
+  }
+}
+
 function renderProps(t){
   const managerOnlyFeedback = currentRole === 'manager' ? `<button class="btn btn-ghost btn-sm" onclick="shareFeedbackLink()">⭐ Share feedback link</button>` : '';
   const department = t.department || t.queue || 'Customer Support';
@@ -2997,30 +3050,45 @@ function renderProps(t){
   const selectedSubCategory = subCategoryOptions.includes(t.subCategory) ? t.subCategory : subCategoryOptions[0];
   const associatedTickets = getRelatedTicketsForCustomer(t);
 
+  const frt = getFrtInfo(t);
+  const otherTicketsCount = associatedTickets.length;
+
+  const shell = document.querySelector('.detail-shell');
+  if (shell) {
+    shell.classList.toggle('expand-other-tix', isOtherTicketsExpanded);
+  }
+
   const assocHtml = associatedTickets.length
-    ? `<table class="assoc-table">
+    ? `<table class="other-tix-table ${isOtherTicketsExpanded ? 'other-tix-table-expanded' : ''}">
         <thead>
           <tr>
             <th>Ticket id</th>
+            ${isOtherTicketsExpanded ? '<th>Subject</th>' : ''}
             <th>Loan stage</th>
+            <th>Dept</th>
             <th>Channel</th>
             <th>Created</th>
             <th>Status</th>
+            ${isOtherTicketsExpanded ? '<th style="text-align:center;">Action</th>' : ''}
           </tr>
         </thead>
         <tbody>${associatedTickets.map(item => `
-          <tr>
-            <td><span class="ticket-pill">${item.id}</span></td>
+          <tr class="other-tix-row" onclick="openTicket('${item.id}')">
+            <td><a href="?ticket=${item.id}" target="_blank" class="tix-link-btn" onclick="event.preventDefault(); openTicketInNewTab('${item.id}')">${item.id} ↗</a></td>
+            ${isOtherTicketsExpanded ? `<td style="font-weight:600; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${item.subject || '—'}</td>` : ''}
             <td>${item.loanStage || '—'}</td>
+            <td><span class="dept-pill" style="font-size:9.5px; padding:1px 5px;">${item.department || item.queue || 'Support'}</span></td>
             <td>${item.channel || '—'}</td>
             <td>${formatTicketCreatedStamp(item)}</td>
-            <td><span class="status-pill">${item.status || 'Open'}</span></td>
+            <td><span class="status-badge ${statusClass(item.status)}" style="font-size:9.5px; padding:1px 5px;">${item.status || 'Open'}</span></td>
+            ${isOtherTicketsExpanded ? `<td style="text-align:center;"><button class="btn btn-ghost btn-sm" style="padding:1px 6px; font-size:10px;" onclick="event.stopPropagation(); openTicket('${item.id}')">View</button></td>` : ''}
           </tr>`).join('')}</tbody>
       </table>`
-    : '<div style="font-size:11.5px;color:var(--ink-faint);padding-top:2px;">No related tickets for this customer.</div>';
+    : '<div style="font-size:11.5px;color:var(--ink-faint);padding:10px 0;text-align:center;">No related tickets for this customer.</div>';
 
   document.getElementById('propsPanel').innerHTML = `
-    <h4>Ticket properties</h4>
+    <!-- 1. Ticket properties -->
+    <h4 style="margin-top:0;">Ticket properties</h4>
     <div class="prop-row"><label>Status</label>
       <select onchange="updateTicketField('status', this.value)">${STATUSES.map(s=>`<option ${s===t.status?'selected':''}>${s}</option>`).join('')}</select>
     </div>
@@ -3037,19 +3105,51 @@ function renderProps(t){
       <select onchange="updateTicketField('subCategory', this.value); renderProps(TICKETS.find(x=>x.id===selectedTicketId));">${subCategoryOptions.map(c=>`<option ${c===selectedSubCategory?'selected':''}>${c}</option>`).join('')}</select>
     </div>
 
+    <!-- 2. Ticket actions -->
+    <h4>Ticket actions</h4>
+    <div class="action-grid">
+      <button class="btn btn-ghost btn-sm" onclick="openMerge()">⇄ Merge</button>
+      <button class="btn btn-ghost btn-sm" onclick="openEscalate()">▲ Escalate</button>
+      <button class="btn btn-ghost btn-sm" onclick="openReassign()">↻ Reassign</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeTicket()">⏹ Close</button>
+      ${managerOnlyFeedback}
+    </div>
+
+    <!-- 3. SLA -->
     <h4>SLA</h4>
     <div class="sla-box">
-      <div>${t.priority} priority target</div>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>${t.priority} priority target</div>
+        <span style="font-size:9.5px; font-weight:700; color:var(--ink-faint); text-transform:uppercase;">Resolution SLA</span>
+      </div>
       <div class="big ${t.slaMins<0?'sla-breach':(t.slaMins<60?'sla-warn':'sla-ok')}">${t.slaMins<0? 'Breached by '+Math.abs(t.slaMins)+'m' : t.slaMins+'m remaining'}</div>
     </div>
-    <div style="margin-top: 10px; font-size: 11px; display: flex; flex-direction: column; gap: 6px; padding: 10px; background: var(--panel); border-radius: 6px; border: 1px solid var(--line-soft);">
+    <div style="margin-top: 8px; font-size: 11px; display: flex; flex-direction: column; gap: 6px; padding: 10px; background: var(--panel); border-radius: 6px; border: 1px solid var(--line-soft);">
       <div style="display:flex; justify-content:space-between;"><span>Created:</span><b>${fmtDateTime(t.createdAt)}</b></div>
       <div style="display:flex; justify-content:space-between;"><span>Closed:</span><b>${(t.status==='Closed'||t.status==='Resolved')? fmtDateTime(getTicketClosedDate(t)) : '—'}</b></div>
     </div>
 
-    <h4>Customer</h4>
+    <!-- 4. FRT -->
+    <h4>FRT</h4>
+    <div class="sla-box">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>${frt.targetText}</div>
+        <span style="font-size:9.5px; font-weight:700; color:var(--ink-faint); text-transform:uppercase;">First Response</span>
+      </div>
+      <div class="big ${frt.badgeClass}">${frt.statusText}</div>
+    </div>
+    <div style="margin-top: 8px; font-size: 11px; display: flex; flex-direction: column; gap: 6px; padding: 10px; background: var(--panel); border-radius: 6px; border: 1px solid var(--line-soft);">
+      <div style="display:flex; justify-content:space-between;"><span>FRT Target:</span><b>${frt.targetText}</b></div>
+      <div style="display:flex; justify-content:space-between;"><span>${frt.achieved ? 'First response at:' : 'Status:'}</span><b>${frt.timeStr}</b></div>
+    </div>
+
+    <!-- 5. Customer Details -->
+    <h4>Customer Details</h4>
     <div class="customer-card">
-      <div class="cname">${t.customer}</div>
+      <div class="cname" style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;" onclick="openCustomerProfile('${t.customer}')" title="Click to view Customer Profile">
+        <span>${t.customer}</span>
+        <span style="font-size:10px; font-weight:600; color:var(--teal); text-decoration:underline;">Profile ↗</span>
+      </div>
       <div class="crow"><span>Phone</span><span>${t.phone}</span></div>
       <div class="crow"><span>Loan ID</span><span>${t.loanId || '—'}</span></div>
       <div class="crow"><span>Loan stage</span><span>${t.loanStage || 'Not captured'}</span></div>
@@ -3058,18 +3158,20 @@ function renderProps(t){
       <div class="crow"><span>Preferred channel</span><span>${t.channel}</span></div>
     </div>
 
-    <div class="associated-ticket-box">
-      <div class="assoc-head">Other open tickets of this customer</div>
-      ${assocHtml}
+    <!-- 6. OTHER OPEN TICKETS OF THIS CUSTOMER -->
+    <div class="other-tix-header-row">
+      <div style="display:flex; align-items:center; gap:6px;">
+        <h4>OTHER OPEN TICKETS OF THIS CUSTOMER</h4>
+        ${otherTicketsCount > 0 ? `<span class="count-badge-subtle">${otherTicketsCount}</span>` : ''}
+      </div>
+      <div class="other-tix-ctrls">
+        <button class="btn-tix-expand ${isOtherTicketsExpanded ? 'active-expanded' : ''}" onclick="toggleOtherTicketsExpand()" title="${isOtherTicketsExpanded ? 'Minimize back to sidebar as it is right now' : 'Expand to see other tickets properly'}">
+          <span>${isOtherTicketsExpanded ? '⤡ Minimize' : '⤢ Expand'}</span>
+        </button>
+      </div>
     </div>
-
-    <h4>Quick actions</h4>
-    <div class="action-grid">
-      <button class="btn btn-ghost btn-sm" onclick="openMerge()">⇄ Merge</button>
-      <button class="btn btn-ghost btn-sm" onclick="openEscalate()">▲ Escalate</button>
-      <button class="btn btn-ghost btn-sm" onclick="openReassign()">↻ Reassign</button>
-      <button class="btn btn-ghost btn-sm" onclick="closeTicket()">⏹ Close</button>
-      ${managerOnlyFeedback}
+    <div class="other-tix-wrap ${isOtherTicketsExpanded ? 'other-tix-expanded-wrap' : ''}">
+      ${assocHtml}
     </div>
   `;
   enhanceAllSelects(document.getElementById('propsPanel'));
