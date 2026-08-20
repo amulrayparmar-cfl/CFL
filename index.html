@@ -987,12 +987,12 @@ table.tickets tr.trow:hover { background: var(--teal-tint); }
 .reply-channel-select { display: flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 6px; padding: 4px 9px 4px 8px; background: var(--panel); }
 .reply-channel-select select { border: none; outline: none; background: transparent; font-family: var(--sans); font-size: 11.5px; font-weight: 700; color: var(--ink); cursor: pointer; }
 
-.email-card { background: var(--purple-tint); border-left: 3px solid var(--purple); border-radius: 6px; padding: 10px 12px; max-width: 320px; }
+.email-card { background: var(--purple-tint); border-left: 3px solid var(--purple); border-radius: 6px; padding: 10px 12px; max-width: 380px; }
 .email-card .ec-head { display: flex; align-items: center; gap: 6px; color: var(--purple); font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: .03em; margin-bottom: 7px; }
 .email-card .ec-subject-lbl { font-size: 9.5px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: .03em; margin-bottom: 2px; }
 .email-card .ec-subject { font-weight: 700; color: var(--ink); font-size: 12.5px; margin-bottom: 9px; }
-.email-card .ec-actions { display: flex; gap: 16px; border-top: 1px solid var(--purple-badge); padding-top: 7px; }
-.email-card .ec-link { color: var(--purple); font-weight: 700; font-size: 11.5px; cursor: pointer; background: none; border: none; font-family: var(--sans); padding: 0; }
+.email-card .ec-actions { display: flex; gap: 12px; border-top: 1px solid var(--purple-badge); padding-top: 7px; flex-wrap: wrap; }
+.email-card .ec-link { color: var(--purple); font-weight: 700; font-size: 11.5px; cursor: pointer; background: none; border: none; font-family: var(--sans); padding: 0; display: inline-flex; align-items: center; gap: 3px; }
 .email-card .ec-link:hover { text-decoration: underline; }
 
 .props-panel { border-left: 1px solid var(--line); background: var(--panel); overflow-y: auto; padding: 16px; }
@@ -1262,8 +1262,134 @@ table.perf td { padding: 8px 12px; font-size: 12px; border-bottom: 1px solid var
 .rte-toolbar button.rte-hl { background: #FDE68A; }
 .rte-body { min-height: 130px; max-height: 260px; overflow-y: auto; border: 1px solid var(--line); border-radius: 0 0 6px 6px; padding: 10px 11px; font-size: 12.5px; outline: none; }
 .rte-body:focus { border-color: var(--teal); }
-.ec-signature { margin-top: 10px; padding: 9px 11px; background: var(--paper); border: 1px dashed var(--line); border-radius: 6px; font-size: 11.5px; color: var(--ink-soft); white-space: pre-line; }
-.ec-signature .ec-sig-label { display: block; font-size: 9.5px; text-transform: uppercase; letter-spacing: .03em; color: var(--ink-faint); margin-bottom: 3px; }
+.ec-signature { margin-top: 10px; padding: 12px 14px; background: var(--paper); border: 1px dashed var(--line); border-radius: 6px; font-size: 12px; color: var(--ink); white-space: normal; }
+.ec-signature .ec-sig-label { display: block; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-faint); margin-bottom: 8px; }
+
+/* Recipient Multi-Chip Input (To & CC) */
+.recipient-input-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--paper);
+  min-height: 38px;
+  cursor: text;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+.recipient-input-container:focus-within {
+  border-color: var(--teal);
+  background: var(--panel);
+  box-shadow: 0 0 0 2px var(--teal-tint);
+}
+.recipient-chips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: center;
+}
+.recipient-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  padding: 3px 8px;
+  border-radius: 16px;
+  font-size: 12px;
+  color: #1E3A8A;
+  font-weight: 500;
+  line-height: 1.2;
+  transition: all 0.15s ease;
+}
+.recipient-chip:hover {
+  border-color: #93C5FD;
+  background: #DBEAFE;
+}
+.recipient-chip .rc-email {
+  font-family: var(--sans);
+  color: #1E3A8A;
+}
+.recipient-chip .rc-action-btn {
+  background: none;
+  border: none;
+  font-size: 10px;
+  cursor: pointer;
+  color: var(--ink-faint);
+  padding: 2px 3px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: all 0.15s;
+}
+.recipient-chip .rc-action-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--ink);
+}
+.recipient-chip .rc-action-btn.rc-del:hover {
+  color: var(--red);
+  background: #FEE2E2;
+}
+.recipient-text-input {
+  border: none !important;
+  outline: none !important;
+  flex: 1;
+  min-width: 140px;
+  padding: 3px 4px !important;
+  font-size: 12px;
+  background: transparent !important;
+  color: var(--ink);
+  box-shadow: none !important;
+  font-family: var(--sans);
+}
+.rc-inline-edit {
+  border: 1px solid var(--teal) !important;
+  border-radius: 12px !important;
+  padding: 2px 6px !important;
+  font-size: 11px !important;
+  outline: none !important;
+  width: 180px !important;
+  background: #fff !important;
+  font-family: var(--sans);
+  color: var(--ink) !important;
+}
+.ec-quick-suggestions {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: 5px;
+  align-items: center;
+}
+.ec-sugg-label {
+  font-size: 10px;
+  color: var(--ink-faint);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.ec-sugg-chip {
+  font-size: 10.5px;
+  background: var(--paper);
+  border: 1px dashed var(--line);
+  padding: 2px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  color: var(--ink-soft);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  transition: all 0.15s;
+  font-family: var(--sans);
+}
+.ec-sugg-chip:hover {
+  background: var(--teal-tint);
+  border-color: var(--teal);
+  color: var(--teal-dark);
+}
 
 /* Click-to-call modal */
 .call-body { text-align: center; padding: 20px 10px 10px; }
@@ -1647,13 +1773,13 @@ th.sortable-header:hover .sortable-icon {
 
       <!-- Left Sub Navigation -->
       <div class="subnav">
-        <div class="subnav-item active" data-view="tickets" onclick="switchView('tickets')"><span class="ic">☰</span> Tickets</div>
+        <div class="subnav-item active" data-view="tickets" onclick="switchView('tickets')"><span class="ic">☰</span> My tickets</div>
+        <div class="subnav-item" id="navManageAll" data-view="manageall" onclick="switchView('manageall')"><span class="ic">📑</span> All tickets</div>
         <div class="subnav-item" data-view="detail" style="display:none;"><span class="ic">💬</span> Conversation</div>
         <div class="subnav-item" data-view="queues" onclick="switchView('queues')"><span class="ic">▤</span> Queues</div>
         <div class="subnav-item" data-view="customers" onclick="switchView('customers')"><span class="ic">◎</span> Customers</div>
         <div class="subnav-section-label" id="mgrLabel" style="display:none;">Manager</div>
         <div class="subnav-item" id="navDashboard" data-view="dashboard" style="display:none;" onclick="switchView('dashboard')"><span class="ic">▦</span> Analytics</div>
-        <div class="subnav-item" id="navManageAll" data-view="manageall" style="display:none;" onclick="switchView('manageall')"><span class="ic">⚙</span> Manage all tickets</div>
         <div class="subnav-item" id="navTeam" data-view="team" style="display:none;" onclick="switchView('team')"><span class="ic">&#128101;</span> Team status</div>
         <div class="subnav-item" id="navKpi" data-view="kpi" onclick="switchView('kpi')"><span class="ic">📊</span> KPI Dashboard</div>
       </div>
@@ -1775,12 +1901,12 @@ th.sortable-header:hover .sortable-icon {
           </div>
         </div>
 
-        <!-- MANAGE ALL (Manager view as shown in Image 1) -->
+        <!-- ALL TICKETS (Available for both Agent & Manager) -->
         <div class="view" id="view-manageall">
           <div class="view-header">
             <div>
-              <div class="view-title">Manage all tickets</div>
-              <div class="view-sub">Full visibility across every agent, queue and channel — bulk actions available</div>
+              <div class="view-title">All tickets</div>
+              <div class="view-sub">Full visibility across all tickets, queues and channels — bulk actions available</div>
             </div>
             <button id="bulkActionBtn" class="btn btn-ghost btn-sm" onclick="bulkReassignOpen()">Bulk actions ▾</button>
           </div>
@@ -3294,14 +3420,50 @@ th.sortable-header:hover .sortable-icon {
     <div class="modal-head"><h3>Compose email</h3><button class="close" onclick="discardEmail()">✕</button></div>
     <div class="modal-body">
       <div class="notice" id="ecDraftNotice" style="display:none;">A saved draft was restored for this ticket.</div>
-      <div class="form-grid2">
-        <div class="form-row"><label>From</label>
-          <select id="ecFrom"></select>
+      
+      <!-- From row -->
+      <div class="form-row">
+        <label>From</label>
+        <select id="ecFrom" onchange="handleEmailFromChange()"></select>
+      </div>
+
+      <!-- To row with multi-recipient chip support & add/edit -->
+      <div class="form-row" style="margin-bottom:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <label style="margin-bottom:0; display:flex; align-items:center; gap:6px;">
+            <span>To</span>
+            <span style="font-size:10.5px; font-weight:normal; color:var(--ink-faint);">(Recipients)</span>
+          </label>
+          <div style="display:flex; gap:10px; font-size:11px;">
+            <button type="button" id="btnToggleCc" onclick="toggleCcField()" style="color:var(--teal); font-weight:700; background:none; border:none; padding:0; cursor:pointer;">+ Add Cc</button>
+          </div>
         </div>
-        <div class="form-row"><label>To</label>
-          <select id="ecTo"></select>
+        <div class="recipient-input-container" id="ecToContainer" onclick="focusRecipientInput('ecToInput')">
+          <div class="recipient-chips" id="ecToChips"></div>
+          <input type="text" class="recipient-text-input" id="ecToInput" placeholder="Type email and press Enter or comma…" onkeydown="handleRecipientKeydown(event, 'to')" onblur="handleRecipientBlur('to')">
+        </div>
+        <div class="recipient-helper-row" id="ecToHelperRow" style="display:flex; justify-content:space-between; align-items:center; margin-top:4px; font-size:11px; color:var(--ink-faint);">
+          <span id="ecToRegisteredHint" style="display:none; color:var(--red); font-weight:600;">⚠️ At least one recipient is required</span>
+          <button type="button" id="btnRestoreRegisteredTo" onclick="restoreRegisteredTo()" style="display:none; color:var(--teal); background:none; border:none; padding:0; font-size:11px; font-weight:600; cursor:pointer;">↩ Add customer email</button>
         </div>
       </div>
+
+      <!-- CC row -->
+      <div class="form-row" id="ecCcRow" style="margin-bottom:10px; display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <label style="margin-bottom:0; display:flex; align-items:center; gap:6px;">
+            <span>Cc</span>
+            <span style="font-size:10.5px; font-weight:normal; color:var(--ink-faint);">(Carbon copy)</span>
+          </label>
+          <button type="button" onclick="hideCcField()" style="color:var(--ink-faint); background:none; border:none; padding:0; font-size:11px; cursor:pointer;">✕ Remove Cc</button>
+        </div>
+        <div class="recipient-input-container" id="ecCcContainer" onclick="focusRecipientInput('ecCcInput')">
+          <div class="recipient-chips" id="ecCcChips"></div>
+          <input type="text" class="recipient-text-input" id="ecCcInput" placeholder="Type Cc email and press Enter…" onkeydown="handleRecipientKeydown(event, 'cc')" onblur="handleRecipientBlur('cc')">
+        </div>
+        <div class="ec-quick-suggestions" id="ecCcSuggestions"></div>
+      </div>
+
       <div class="form-row"><label>Subject</label><input type="text" id="ecSubject" placeholder="Email subject…"></div>
       <div class="form-row">
         <label>Template</label>
@@ -3393,9 +3555,15 @@ th.sortable-header:hover .sortable-icon {
 <!-- VIEW SENT EMAIL MODAL -->
 <div class="modal-overlay" id="modalViewEmail">
   <div class="modal modal-lg">
-    <div class="modal-head"><h3>Email</h3><button class="close" onclick="closeModal('modalViewEmail')">✕</button></div>
+    <div class="modal-head"><h3>Email Details</h3><button class="close" onclick="closeModal('modalViewEmail')">✕</button></div>
     <div class="modal-body" id="viewEmailBody"></div>
-    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modalViewEmail')">Close</button></div>
+    <div class="modal-foot" style="justify-content: space-between;">
+      <button class="btn btn-ghost" onclick="closeModal('modalViewEmail')">Close</button>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-ghost" onclick="closeModal('modalViewEmail'); openEmailComposer(false);">↩ Reply</button>
+        <button class="btn btn-primary" onclick="closeModal('modalViewEmail'); openEmailComposer(true);">↩↩ Reply All</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -4697,22 +4865,126 @@ function fillTemplate(body, t){
   return body.replace(/\{\{customer\}\}/g, t.customer).replace(/\{\{ticket\}\}/g, t.id).replace(/\{\{amount\}\}/g, '—').replace(/\{\{date\}\}/g, '—');
 }
 
+const LENDITT_LOGO_SVG = `<svg viewBox="0 0 135 34" height="28" style="vertical-align:middle; display:inline-block;" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="6" width="13" height="13" rx="3.5" fill="#FF5A60" /><rect x="9" y="12" width="13" height="13" rx="3.5" fill="#00C0D4" /><text x="30" y="24" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="21" fill="#1B2A6B" letter-spacing="-0.5">Lenditt</text><circle cx="107" cy="11" r="4" stroke="#1B2A6B" stroke-width="0.9" fill="none" /><text x="105.2" y="13.2" font-family="Arial, sans-serif" font-size="5.5" font-weight="bold" fill="#1B2A6B">R</text></svg>`;
+
+const CHINMAY_LOGO_SVG = `<svg viewBox="0 0 160 34" height="26" style="vertical-align:middle; display:inline-block;" xmlns="http://www.w3.org/2000/svg"><g transform="translate(1, 2)"><path d="M15 1 A 12 12 0 1 0 22 21 L 17 18 A 6 6 0 1 1 15 6 L 22 6 L 22 1 Z" fill="#9E1B22" /><rect x="7" y="10" width="14" height="2.5" fill="#FFFFFF" /></g><text x="32" y="15" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="12.5" fill="#111827" letter-spacing="0.8">CHINMAY</text><text x="32" y="25" font-family="Arial, Helvetica, sans-serif" font-weight="600" font-size="7.5" fill="#4B5563" letter-spacing="1">FINLEASE LIMITED</text></svg>`;
+
 const EMAIL_FROM_OPTIONS = [
-  {email:'support@lenditt.com', dept:'Support'},
-  {email:'collections@lenditt.com', dept:'Collection'},
-  {email:'grievance@lenditt.com', dept:'Grievance'},
+  {
+    id: 'supp_lenditt',
+    email: 'support@lenditt.com',
+    dept: 'Support',
+    company: 'Lenditt',
+    signature: `<div class="email-sig-block" style="font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 1.5; color: #000000; margin-top: 14px;">
+  <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 6px;">
+    <span style="font-size: 14px; font-weight: 700; color: #000000;">Support Team</span>
+    ${LENDITT_LOGO_SVG}
+  </div>
+  <div style="width: 220px; height: 2px; background-color: #E53935; margin: 4px 0 8px 0;"></div>
+  <div style="margin-bottom: 3px;">
+    <a href="http://www.lenditt.com/" target="_blank" style="color: #0066CC; font-weight: 700; text-decoration: underline;">www.lenditt.com</a>
+  </div>
+  <div>
+    <span style="color: #0066CC;">Email- </span><a href="mailto:Support@lenditt.com" style="color: #0066CC; text-decoration: underline;">Support@lenditt.com</a>
+  </div>
+</div>`
+  },
+  {
+    id: 'coll_lenditt',
+    email: 'collections@lenditt.com',
+    dept: 'Collection',
+    company: 'Lenditt',
+    signature: `<div class="email-sig-block" style="font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 1.5; color: #000000; margin-top: 14px;">
+  <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 6px;">
+    <span style="font-size: 14px; font-weight: 700; color: #000000;">Collections Team</span>
+    ${LENDITT_LOGO_SVG}
+  </div>
+  <div style="width: 220px; height: 2px; background-color: #E53935; margin: 4px 0 8px 0;"></div>
+  <div style="margin-bottom: 3px;">
+    <a href="http://www.lenditt.com/" target="_blank" style="color: #0066CC; font-weight: 700; text-decoration: underline;">www.lenditt.com</a>
+  </div>
+  <div>
+    <span style="color: #0066CC;">Email- </span><a href="mailto:collections@lenditt.com" style="color: #0066CC; text-decoration: underline;">collections@lenditt.com</a>
+  </div>
+</div>`
+  },
+  {
+    id: 'coll_chinmay',
+    email: 'collections@chinmayfinlease.com',
+    dept: 'Collection',
+    company: 'Chinmay Finlease',
+    signature: `<div class="email-sig-block" style="font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 1.5; color: #000000; margin-top: 14px;">
+  <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 6px;">
+    <span style="font-size: 14px; font-weight: 700; color: #000000;">Collections Team</span>
+    ${CHINMAY_LOGO_SVG}
+  </div>
+  <div style="width: 220px; height: 2px; background-color: #E53935; margin: 4px 0 8px 0;"></div>
+  <div style="font-weight: 700; color: #000000; margin-bottom: 4px;">Chinmay Finlease Limited</div>
+  <div style="margin-bottom: 4px;">
+    <span style="color: #000000;">E: </span><a href="mailto:collections@chinmayfinlease.com" style="color: #0066CC; text-decoration: underline;">collections@chinmayfinlease.com</a>
+  </div>
+  <div>
+    <a href="http://www.chinmayfinlease.com/" target="_blank" style="color: #0066CC; text-decoration: underline;">www.chinmayfinlease.com</a>
+  </div>
+</div>`
+  },
+  {
+    id: 'legal_chinmay',
+    email: 'legal@chinmayfinlease.com',
+    dept: 'Legal Related',
+    company: 'Chinmay Finlease',
+    signature: `<div class="email-sig-block" style="font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 1.5; color: #000000; margin-top: 14px;">
+  <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 6px;">
+    <span style="font-size: 14px; font-weight: 700; color: #000000;">Legal Team</span>
+    ${CHINMAY_LOGO_SVG}
+  </div>
+  <div style="width: 220px; height: 2px; background-color: #E53935; margin: 4px 0 8px 0;"></div>
+  <div style="font-weight: 700; color: #000000; margin-bottom: 4px;">Chinmay Finlease Limited</div>
+  <div style="margin-bottom: 4px;">
+    <span style="color: #000000;">E: </span><a href="mailto:legal@chinmayfinlease.com" style="color: #0066CC; text-decoration: underline;">legal@chinmayfinlease.com</a>
+  </div>
+  <div>
+    <a href="http://www.chinmayfinlease.com/" target="_blank" style="color: #0066CC; text-decoration: underline;">www.chinmayfinlease.com</a>
+  </div>
+</div>`
+  },
+  {
+    id: 'supp_chinmay',
+    email: 'support@chinmayfinlease.com',
+    dept: 'Support',
+    company: 'Chinmay Finlease',
+    signature: `<div class="email-sig-block" style="font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 1.5; color: #000000; margin-top: 14px;">
+  <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 6px;">
+    <span style="font-size: 14px; font-weight: 700; color: #000000;">Support Team</span>
+    ${CHINMAY_LOGO_SVG}
+  </div>
+  <div style="width: 220px; height: 2px; background-color: #E53935; margin: 4px 0 8px 0;"></div>
+  <div style="font-weight: 700; color: #000000; margin-bottom: 4px;">Chinmay Finlease Limited</div>
+  <div style="margin-bottom: 4px;">
+    <span style="color: #000000;">E: </span><a href="mailto:Support@chinmayfinlease.com" style="color: #0066CC; text-decoration: underline;">Support@chinmayfinlease.com</a>
+  </div>
+  <div>
+    <a href="http://www.chinmayfinlease.com/" target="_blank" style="color: #0066CC; text-decoration: underline;">www.chinmayfinlease.com</a>
+  </div>
+</div>`
+  }
 ];
-const EMAIL_SIGNATURES = {
-  'Collection': "Regards,\nChinmay\nCollections Team, Lenditt",
-  'Grievance': "Regards,\nChinmay\nGrievance Team, Lenditt",
-  'Support': "Regards,\nCustomer Support Team, Lenditt",
-};
-function signatureForTicket(t){
-  return EMAIL_SIGNATURES[t.department] || EMAIL_SIGNATURES['Support'];
+
+function getSignatureForFromEmail(fromEmail){
+  const found = EMAIL_FROM_OPTIONS.find(o => o.email.toLowerCase() === (fromEmail || '').toLowerCase());
+  return found ? found.signature : EMAIL_FROM_OPTIONS[0].signature;
 }
+
+function signatureForTicket(t, fromEmail){
+  if(fromEmail) return getSignatureForFromEmail(fromEmail);
+  const dept = (t.department || t.queue || 'Support');
+  const match = EMAIL_FROM_OPTIONS.find(o => o.dept.toLowerCase() === dept.toLowerCase()) || EMAIL_FROM_OPTIONS[0];
+  return match.signature;
+}
+
 function deptFromEmail(email){
-  const o = EMAIL_FROM_OPTIONS.find(x=>x.email===email);
-  return o ? o.dept : 'Support';
+  const o = EMAIL_FROM_OPTIONS.find(x => x.email.toLowerCase() === (email || '').toLowerCase());
+  return o ? o.email : 'support@lenditt.com';
 }
 
 const CUSTOMERS = [
@@ -4803,9 +5075,9 @@ let TICKETS = [
     ],
     activity:['Ticket created via WhatsApp','Assigned to Emma Watson','Refund initiated','Status changed to Resolved']},
 
-  {id:'TCK-10237', subject:'Duplicate: EMI deducted twice', customer:'Amul Roy', phone:'+1 416 555 0101', email:'amul.roy@gmail.com', channel:'Email', priority:'Medium', status:'Reopened', queue:'Collection', department:'Collection', category:'Repayment', subCategory:'Auto Debit related', assignee:'a1', updated:'8m ago', slaMins:150, createdAt: daysAgo(0,10,3),
+  {id:'TCK-10237', subject:'Duplicate: EMI deducted twice', customer:'Amul Roy', phone:'+1 416 555 0101', email:'amul.roy@gmail.com', cc:'accounts@chinmayfinlease.com', channel:'Email', priority:'Medium', status:'Reopened', queue:'Collection', department:'Collection', category:'Repayment', subCategory:'Auto Debit related', assignee:'a1', updated:'8m ago', slaMins:150, createdAt: daysAgo(0,10,3),
     thread:[
-      {dir:'in', text:"Following up by email in case WhatsApp doesn't reach the right team — double EMI deduction issue.", chan:'Email', time:'10:15 AM'},
+      {dir:'in', text:"Following up by email in case WhatsApp doesn't reach the right team — double EMI deduction issue.", cc:'accounts@chinmayfinlease.com', chan:'Email', time:'10:15 AM'},
     ],
     activity:['Ticket created via Email','Assigned to Riya Sen','Flagged as likely duplicate of TCK-10231']},
 
@@ -4813,8 +5085,8 @@ let TICKETS = [
     thread:[{dir:'in', text:"App keeps crashing when I try to submit my bank details. Using Android 14.", chan:'Chat', time:'9:55 AM'}],
     activity:['Ticket created via in-app chat','Assigned to Farhan Ali','On hold — pending engineering confirmation']},
 
-  {id:'TCK-10239', subject:'Bank account credit failure after disbursal', customer:'Karan Mehta', phone:'+1 416 555 0210', email:'karan.m@gmail.com', channel:'Email', priority:'High', status:'New', queue:'Support', department:'Support', category:'Disbursement Pending', subCategory:'Amount Not Credited', assignee:'a1', updated:'15m ago', slaMins:120, createdAt: daysAgo(0,11,10),
-    thread:[{dir:'in', text:"Loan status shows disbursed but amount not credited to my HDFC account.", chan:'Email', time:'11:10 AM'}],
+  {id:'TCK-10239', subject:'Bank account credit failure after disbursal', customer:'Karan Mehta', phone:'+1 416 555 0210', email:'karan.m@gmail.com', cc:'ops.supervisor@lenditt.com', channel:'Email', priority:'High', status:'New', queue:'Support', department:'Support', category:'Disbursement Pending', subCategory:'Amount Not Credited', assignee:'a1', updated:'15m ago', slaMins:120, createdAt: daysAgo(0,11,10),
+    thread:[{dir:'in', text:"Loan status shows disbursed but amount not credited to my HDFC account.", cc:'ops.supervisor@lenditt.com', chan:'Email', time:'11:10 AM'}],
     activity:['Ticket created via Email','Auto-assigned to Riya Sen']},
 
   {id:'TCK-10240', subject:'Aadhaar verification OTP timeout', customer:'Sanya Malhotra', phone:'+1 647 555 0222', email:'sanya.m@gmail.com', channel:'Chat', priority:'Medium', status:'Assigned', queue:'Support', department:'Support', category:'KYC Verification', subCategory:'OTP not received', assignee:'a2', updated:'35m ago', slaMins:320, createdAt: daysAgo(0,10,45),
@@ -5971,13 +6243,18 @@ function setRole(role){
   currentRole = role;
   document.getElementById('roleAgentBtn').classList.toggle('active', role==='agent');
   document.getElementById('roleMgrBtn').classList.toggle('active', role==='manager');
-  const mgrEls = ['mgrLabel','navDashboard','navManageAll','navTeam'];
-  mgrEls.forEach(id=>document.getElementById(id).style.display = role==='manager' ? 'flex' : 'none');
+  const mgrEls = ['mgrLabel','navDashboard','navTeam'];
+  mgrEls.forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.style.display = role==='manager' ? 'flex' : 'none';
+  });
+  const navManageAll = document.getElementById('navManageAll');
+  if(navManageAll) navManageAll.style.display = 'flex';
   const bulkBtn = document.getElementById('bulkActionBtn');
   if(bulkBtn) bulkBtn.style.display = 'inline-flex';
   const agentBulkBtn = document.getElementById('agentBulkActionBtn');
   if(agentBulkBtn) agentBulkBtn.style.display = 'inline-flex';
-  document.querySelector('.subnav-item[data-view="tickets"]').innerHTML = role==='manager' ? '<span class="ic">☰</span> My tickets' : '<span class="ic">☰</span> Tickets';
+  document.querySelector('.subnav-item[data-view="tickets"]').innerHTML = '<span class="ic">☰</span> My tickets';
   if(role==='manager'){ switchView('dashboard'); } else { switchView('tickets'); }
   showToast(role==='manager' ? 'Switched to Manager view — full analytics unlocked' : 'Switched to Agent view');
 }
@@ -7410,7 +7687,8 @@ function renderConvBody(tab){
             <div class="ec-subject">${m.subject || item.ticketObj.subject}</div>
             <div class="ec-actions">
               <button class="ec-link" onclick="viewEmail('${tId}', ${item.idx})">👁 View Email</button>
-              <button class="ec-link" onclick="openEmailComposer()">↩ Reply</button>
+              <button class="ec-link" onclick="openEmailComposer(false)">↩ Reply</button>
+              <button class="ec-link" onclick="openEmailComposer(true)">↩↩ Reply All</button>
             </div>
           </div>`;
       return dateDividerHtml + `<div class="${cls}">
@@ -7473,11 +7751,13 @@ function viewEmail(ticketId, msgIndex){
   const t = TICKETS.find(x=>x.id===ticketId);
   const m = t && t.thread[msgIndex];
   if(!t || !m) return;
-  const dir = m.dir==='out' ? `From: ${m.from || EMAIL_FROM_OPTIONS[0].email} · To: ${m.to || t.email}` : `From: ${t.email} · To: Lenditt Support`;
+  const senderVal = m.dir === 'out' ? (m.from || EMAIL_FROM_OPTIONS[0].email) : (m.from || t.email);
+  const recipientVal = m.dir === 'out' ? (m.to || t.email) : 'Lenditt Support';
   document.getElementById('viewEmailBody').innerHTML = `
     <div class="ve-row"><div class="ve-k">Direction</div><div class="ve-v">${m.dir==='out' ? 'Sent' : 'Received'}</div></div>
-    <div class="ve-row"><div class="ve-k">Sender</div><div class="ve-v">${m.dir==='out' ? (m.from || EMAIL_FROM_OPTIONS[0].email) : t.email}</div></div>
-    <div class="ve-row"><div class="ve-k">Recipient</div><div class="ve-v">${m.dir==='out' ? (m.to || t.email) : 'Lenditt Support'}</div></div>
+    <div class="ve-row"><div class="ve-k">Sender</div><div class="ve-v">${senderVal}</div></div>
+    <div class="ve-row"><div class="ve-k">To</div><div class="ve-v">${recipientVal}</div></div>
+    ${m.cc ? `<div class="ve-row"><div class="ve-k">Cc</div><div class="ve-v">${m.cc}</div></div>` : ''}
     <div class="ve-row"><div class="ve-k">Subject</div><div class="ve-v">${m.subject || t.subject}</div></div>
     <div class="ve-row"><div class="ve-k">Timestamp</div><div class="ve-v">${msgTimestamp(t,m)}</div></div>
     <div class="ve-body-box">${formatMessageText(m.bodyHtml || m.text)}</div>
@@ -7512,59 +7792,383 @@ function simulateDelivery(t, msg){
   }, 900);
 }
 
-/* EMAIL COMPOSER */
-function populateEmailFromOptions(){
+/* =========================================================
+   EMAIL COMPOSER (TO, CC, REPLY ALL, SIGNATURES & DRAFTS)
+========================================================= */
+let ecToRecipients = [];
+let ecCcRecipients = [];
+
+// Quick suggested CC escalation contacts
+const EC_SUGGESTED_CC = [
+  { name: 'Collections Lead', email: 'collections.mgr@lenditt.com' },
+  { name: 'Support Supervisor', email: 'support.lead@lenditt.com' },
+  { name: 'Grievance Officer', email: 'grievance@lenditt.com' },
+  { name: 'Disbursal Ops', email: 'disbursals@lenditt.com' },
+  { name: 'Legal Team', email: 'legal@chinmayfinlease.com' }
+];
+
+function populateEmailFromOptions(selectedEmail){
   const sel = document.getElementById('ecFrom');
-  sel.innerHTML = EMAIL_FROM_OPTIONS.map(o=>`<option value="${o.email}">${o.dept} — ${o.email}</option>`).join('');
+  if(!sel) return;
+  sel.innerHTML = EMAIL_FROM_OPTIONS.map(o => `<option value="${o.email}" ${selectedEmail && selectedEmail.toLowerCase() === o.email.toLowerCase() ? 'selected' : ''}>${o.email}</option>`).join('');
   enhanceSearchSelect(sel);
 }
-function populateEmailToOptions(t){
-  const sel = document.getElementById('ecTo');
-  sel.innerHTML = `<option value="${t.email}">${t.customer} (primary) — ${t.email}</option>`;
-  enhanceSearchSelect(sel);
+
+function handleEmailFromChange(){
+  updateSignaturePreview();
 }
+
 function populateEmailTemplateOptions(){
   const sel = document.getElementById('ecTemplateSelect');
   const items = TEMPLATES.filter(tp=>tp.channel==='Email');
   sel.innerHTML = `<option value="">Select a template…</option>` + items.map(tp=>`<option value="${tp.id}">${tp.title}</option>`).join('');
   enhanceSearchSelect(sel);
 }
+
 function updateSignaturePreview(){
-  const t = TICKETS.find(x=>x.id===selectedTicketId);
-  const dept = deptFromEmail(document.getElementById('ecFrom').value);
-  document.getElementById('ecSignaturePreview').innerHTML = `<span class="ec-sig-label">Signature (auto-applied on send)</span>${(EMAIL_SIGNATURES[dept]||EMAIL_SIGNATURES['Support']).replace(/\n/g,'<br>')}`;
+  const sel = document.getElementById('ecFrom');
+  const fromEmail = sel ? sel.value : (EMAIL_FROM_OPTIONS[0] ? EMAIL_FROM_OPTIONS[0].email : '');
+  const sig = getSignatureForFromEmail(fromEmail);
+  const previewEl = document.getElementById('ecSignaturePreview');
+  if(previewEl){
+    previewEl.innerHTML = `<span class="ec-sig-label">Signature (auto-applied on send)</span>${sig}`;
+  }
 }
-function openEmailComposer(){
+
+function focusRecipientInput(inputId){
+  const inp = document.getElementById(inputId);
+  if(inp) inp.focus();
+}
+
+function toggleCcField(){
+  const row = document.getElementById('ecCcRow');
+  const btn = document.getElementById('btnToggleCc');
+  if(!row) return;
+  if(row.style.display === 'none' || !row.style.display){
+    row.style.display = 'block';
+    if(btn) btn.style.display = 'none';
+    renderCcSuggestions();
+    focusRecipientInput('ecCcInput');
+  } else {
+    row.style.display = 'none';
+    if(btn) btn.style.display = 'inline';
+  }
+}
+
+function hideCcField(){
+  const row = document.getElementById('ecCcRow');
+  const btn = document.getElementById('btnToggleCc');
+  if(row) row.style.display = 'none';
+  if(btn) btn.style.display = 'inline';
+}
+
+function renderCcSuggestions(){
+  const suggContainer = document.getElementById('ecCcSuggestions');
+  if(!suggContainer) return;
+  suggContainer.innerHTML = `
+    <span class="ec-sugg-label">Quick Add CC:</span>
+    ${EC_SUGGESTED_CC.map(s => `
+      <button type="button" class="ec-sugg-chip" onclick="addSuggestedCc('${s.email}', '${s.name}', event)">
+        <span>+</span> <b>${s.name}</b> <span style="opacity:0.8;">(${s.email})</span>
+      </button>
+    `).join('')}
+  `;
+}
+
+function getThreadCcEmails(t){
+  const ccs = new Set();
+  if(!t) return [];
+  if(t.cc){
+    t.cc.split(/[,;]+/).map(s => s.trim()).filter(Boolean).forEach(e => ccs.add(e.toLowerCase()));
+  }
+  if(t.emailCc){
+    t.emailCc.split(/[,;]+/).map(s => s.trim()).filter(Boolean).forEach(e => ccs.add(e.toLowerCase()));
+  }
+  if(Array.isArray(t.thread)){
+    t.thread.forEach(m => {
+      if(m.cc){
+        m.cc.split(/[,;]+/).map(s => s.trim()).filter(Boolean).forEach(e => ccs.add(e.toLowerCase()));
+      }
+      if(Array.isArray(m.ccRecipients)){
+        m.ccRecipients.forEach(r => {
+          const em = typeof r === 'string' ? r : (r && r.email);
+          if(em) ccs.add(em.trim().toLowerCase());
+        });
+      }
+    });
+  }
+  if(t.email) ccs.delete(t.email.toLowerCase());
+  EMAIL_FROM_OPTIONS.forEach(opt => {
+    if(opt.email) ccs.delete(opt.email.toLowerCase());
+  });
+  return Array.from(ccs);
+}
+
+function addSuggestedCc(email, name, event){
+  if(event) event.stopPropagation();
+  if(!ecCcRecipients.some(r => r.email.toLowerCase() === email.toLowerCase())){
+    ecCcRecipients.push({ email: email });
+    renderCcChips();
+  }
+  focusRecipientInput('ecCcInput');
+}
+
+function renderToChips(){
+  const t = TICKETS.find(x => x.id === selectedTicketId);
+  const container = document.getElementById('ecToChips');
+  if(!container) return;
+  
+  container.innerHTML = ecToRecipients.map((rec, i) => `
+    <div class="recipient-chip" id="toChip_${i}" title="${rec.email}">
+      <span class="rc-email">${rec.email}</span>
+      <button type="button" class="rc-action-btn" onclick="startEditRecipient('to', ${i}, event)" title="Edit email">✏️</button>
+      <button type="button" class="rc-action-btn rc-del" onclick="removeRecipient('to', ${i}, event)" title="Remove email">✕</button>
+    </div>
+  `).join('');
+
+  const hintSpan = document.getElementById('ecToRegisteredHint');
+  const restoreBtn = document.getElementById('btnRestoreRegisteredTo');
+  if(hintSpan){
+    hintSpan.style.display = ecToRecipients.length === 0 ? 'inline' : 'none';
+  }
+  if(restoreBtn){
+    const hasDefault = t && ecToRecipients.some(r => r.email.toLowerCase() === t.email.toLowerCase());
+    restoreBtn.style.display = hasDefault ? 'none' : 'inline';
+    if(t) restoreBtn.textContent = `↩ Add ${t.email}`;
+  }
+}
+
+function renderCcChips(){
+  const container = document.getElementById('ecCcChips');
+  if(!container) return;
+  
+  container.innerHTML = ecCcRecipients.map((rec, i) => `
+    <div class="recipient-chip recipient-chip-cc" id="ccChip_${i}" title="${rec.email}">
+      <span class="rc-email">${rec.email}</span>
+      <button type="button" class="rc-action-btn" onclick="startEditRecipient('cc', ${i}, event)" title="Edit email">✏️</button>
+      <button type="button" class="rc-action-btn rc-del" onclick="removeRecipient('cc', ${i}, event)" title="Remove email">✕</button>
+    </div>
+  `).join('');
+}
+
+function removeRecipient(type, index, event){
+  if(event) event.stopPropagation();
+  if(type === 'to'){
+    ecToRecipients.splice(index, 1);
+    renderToChips();
+    focusRecipientInput('ecToInput');
+  } else {
+    ecCcRecipients.splice(index, 1);
+    renderCcChips();
+    focusRecipientInput('ecCcInput');
+  }
+}
+
+function restoreRegisteredTo(){
+  const t = TICKETS.find(x => x.id === selectedTicketId);
+  if(!t) return;
+  if(!ecToRecipients.some(r => r.email.toLowerCase() === t.email.toLowerCase())){
+    ecToRecipients.unshift({ email: t.email });
+  }
+  renderToChips();
+  focusRecipientInput('ecToInput');
+}
+
+function startEditRecipient(type, index, event){
+  if(event) event.stopPropagation();
+  const list = type === 'to' ? ecToRecipients : ecCcRecipients;
+  const chipEl = document.getElementById(`${type}Chip_${index}`);
+  if(!chipEl || !list[index]) return;
+  
+  const currentEmail = list[index].email;
+  chipEl.innerHTML = `
+    <input type="text" class="rc-inline-edit" value="${currentEmail}" id="inlineEdit_${type}_${index}">
+    <button type="button" class="rc-action-btn" style="color:var(--teal); font-weight:700;" onclick="saveEditRecipient('${type}', ${index}, event)">✓</button>
+    <button type="button" class="rc-action-btn" onclick="${type==='to'?'renderToChips()':'renderCcChips()'}" title="Cancel">✕</button>
+  `;
+  const inp = document.getElementById(`inlineEdit_${type}_${index}`);
+  if(inp){
+    inp.focus();
+    inp.select();
+    inp.onkeydown = function(e){
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        saveEditRecipient(type, index, e);
+      } else if(e.key === 'Escape'){
+        if(type==='to') renderToChips(); else renderCcChips();
+      }
+    };
+    inp.onblur = function(e){
+      setTimeout(()=>{
+        saveEditRecipient(type, index, e);
+      }, 150);
+    };
+  }
+}
+
+function saveEditRecipient(type, index, event){
+  if(event && event.stopPropagation) event.stopPropagation();
+  const inp = document.getElementById(`inlineEdit_${type}_${index}`);
+  if(!inp) return;
+  const val = inp.value.trim();
+  const list = type === 'to' ? ecToRecipients : ecCcRecipients;
+  
+  if(val && val.includes('@')){
+    list[index] = { email: val };
+  } else if(!val){
+    list.splice(index, 1);
+  }
+  if(type === 'to') renderToChips(); else renderCcChips();
+}
+
+function handleRecipientKeydown(event, type){
+  if(event.key === 'Enter' || event.key === ',' || event.key === 'Tab' || event.key === ';'){
+    event.preventDefault();
+    commitRecipientInput(type);
+  } else if(event.key === 'Backspace'){
+    const inputEl = document.getElementById(type === 'to' ? 'ecToInput' : 'ecCcInput');
+    const list = type === 'to' ? ecToRecipients : ecCcRecipients;
+    if(inputEl && inputEl.value === '' && list.length > 0){
+      list.pop();
+      if(type === 'to') renderToChips(); else renderCcChips();
+    }
+  }
+}
+
+function handleRecipientBlur(type){
+  commitRecipientInput(type);
+}
+
+function commitRecipientInput(type){
+  const inputEl = document.getElementById(type === 'to' ? 'ecToInput' : 'ecCcInput');
+  if(!inputEl) return;
+  const raw = inputEl.value.trim().replace(/^[,;\s]+|[,;\s]+$/g, '');
+  if(!raw) return;
+  
+  const emails = raw.split(/[,;\s]+/).filter(e => e.length > 0);
+  
+  emails.forEach(item => {
+    let email = item;
+    const match = item.match(/^(.*?)[<](.*?)[>]$/);
+    if(match){
+      email = match[2].trim();
+    }
+    if(email.includes('@')){
+      const list = type === 'to' ? ecToRecipients : ecCcRecipients;
+      if(!list.some(r => r.email.toLowerCase() === email.toLowerCase())){
+        list.push({ email: email });
+      }
+    } else {
+      showToast(`Please enter a valid email address (${item})`);
+    }
+  });
+  
+  inputEl.value = '';
+  if(type === 'to') renderToChips(); else renderCcChips();
+}
+
+function openEmailComposer(isReplyAll = false){
   const t = TICKETS.find(x=>x.id===selectedTicketId);
   if(!t) return;
-  populateEmailFromOptions();
-  populateEmailToOptions(t);
+  
+  // 1. Populate From options matching ticket queue/department
+  const matchOpt = EMAIL_FROM_OPTIONS.find(o => o.dept.toLowerCase() === (t.department || t.queue || '').toLowerCase()) || EMAIL_FROM_OPTIONS[0];
+  populateEmailFromOptions(matchOpt.email);
   populateEmailTemplateOptions();
-  const matchOpt = EMAIL_FROM_OPTIONS.find(o=>o.dept===(t.department || t.queue));
-  document.getElementById('ecFrom').value = matchOpt ? matchOpt.email : EMAIL_FROM_OPTIONS[0].email;
-  document.getElementById('ecFrom').onchange = updateSignaturePreview;
+  
+  // 2. Setup Recipients (To & Cc)
   const draft = t.emailDraft;
   if(draft){
     document.getElementById('ecDraftNotice').style.display = 'block';
-    document.getElementById('ecFrom').value = draft.from || EMAIL_FROM_OPTIONS[0].email;
+    if(draft.from) populateEmailFromOptions(draft.from);
     document.getElementById('ecSubject').value = draft.subject || '';
     document.getElementById('ecBody').innerHTML = draft.bodyHtml || '';
     ecAttachments = draft.attachments ? [...draft.attachments] : [];
+    
+    // Parse draft To
+    ecToRecipients = [];
+    if(Array.isArray(draft.toRecipients) && draft.toRecipients.length > 0){
+      ecToRecipients = draft.toRecipients.map(r => ({ email: typeof r === 'string' ? r : r.email }));
+    } else if(draft.to){
+      const toArr = draft.to.split(/[,;]+/).map(s => s.trim()).filter(Boolean);
+      ecToRecipients = toArr.map(e => ({ email: e }));
+    } else {
+      ecToRecipients = [{ email: t.email }];
+    }
+    
+    // Parse draft CC or auto-merge thread CCs
+    ecCcRecipients = [];
+    if(Array.isArray(draft.ccRecipients) && draft.ccRecipients.length > 0){
+      ecCcRecipients = draft.ccRecipients.map(r => ({ email: typeof r === 'string' ? r : r.email }));
+    } else if(draft.cc){
+      const ccArr = draft.cc.split(/[,;]+/).map(s => s.trim()).filter(Boolean);
+      ecCcRecipients = ccArr.map(e => ({ email: e }));
+    }
+    
+    // Automatically include any CC from customer or agent side in thread
+    const threadCcs = getThreadCcEmails(t);
+    threadCcs.forEach(em => {
+      if(!ecCcRecipients.some(r => r.email.toLowerCase() === em.toLowerCase()) &&
+         !ecToRecipients.some(r => r.email.toLowerCase() === em.toLowerCase())){
+        ecCcRecipients.push({ email: em });
+      }
+    });
+    
+    if(ecCcRecipients.length > 0 || isReplyAll){
+      document.getElementById('ecCcRow').style.display = 'block';
+      const btn = document.getElementById('btnToggleCc');
+      if(btn) btn.style.display = 'none';
+      renderCcSuggestions();
+    } else {
+      hideCcField();
+    }
   } else {
     document.getElementById('ecDraftNotice').style.display = 'none';
     document.getElementById('ecSubject').value = t.subject.startsWith('Re:') ? t.subject : `Re: ${t.subject}`;
     document.getElementById('ecBody').innerHTML = '';
     ecAttachments = [];
+    
+    // Default To is just the email address
+    ecToRecipients = [{ email: t.email }];
+    
+    // Automatically retrieve and include any CC from customer side or agent side in thread
+    ecCcRecipients = [];
+    const threadCcs = getThreadCcEmails(t);
+    threadCcs.forEach(em => {
+      if(!ecCcRecipients.some(r => r.email.toLowerCase() === em.toLowerCase()) &&
+         !ecToRecipients.some(r => r.email.toLowerCase() === em.toLowerCase())){
+        ecCcRecipients.push({ email: em });
+      }
+    });
+    
+    // If there are CC emails in thread OR isReplyAll is true, automatically show CC row
+    if(ecCcRecipients.length > 0 || isReplyAll){
+      document.getElementById('ecCcRow').style.display = 'block';
+      const btn = document.getElementById('btnToggleCc');
+      if(btn) btn.style.display = 'none';
+      renderCcSuggestions();
+    } else {
+      hideCcField();
+    }
   }
+  
+  renderToChips();
+  renderCcChips();
   renderEmailAttachChips();
   updateSignaturePreview();
   document.getElementById('modalEmailCompose').classList.add('show');
+  
+  if(isReplyAll){
+    focusRecipientInput('ecCcInput');
+  }
 }
 function closeEmailComposer(){ document.getElementById('modalEmailCompose').classList.remove('show'); }
 function discardEmail(){
   document.getElementById('ecSubject').value = '';
   document.getElementById('ecBody').innerHTML = '';
   ecAttachments = [];
+  ecToRecipients = [];
+  ecCcRecipients = [];
   renderEmailAttachChips();
   closeEmailComposer();
 }
@@ -7599,11 +8203,24 @@ function saveNewEmailTemplate(){
 function saveEmailDraft(){
   const t = TICKETS.find(x=>x.id===selectedTicketId);
   if(!t) return;
+  
+  commitRecipientInput('to');
+  commitRecipientInput('cc');
+  
+  const from = document.getElementById('ecFrom').value;
+  const toStr = ecToRecipients.map(r => r.email).join(', ');
+  const ccStr = ecCcRecipients.map(r => r.email).join(', ');
+  const subject = document.getElementById('ecSubject').value;
+  const bodyHtml = document.getElementById('ecBody').innerHTML;
+  
   t.emailDraft = {
-    from: document.getElementById('ecFrom').value,
-    to: document.getElementById('ecTo').value,
-    subject: document.getElementById('ecSubject').value,
-    bodyHtml: document.getElementById('ecBody').innerHTML,
+    from: from,
+    to: toStr,
+    cc: ccStr,
+    toRecipients: [...ecToRecipients],
+    ccRecipients: [...ecCcRecipients],
+    subject: subject,
+    bodyHtml: bodyHtml,
     attachments: [...ecAttachments],
     savedAt: new Date()
   };
@@ -7616,6 +8233,8 @@ function discardTicketDraft(){
   if(!t) return;
   t.emailDraft = null;
   ecAttachments = [];
+  ecToRecipients = [];
+  ecCcRecipients = [];
   renderEmailAttachChips();
   renderConvBody('thread');
   showToast('Email draft discarded');
@@ -7623,24 +8242,45 @@ function discardTicketDraft(){
 function sendEmailFromComposer(){
   const t = TICKETS.find(x=>x.id===selectedTicketId);
   if(!t) return;
+  
+  commitRecipientInput('to');
+  commitRecipientInput('cc');
+  
+  if(ecToRecipients.length === 0){
+    showToast('Please add at least one recipient in the To field');
+    focusRecipientInput('ecToInput');
+    return;
+  }
+  
   const from = document.getElementById('ecFrom').value;
-  const to = document.getElementById('ecTo').value;
+  const toStr = ecToRecipients.map(r => r.email).join(', ');
+  const ccStr = ecCcRecipients.map(r => r.email).join(', ');
   const subject = document.getElementById('ecSubject').value.trim();
   const bodyHtml = document.getElementById('ecBody').innerHTML.trim();
+  
   if(!subject || !bodyHtml || bodyHtml==='<br>'){ showToast('Add a subject and message before sending'); return; }
-  const sigHtml = signatureForTicket(t).replace(/\n/g,'<br>');
+  
+  const sigHtml = getSignatureForFromEmail(from);
   const fullBodyHtml = `${bodyHtml}<br><br>${sigHtml}`;
   const now = new Date();
+  
   const msg = {
-    dir:'out', chan:'Email', subject, from, to, bodyHtml: fullBodyHtml,
+    dir:'out', chan:'Email', subject, from, to: toStr, cc: ccStr,
+    toRecipients: [...ecToRecipients], ccRecipients: [...ecCcRecipients],
+    bodyHtml: fullBodyHtml,
     text: subject, time: now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), ts: now, status:'sending',
     attachments: [...ecAttachments]
   };
   t.thread.push(msg);
   t.emailDraft = null;
   ecAttachments = [];
+  ecToRecipients = [];
+  ecCcRecipients = [];
   renderEmailAttachChips();
-  addLog(t, `Email sent to ${to}${msg.attachments.length ? ` with ${msg.attachments.length} attachment(s)` : ''}`, { type:'message', by:currentRole, actor: agentName(CURRENT_AGENT_ID), undoable:false });
+  
+  const logMsg = `Email sent to ${toStr}${ccStr ? ` (Cc: ${ccStr})` : ''}${msg.attachments.length ? ` with ${msg.attachments.length} attachment(s)` : ''}`;
+  addLog(t, logMsg, { type:'message', by:currentRole, actor: agentName(CURRENT_AGENT_ID), undoable:false });
+  
   if(t.status==='New'||t.status==='Open') t.status='In Progress';
   t.updated = 'just now';
   simulateDelivery(t, msg);

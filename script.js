@@ -974,22 +974,126 @@ function fillTemplate(body, t){
 /* ---- Email composer configuration ----
    NOTE: "From" list below is a placeholder set of department outbound
    aliases — swap in the authorized admin email list once it's provided. */
+const LENDITT_LOGO_SVG = `<svg viewBox="0 0 135 34" height="28" style="vertical-align:middle; display:inline-block;" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="6" width="13" height="13" rx="3.5" fill="#FF5A60" /><rect x="9" y="12" width="13" height="13" rx="3.5" fill="#00C0D4" /><text x="30" y="24" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="21" fill="#1B2A6B" letter-spacing="-0.5">Lenditt</text><circle cx="107" cy="11" r="4" stroke="#1B2A6B" stroke-width="0.9" fill="none" /><text x="105.2" y="13.2" font-family="Arial, sans-serif" font-size="5.5" font-weight="bold" fill="#1B2A6B">R</text></svg>`;
+
+const CHINMAY_LOGO_SVG = `<svg viewBox="0 0 160 34" height="26" style="vertical-align:middle; display:inline-block;" xmlns="http://www.w3.org/2000/svg"><g transform="translate(1, 2)"><path d="M15 1 A 12 12 0 1 0 22 21 L 17 18 A 6 6 0 1 1 15 6 L 22 6 L 22 1 Z" fill="#9E1B22" /><rect x="7" y="10" width="14" height="2.5" fill="#FFFFFF" /></g><text x="32" y="15" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="12.5" fill="#111827" letter-spacing="0.8">CHINMAY</text><text x="32" y="25" font-family="Arial, Helvetica, sans-serif" font-weight="600" font-size="7.5" fill="#4B5563" letter-spacing="1">FINLEASE LIMITED</text></svg>`;
+
 const EMAIL_FROM_OPTIONS = [
-  {email:'support@lenditt.com', dept:'Customer Support'},
-  {email:'collections@lenditt.com', dept:'Collections'},
-  {email:'grievance@lenditt.com', dept:'Grievance'},
+  {
+    id: 'supp_lenditt',
+    email: 'support@lenditt.com',
+    dept: 'Support',
+    company: 'Lenditt',
+    signature: `<div class="email-sig-block" style="font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 1.5; color: #000000; margin-top: 14px;">
+  <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 6px;">
+    <span style="font-size: 14px; font-weight: 700; color: #000000;">Support Team</span>
+    ${LENDITT_LOGO_SVG}
+  </div>
+  <div style="width: 220px; height: 2px; background-color: #E53935; margin: 4px 0 8px 0;"></div>
+  <div style="margin-bottom: 3px;">
+    <a href="http://www.lenditt.com/" target="_blank" style="color: #0066CC; font-weight: 700; text-decoration: underline;">www.lenditt.com</a>
+  </div>
+  <div>
+    <span style="color: #0066CC;">Email- </span><a href="mailto:Support@lenditt.com" style="color: #0066CC; text-decoration: underline;">Support@lenditt.com</a>
+  </div>
+</div>`
+  },
+  {
+    id: 'coll_lenditt',
+    email: 'collections@lenditt.com',
+    dept: 'Collection',
+    company: 'Lenditt',
+    signature: `<div class="email-sig-block" style="font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 1.5; color: #000000; margin-top: 14px;">
+  <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 6px;">
+    <span style="font-size: 14px; font-weight: 700; color: #000000;">Collections Team</span>
+    ${LENDITT_LOGO_SVG}
+  </div>
+  <div style="width: 220px; height: 2px; background-color: #E53935; margin: 4px 0 8px 0;"></div>
+  <div style="margin-bottom: 3px;">
+    <a href="http://www.lenditt.com/" target="_blank" style="color: #0066CC; font-weight: 700; text-decoration: underline;">www.lenditt.com</a>
+  </div>
+  <div>
+    <span style="color: #0066CC;">Email- </span><a href="mailto:collections@lenditt.com" style="color: #0066CC; text-decoration: underline;">collections@lenditt.com</a>
+  </div>
+</div>`
+  },
+  {
+    id: 'coll_chinmay',
+    email: 'collections@chinmayfinlease.com',
+    dept: 'Collection',
+    company: 'Chinmay Finlease',
+    signature: `<div class="email-sig-block" style="font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 1.5; color: #000000; margin-top: 14px;">
+  <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 6px;">
+    <span style="font-size: 14px; font-weight: 700; color: #000000;">Collections Team</span>
+    ${CHINMAY_LOGO_SVG}
+  </div>
+  <div style="width: 220px; height: 2px; background-color: #E53935; margin: 4px 0 8px 0;"></div>
+  <div style="font-weight: 700; color: #000000; margin-bottom: 4px;">Chinmay Finlease Limited</div>
+  <div style="margin-bottom: 4px;">
+    <span style="color: #000000;">E: </span><a href="mailto:collections@chinmayfinlease.com" style="color: #0066CC; text-decoration: underline;">collections@chinmayfinlease.com</a>
+  </div>
+  <div>
+    <a href="http://www.chinmayfinlease.com/" target="_blank" style="color: #0066CC; text-decoration: underline;">www.chinmayfinlease.com</a>
+  </div>
+</div>`
+  },
+  {
+    id: 'legal_chinmay',
+    email: 'legal@chinmayfinlease.com',
+    dept: 'Legal Related',
+    company: 'Chinmay Finlease',
+    signature: `<div class="email-sig-block" style="font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 1.5; color: #000000; margin-top: 14px;">
+  <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 6px;">
+    <span style="font-size: 14px; font-weight: 700; color: #000000;">Legal Team</span>
+    ${CHINMAY_LOGO_SVG}
+  </div>
+  <div style="width: 220px; height: 2px; background-color: #E53935; margin: 4px 0 8px 0;"></div>
+  <div style="font-weight: 700; color: #000000; margin-bottom: 4px;">Chinmay Finlease Limited</div>
+  <div style="margin-bottom: 4px;">
+    <span style="color: #000000;">E: </span><a href="mailto:legal@chinmayfinlease.com" style="color: #0066CC; text-decoration: underline;">legal@chinmayfinlease.com</a>
+  </div>
+  <div>
+    <a href="http://www.chinmayfinlease.com/" target="_blank" style="color: #0066CC; text-decoration: underline;">www.chinmayfinlease.com</a>
+  </div>
+</div>`
+  },
+  {
+    id: 'supp_chinmay',
+    email: 'support@chinmayfinlease.com',
+    dept: 'Support',
+    company: 'Chinmay Finlease',
+    signature: `<div class="email-sig-block" style="font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 1.5; color: #000000; margin-top: 14px;">
+  <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 6px;">
+    <span style="font-size: 14px; font-weight: 700; color: #000000;">Support Team</span>
+    ${CHINMAY_LOGO_SVG}
+  </div>
+  <div style="width: 220px; height: 2px; background-color: #E53935; margin: 4px 0 8px 0;"></div>
+  <div style="font-weight: 700; color: #000000; margin-bottom: 4px;">Chinmay Finlease Limited</div>
+  <div style="margin-bottom: 4px;">
+    <span style="color: #000000;">E: </span><a href="mailto:Support@chinmayfinlease.com" style="color: #0066CC; text-decoration: underline;">Support@chinmayfinlease.com</a>
+  </div>
+  <div>
+    <a href="http://www.chinmayfinlease.com/" target="_blank" style="color: #0066CC; text-decoration: underline;">www.chinmayfinlease.com</a>
+  </div>
+</div>`
+  }
 ];
-const EMAIL_SIGNATURES = {
-  'Collections': "Regards,\nChinmay\nCollections Team, Lenditt",
-  'Grievance': "Regards,\nChinmay\nGrievance Team, Lenditt",
-  'Customer Support': "Regards,\nCustomer Support Team, Lenditt",
-};
-function signatureForTicket(t){
-  return EMAIL_SIGNATURES[t.queue] || EMAIL_SIGNATURES['Customer Support'];
+
+function getSignatureForFromEmail(fromEmail){
+  const found = EMAIL_FROM_OPTIONS.find(o => o.email.toLowerCase() === (fromEmail || '').toLowerCase());
+  return found ? found.signature : EMAIL_FROM_OPTIONS[0].signature;
 }
+
+function signatureForTicket(t, fromEmail){
+  if(fromEmail) return getSignatureForFromEmail(fromEmail);
+  const dept = (t.department || t.queue || 'Support');
+  const match = EMAIL_FROM_OPTIONS.find(o => o.dept.toLowerCase() === dept.toLowerCase()) || EMAIL_FROM_OPTIONS[0];
+  return match.signature;
+}
+
 function deptFromEmail(email){
-  const o = EMAIL_FROM_OPTIONS.find(x=>x.email===email);
-  return o ? o.dept : 'Customer Support';
+  const o = EMAIL_FROM_OPTIONS.find(x => x.email.toLowerCase() === (email || '').toLowerCase());
+  return o ? o.email : 'support@lenditt.com';
 }
 
 const CUSTOMERS = [
@@ -1046,9 +1150,9 @@ let TICKETS = [
     ],
     activity:['Ticket created via WhatsApp','Assigned to Karan Mehta','Refund initiated','Status changed to Resolved']},
 
-  {id:'TCK-10237', subject:'Duplicate: EMI deducted twice', customer:'Amul Roy', phone:'+1 416 555 0101', email:'amul.roy@gmail.com', channel:'Email', priority:'Medium', status:'Open', queue:'Collections', department:'Collections', nbfcPartner:'Chinmay', source:'Chinmay', assignee:'a1', updated:'8m ago', slaMins:150, category:'EMI / Repayment', loanId:'LN-44018', loanStage:'EMI active', createdAt: daysAgo(0,10,3),
+  {id:'TCK-10237', subject:'Duplicate: EMI deducted twice', customer:'Amul Roy', phone:'+1 416 555 0101', email:'amul.roy@gmail.com', cc:'accounts@chinmayfinlease.com', channel:'Email', priority:'Medium', status:'Open', queue:'Collections', department:'Collections', nbfcPartner:'Chinmay', source:'Chinmay', assignee:'a1', updated:'8m ago', slaMins:150, category:'EMI / Repayment', loanId:'LN-44018', loanStage:'EMI active', createdAt: daysAgo(0,10,3),
     thread:[
-      {dir:'in', text:"Following up by email in case WhatsApp doesn't reach the right team — double EMI deduction issue.", chan:'Email', time:'10:15 AM'},
+      {dir:'in', text:"Following up by email in case WhatsApp doesn't reach the right team — double EMI deduction issue.", cc:'accounts@chinmayfinlease.com', chan:'Email', time:'10:15 AM'},
     ],
     activity:['Ticket created via Email','Assigned to Riya Sen','Flagged as likely duplicate of TCK-10231']},
 
@@ -1597,17 +1701,24 @@ function switchView(name){
 }
 
 function canBulkManage(){
-  return currentRole === 'manager';
+  return true;
 }
 function setRole(role){
   currentRole = role;
   document.getElementById('roleAgentBtn').classList.toggle('active', role==='agent');
   document.getElementById('roleMgrBtn').classList.toggle('active', role==='manager');
-  const mgrEls = ['mgrLabel','navDashboard','navManageAll','navTeam'];
-  mgrEls.forEach(id=>document.getElementById(id).style.display = role==='manager' ? 'flex' : 'none');
+  const mgrEls = ['mgrLabel','navDashboard','navTeam'];
+  mgrEls.forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.style.display = role==='manager' ? 'flex' : 'none';
+  });
+  const navManageAll = document.getElementById('navManageAll');
+  if(navManageAll) navManageAll.style.display = 'flex';
   const bulkBtn = document.getElementById('bulkActionBtn');
-  if(bulkBtn) bulkBtn.style.display = role === 'manager' ? 'inline-flex' : 'none';
-  document.querySelector('.subnav-item[data-view="tickets"]').innerHTML = role==='manager' ? '<span class="ic">☰</span> My tickets' : '<span class="ic">☰</span> Tickets';
+  if(bulkBtn) bulkBtn.style.display = 'inline-flex';
+  const agentBulkBtn = document.getElementById('agentBulkActionBtn');
+  if(agentBulkBtn) agentBulkBtn.style.display = 'inline-flex';
+  document.querySelector('.subnav-item[data-view="tickets"]').innerHTML = '<span class="ic">☰</span> My tickets';
   if(role==='manager'){ switchView('dashboard'); } else { switchView('tickets'); }
   showToast(role==='manager' ? 'Switched to Manager view — full analytics unlocked' : 'Switched to Agent view');
 }
@@ -1622,7 +1733,7 @@ function setStatusFilter(status){
   renderTicketList();
 }
 
-/* ---- Date range filter (shared by "My tickets" and "Manage all tickets") ---- */
+/* ---- Date range filter (shared by "My tickets" and "All tickets") ---- */
 function toDateInputValue(d){
   const p = n=>String(n).padStart(2,'0');
   return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
@@ -2512,7 +2623,8 @@ function renderConvBody(tab){
             <div class="ec-subject">${m.subject || item.ticketObj.subject}</div>
             <div class="ec-actions">
               <button class="ec-link" onclick="viewEmail('${tId}', ${item.idx})">👁 View Email</button>
-              <button class="ec-link" onclick="openEmailComposer()">↩ Reply</button>
+              <button class="ec-link" onclick="openEmailComposer(false)">↩ Reply</button>
+              <button class="ec-link" onclick="openEmailComposer(true)">↩↩ Reply All</button>
             </div>
           </div>`;
       return dateDividerHtml + `<div class="${cls}">
@@ -2574,14 +2686,16 @@ function viewEmail(ticketId, msgIndex){
   const t = TICKETS.find(x=>x.id===ticketId);
   const m = t && t.thread[msgIndex];
   if(!t || !m) return;
-  const dir = m.dir==='out' ? `From: ${m.from || EMAIL_FROM_OPTIONS[0].email} · To: ${m.to || t.email}` : `From: ${t.email} · To: Lenditt Support`;
+  const senderVal = m.dir === 'out' ? (m.from || EMAIL_FROM_OPTIONS[0].email) : (m.from || t.email);
+  const recipientVal = m.dir === 'out' ? (m.to || t.email) : 'Lenditt Support';
   document.getElementById('viewEmailBody').innerHTML = `
     <div class="ve-row"><div class="ve-k">Direction</div><div class="ve-v">${m.dir==='out' ? 'Sent' : 'Received'}</div></div>
-    <div class="ve-row"><div class="ve-k">Sender</div><div class="ve-v">${m.dir==='out' ? (m.from || EMAIL_FROM_OPTIONS[0].email) : t.email}</div></div>
-    <div class="ve-row"><div class="ve-k">Recipient</div><div class="ve-v">${m.dir==='out' ? (m.to || t.email) : 'Lenditt Support'}</div></div>
+    <div class="ve-row"><div class="ve-k">Sender</div><div class="ve-v">${senderVal}</div></div>
+    <div class="ve-row"><div class="ve-k">To</div><div class="ve-v">${recipientVal}</div></div>
+    ${m.cc ? `<div class="ve-row"><div class="ve-k">Cc</div><div class="ve-v">${m.cc}</div></div>` : ''}
     <div class="ve-row"><div class="ve-k">Subject</div><div class="ve-v">${m.subject || t.subject}</div></div>
     <div class="ve-row"><div class="ve-k">Timestamp</div><div class="ve-v">${msgTimestamp(t,m)}</div></div>
-    <div class="ve-body-box">${m.bodyHtml || `<p>${m.text}</p>`}</div>
+    <div class="ve-body-box">${formatMessageText(m.bodyHtml || m.text)}</div>
   `;
   document.getElementById('modalViewEmail').classList.add('show');
 }
@@ -2614,83 +2728,383 @@ function simulateDelivery(t, msg){
 }
 
 /* =========================================================
-   EMAIL COMPOSER
+   EMAIL COMPOSER (TO, CC, REPLY ALL, SIGNATURES & DRAFTS)
 ========================================================= */
-function populateEmailFromOptions(){
+let ecToRecipients = [];
+let ecCcRecipients = [];
+
+// Quick suggested CC escalation contacts
+const EC_SUGGESTED_CC = [
+  { name: 'Collections Lead', email: 'collections.mgr@lenditt.com' },
+  { name: 'Support Supervisor', email: 'support.lead@lenditt.com' },
+  { name: 'Grievance Officer', email: 'grievance@lenditt.com' },
+  { name: 'Disbursal Ops', email: 'disbursals@lenditt.com' },
+  { name: 'Legal Team', email: 'legal@chinmayfinlease.com' }
+];
+
+function populateEmailFromOptions(selectedEmail){
   const sel = document.getElementById('ecFrom');
-  sel.innerHTML = EMAIL_FROM_OPTIONS.map(o=>`<option value="${o.email}">${o.dept} — ${o.email}</option>`).join('');
+  if(!sel) return;
+  sel.innerHTML = EMAIL_FROM_OPTIONS.map(o => `<option value="${o.email}" ${selectedEmail && selectedEmail.toLowerCase() === o.email.toLowerCase() ? 'selected' : ''}>${o.email}</option>`).join('');
   enhanceSearchSelect(sel);
 }
-function populateEmailToOptions(t){
-  const sel = document.getElementById('ecTo');
-  sel.innerHTML = `<option value="${t.email}">${t.customer} (primary) — ${t.email}</option>`;
-  enhanceSearchSelect(sel);
+
+function handleEmailFromChange(){
+  updateSignaturePreview();
 }
+
 function populateEmailTemplateOptions(){
   const sel = document.getElementById('ecTemplateSelect');
   const items = TEMPLATES.filter(tp=>tp.channel==='Email');
   sel.innerHTML = `<option value="">Select a template…</option>` + items.map(tp=>`<option value="${tp.id}">${tp.title}</option>`).join('');
   enhanceSearchSelect(sel);
 }
+
 function updateSignaturePreview(){
-  const t = TICKETS.find(x=>x.id===selectedTicketId);
-  const dept = deptFromEmail(document.getElementById('ecFrom').value);
-  document.getElementById('ecSignaturePreview').innerHTML = `<span class="ec-sig-label">Signature (auto-applied on send)</span>${(EMAIL_SIGNATURES[dept]||EMAIL_SIGNATURES['Customer Support']).replace(/\n/g,'<br>')}`;
-}
-let emailComposerDraftIndex = null;
-
-function openDraftForEdit(ticketId, draftIndex){
-  const t = TICKETS.find(x=>x.id===ticketId);
-  if(!t || !t.thread[draftIndex]) return;
-  emailComposerDraftIndex = draftIndex;
-  openEmailComposer();
-  const draft = t.thread[draftIndex];
-  document.getElementById('ecDraftNotice').style.display = 'block';
-  document.getElementById('ecFrom').value = draft.from || document.getElementById('ecFrom').value;
-  document.getElementById('ecSubject').value = draft.subject || '';
-  document.getElementById('ecBody').innerHTML = draft.bodyHtml || draft.text || '';
-  updateSignaturePreview();
+  const sel = document.getElementById('ecFrom');
+  const fromEmail = sel ? sel.value : (EMAIL_FROM_OPTIONS[0] ? EMAIL_FROM_OPTIONS[0].email : '');
+  const sig = getSignatureForFromEmail(fromEmail);
+  const previewEl = document.getElementById('ecSignaturePreview');
+  if(previewEl){
+    previewEl.innerHTML = `<span class="ec-sig-label">Signature (auto-applied on send)</span>${sig}`;
+  }
 }
 
-function openEmailComposer(){
+function focusRecipientInput(inputId){
+  const inp = document.getElementById(inputId);
+  if(inp) inp.focus();
+}
+
+function toggleCcField(){
+  const row = document.getElementById('ecCcRow');
+  const btn = document.getElementById('btnToggleCc');
+  if(!row) return;
+  if(row.style.display === 'none' || !row.style.display){
+    row.style.display = 'block';
+    if(btn) btn.style.display = 'none';
+    renderCcSuggestions();
+    focusRecipientInput('ecCcInput');
+  } else {
+    row.style.display = 'none';
+    if(btn) btn.style.display = 'inline';
+  }
+}
+
+function hideCcField(){
+  const row = document.getElementById('ecCcRow');
+  const btn = document.getElementById('btnToggleCc');
+  if(row) row.style.display = 'none';
+  if(btn) btn.style.display = 'inline';
+}
+
+function renderCcSuggestions(){
+  const suggContainer = document.getElementById('ecCcSuggestions');
+  if(!suggContainer) return;
+  suggContainer.innerHTML = `
+    <span class="ec-sugg-label">Quick Add CC:</span>
+    ${EC_SUGGESTED_CC.map(s => `
+      <button type="button" class="ec-sugg-chip" onclick="addSuggestedCc('${s.email}', '${s.name}', event)">
+        <span>+</span> <b>${s.name}</b> <span style="opacity:0.8;">(${s.email})</span>
+      </button>
+    `).join('')}
+  `;
+}
+
+function getThreadCcEmails(t){
+  const ccs = new Set();
+  if(!t) return [];
+  if(t.cc){
+    t.cc.split(/[,;]+/).map(s => s.trim()).filter(Boolean).forEach(e => ccs.add(e.toLowerCase()));
+  }
+  if(t.emailCc){
+    t.emailCc.split(/[,;]+/).map(s => s.trim()).filter(Boolean).forEach(e => ccs.add(e.toLowerCase()));
+  }
+  if(Array.isArray(t.thread)){
+    t.thread.forEach(m => {
+      if(m.cc){
+        m.cc.split(/[,;]+/).map(s => s.trim()).filter(Boolean).forEach(e => ccs.add(e.toLowerCase()));
+      }
+      if(Array.isArray(m.ccRecipients)){
+        m.ccRecipients.forEach(r => {
+          const em = typeof r === 'string' ? r : (r && r.email);
+          if(em) ccs.add(em.trim().toLowerCase());
+        });
+      }
+    });
+  }
+  if(t.email) ccs.delete(t.email.toLowerCase());
+  EMAIL_FROM_OPTIONS.forEach(opt => {
+    if(opt.email) ccs.delete(opt.email.toLowerCase());
+  });
+  return Array.from(ccs);
+}
+
+function addSuggestedCc(email, name, event){
+  if(event) event.stopPropagation();
+  if(!ecCcRecipients.some(r => r.email.toLowerCase() === email.toLowerCase())){
+    ecCcRecipients.push({ email: email });
+    renderCcChips();
+  }
+  focusRecipientInput('ecCcInput');
+}
+
+function renderToChips(){
+  const t = TICKETS.find(x => x.id === selectedTicketId);
+  const container = document.getElementById('ecToChips');
+  if(!container) return;
+  
+  container.innerHTML = ecToRecipients.map((rec, i) => `
+    <div class="recipient-chip" id="toChip_${i}" title="${rec.email}">
+      <span class="rc-email">${rec.email}</span>
+      <button type="button" class="rc-action-btn" onclick="startEditRecipient('to', ${i}, event)" title="Edit email">✏️</button>
+      <button type="button" class="rc-action-btn rc-del" onclick="removeRecipient('to', ${i}, event)" title="Remove email">✕</button>
+    </div>
+  `).join('');
+
+  const hintSpan = document.getElementById('ecToRegisteredHint');
+  const restoreBtn = document.getElementById('btnRestoreRegisteredTo');
+  if(hintSpan){
+    hintSpan.style.display = ecToRecipients.length === 0 ? 'inline' : 'none';
+  }
+  if(restoreBtn){
+    const hasDefault = t && ecToRecipients.some(r => r.email.toLowerCase() === t.email.toLowerCase());
+    restoreBtn.style.display = hasDefault ? 'none' : 'inline';
+    if(t) restoreBtn.textContent = `↩ Add ${t.email}`;
+  }
+}
+
+function renderCcChips(){
+  const container = document.getElementById('ecCcChips');
+  if(!container) return;
+  
+  container.innerHTML = ecCcRecipients.map((rec, i) => `
+    <div class="recipient-chip recipient-chip-cc" id="ccChip_${i}" title="${rec.email}">
+      <span class="rc-email">${rec.email}</span>
+      <button type="button" class="rc-action-btn" onclick="startEditRecipient('cc', ${i}, event)" title="Edit email">✏️</button>
+      <button type="button" class="rc-action-btn rc-del" onclick="removeRecipient('cc', ${i}, event)" title="Remove email">✕</button>
+    </div>
+  `).join('');
+}
+
+function removeRecipient(type, index, event){
+  if(event) event.stopPropagation();
+  if(type === 'to'){
+    ecToRecipients.splice(index, 1);
+    renderToChips();
+    focusRecipientInput('ecToInput');
+  } else {
+    ecCcRecipients.splice(index, 1);
+    renderCcChips();
+    focusRecipientInput('ecCcInput');
+  }
+}
+
+function restoreRegisteredTo(){
+  const t = TICKETS.find(x => x.id === selectedTicketId);
+  if(!t) return;
+  if(!ecToRecipients.some(r => r.email.toLowerCase() === t.email.toLowerCase())){
+    ecToRecipients.unshift({ email: t.email });
+  }
+  renderToChips();
+  focusRecipientInput('ecToInput');
+}
+
+function startEditRecipient(type, index, event){
+  if(event) event.stopPropagation();
+  const list = type === 'to' ? ecToRecipients : ecCcRecipients;
+  const chipEl = document.getElementById(`${type}Chip_${index}`);
+  if(!chipEl || !list[index]) return;
+  
+  const currentEmail = list[index].email;
+  chipEl.innerHTML = `
+    <input type="text" class="rc-inline-edit" value="${currentEmail}" id="inlineEdit_${type}_${index}">
+    <button type="button" class="rc-action-btn" style="color:var(--teal); font-weight:700;" onclick="saveEditRecipient('${type}', ${index}, event)">✓</button>
+    <button type="button" class="rc-action-btn" onclick="${type==='to'?'renderToChips()':'renderCcChips()'}" title="Cancel">✕</button>
+  `;
+  const inp = document.getElementById(`inlineEdit_${type}_${index}`);
+  if(inp){
+    inp.focus();
+    inp.select();
+    inp.onkeydown = function(e){
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        saveEditRecipient(type, index, e);
+      } else if(e.key === 'Escape'){
+        if(type==='to') renderToChips(); else renderCcChips();
+      }
+    };
+    inp.onblur = function(e){
+      setTimeout(()=>{
+        saveEditRecipient(type, index, e);
+      }, 150);
+    };
+  }
+}
+
+function saveEditRecipient(type, index, event){
+  if(event && event.stopPropagation) event.stopPropagation();
+  const inp = document.getElementById(`inlineEdit_${type}_${index}`);
+  if(!inp) return;
+  const val = inp.value.trim();
+  const list = type === 'to' ? ecToRecipients : ecCcRecipients;
+  
+  if(val && val.includes('@')){
+    list[index] = { email: val };
+  } else if(!val){
+    list.splice(index, 1);
+  }
+  if(type === 'to') renderToChips(); else renderCcChips();
+}
+
+function handleRecipientKeydown(event, type){
+  if(event.key === 'Enter' || event.key === ',' || event.key === 'Tab' || event.key === ';'){
+    event.preventDefault();
+    commitRecipientInput(type);
+  } else if(event.key === 'Backspace'){
+    const inputEl = document.getElementById(type === 'to' ? 'ecToInput' : 'ecCcInput');
+    const list = type === 'to' ? ecToRecipients : ecCcRecipients;
+    if(inputEl && inputEl.value === '' && list.length > 0){
+      list.pop();
+      if(type === 'to') renderToChips(); else renderCcChips();
+    }
+  }
+}
+
+function handleRecipientBlur(type){
+  commitRecipientInput(type);
+}
+
+function commitRecipientInput(type){
+  const inputEl = document.getElementById(type === 'to' ? 'ecToInput' : 'ecCcInput');
+  if(!inputEl) return;
+  const raw = inputEl.value.trim().replace(/^[,;\s]+|[,;\s]+$/g, '');
+  if(!raw) return;
+  
+  const emails = raw.split(/[,;\s]+/).filter(e => e.length > 0);
+  
+  emails.forEach(item => {
+    let email = item;
+    const match = item.match(/^(.*?)[<](.*?)[>]$/);
+    if(match){
+      email = match[2].trim();
+    }
+    if(email.includes('@')){
+      const list = type === 'to' ? ecToRecipients : ecCcRecipients;
+      if(!list.some(r => r.email.toLowerCase() === email.toLowerCase())){
+        list.push({ email: email });
+      }
+    } else {
+      showToast(`Please enter a valid email address (${item})`);
+    }
+  });
+  
+  inputEl.value = '';
+  if(type === 'to') renderToChips(); else renderCcChips();
+}
+
+function openEmailComposer(isReplyAll = false){
   const t = TICKETS.find(x=>x.id===selectedTicketId);
   if(!t) return;
-  populateEmailFromOptions();
-  populateEmailToOptions(t);
+  
+  // 1. Populate From options matching ticket queue/department
+  const matchOpt = EMAIL_FROM_OPTIONS.find(o => o.dept.toLowerCase() === (t.department || t.queue || '').toLowerCase()) || EMAIL_FROM_OPTIONS[0];
+  populateEmailFromOptions(matchOpt.email);
   populateEmailTemplateOptions();
-  const matchOpt = EMAIL_FROM_OPTIONS.find(o=>o.dept===t.queue);
-  document.getElementById('ecFrom').value = matchOpt ? matchOpt.email : EMAIL_FROM_OPTIONS[0].email;
-  document.getElementById('ecFrom').onchange = updateSignaturePreview;
-
-  const draft = emailComposerDraftIndex !== null && t.thread[emailComposerDraftIndex] && t.thread[emailComposerDraftIndex].draft
-    ? t.thread[emailComposerDraftIndex]
-    : t.emailDraft;
-
+  
+  // 2. Setup Recipients (To & Cc)
+  const draft = t.emailDraft;
   if(draft){
     document.getElementById('ecDraftNotice').style.display = 'block';
-    document.getElementById('ecFrom').value = draft.from || document.getElementById('ecFrom').value;
+    if(draft.from) populateEmailFromOptions(draft.from);
     document.getElementById('ecSubject').value = draft.subject || '';
-    document.getElementById('ecBody').innerHTML = draft.bodyHtml || draft.text || '';
+    document.getElementById('ecBody').innerHTML = draft.bodyHtml || '';
+    ecAttachments = draft.attachments ? [...draft.attachments] : [];
+    
+    // Parse draft To
+    ecToRecipients = [];
+    if(Array.isArray(draft.toRecipients) && draft.toRecipients.length > 0){
+      ecToRecipients = draft.toRecipients.map(r => ({ email: typeof r === 'string' ? r : r.email }));
+    } else if(draft.to){
+      const toArr = draft.to.split(/[,;]+/).map(s => s.trim()).filter(Boolean);
+      ecToRecipients = toArr.map(e => ({ email: e }));
+    } else {
+      ecToRecipients = [{ email: t.email }];
+    }
+    
+    // Parse draft CC or auto-merge thread CCs
+    ecCcRecipients = [];
+    if(Array.isArray(draft.ccRecipients) && draft.ccRecipients.length > 0){
+      ecCcRecipients = draft.ccRecipients.map(r => ({ email: typeof r === 'string' ? r : r.email }));
+    } else if(draft.cc){
+      const ccArr = draft.cc.split(/[,;]+/).map(s => s.trim()).filter(Boolean);
+      ecCcRecipients = ccArr.map(e => ({ email: e }));
+    }
+    
+    // Automatically include any CC from customer or agent side in thread
+    const threadCcs = getThreadCcEmails(t);
+    threadCcs.forEach(em => {
+      if(!ecCcRecipients.some(r => r.email.toLowerCase() === em.toLowerCase()) &&
+         !ecToRecipients.some(r => r.email.toLowerCase() === em.toLowerCase())){
+        ecCcRecipients.push({ email: em });
+      }
+    });
+    
+    if(ecCcRecipients.length > 0 || isReplyAll){
+      document.getElementById('ecCcRow').style.display = 'block';
+      const btn = document.getElementById('btnToggleCc');
+      if(btn) btn.style.display = 'none';
+      renderCcSuggestions();
+    } else {
+      hideCcField();
+    }
   } else {
     document.getElementById('ecDraftNotice').style.display = 'none';
     document.getElementById('ecSubject').value = t.subject.startsWith('Re:') ? t.subject : `Re: ${t.subject}`;
     document.getElementById('ecBody').innerHTML = '';
-  }
-  updateSignaturePreview();
-  document.getElementById('modalEmailCompose').classList.add('show');
-}
-function closeEmailComposer(){ emailComposerDraftIndex = null; document.getElementById('modalEmailCompose').classList.remove('show'); }
-function discardEmail(){
-  if(emailComposerDraftIndex !== null){
-    const t = TICKETS.find(x=>x.id===selectedTicketId);
-    if(t && t.thread[emailComposerDraftIndex] && t.thread[emailComposerDraftIndex].draft){
-      t.thread.splice(emailComposerDraftIndex, 1);
-      t.emailDraft = null;
-      renderConvBody('thread');
+    ecAttachments = [];
+    
+    // Default To is just the email address
+    ecToRecipients = [{ email: t.email }];
+    
+    // Automatically retrieve and include any CC from customer side or agent side in thread
+    ecCcRecipients = [];
+    const threadCcs = getThreadCcEmails(t);
+    threadCcs.forEach(em => {
+      if(!ecCcRecipients.some(r => r.email.toLowerCase() === em.toLowerCase()) &&
+         !ecToRecipients.some(r => r.email.toLowerCase() === em.toLowerCase())){
+        ecCcRecipients.push({ email: em });
+      }
+    });
+    
+    // If there are CC emails in thread OR isReplyAll is true, automatically show CC row
+    if(ecCcRecipients.length > 0 || isReplyAll){
+      document.getElementById('ecCcRow').style.display = 'block';
+      const btn = document.getElementById('btnToggleCc');
+      if(btn) btn.style.display = 'none';
+      renderCcSuggestions();
+    } else {
+      hideCcField();
     }
   }
+  
+  renderToChips();
+  renderCcChips();
+  renderEmailAttachChips();
+  updateSignaturePreview();
+  document.getElementById('modalEmailCompose').classList.add('show');
+  
+  if(isReplyAll){
+    focusRecipientInput('ecCcInput');
+  }
+}
+function closeEmailComposer(){ document.getElementById('modalEmailCompose').classList.remove('show'); }
+function discardEmail(){
   document.getElementById('ecSubject').value = '';
   document.getElementById('ecBody').innerHTML = '';
+  ecAttachments = [];
+  ecToRecipients = [];
+  ecCcRecipients = [];
+  renderEmailAttachChips();
   closeEmailComposer();
 }
 function rteExec(cmd, val){
@@ -2724,64 +3138,87 @@ function saveNewEmailTemplate(){
 function saveEmailDraft(){
   const t = TICKETS.find(x=>x.id===selectedTicketId);
   if(!t) return;
+  
+  commitRecipientInput('to');
+  commitRecipientInput('cc');
+  
   const from = document.getElementById('ecFrom').value;
-  const to = document.getElementById('ecTo').value;
-  const subject = document.getElementById('ecSubject').value.trim();
-  const bodyHtml = document.getElementById('ecBody').innerHTML.trim();
-  if(!subject || !bodyHtml || bodyHtml==='<br>'){ showToast('Add a subject and message before saving the draft'); return; }
-
-  const draft = {
-    dir:'out', chan:'Email', draft:true, from, to, subject, bodyHtml,
-    text: subject,
-    time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
-    ts: new Date(),
-    status:'draft',
-    isDraft: true
+  const toStr = ecToRecipients.map(r => r.email).join(', ');
+  const ccStr = ecCcRecipients.map(r => r.email).join(', ');
+  const subject = document.getElementById('ecSubject').value;
+  const bodyHtml = document.getElementById('ecBody').innerHTML;
+  
+  t.emailDraft = {
+    from: from,
+    to: toStr,
+    cc: ccStr,
+    toRecipients: [...ecToRecipients],
+    ccRecipients: [...ecCcRecipients],
+    subject: subject,
+    bodyHtml: bodyHtml,
+    attachments: [...ecAttachments],
+    savedAt: new Date()
   };
-
-  if(emailComposerDraftIndex !== null && t.thread[emailComposerDraftIndex] && t.thread[emailComposerDraftIndex].draft){
-    t.thread[emailComposerDraftIndex] = { ...t.thread[emailComposerDraftIndex], ...draft };
-  } else {
-    t.thread.push(draft);
-  }
-
-  t.emailDraft = { from, to, subject, bodyHtml };
-  t.updated = 'just now';
   closeEmailComposer();
   renderConvBody('thread');
-  renderDetailList();
-  renderProps(t);
-  showToast('Email draft saved');
+  showToast('Email draft saved — viewable in ticket thread');
+}
+function discardTicketDraft(){
+  const t = TICKETS.find(x=>x.id===selectedTicketId);
+  if(!t) return;
+  t.emailDraft = null;
+  ecAttachments = [];
+  ecToRecipients = [];
+  ecCcRecipients = [];
+  renderEmailAttachChips();
+  renderConvBody('thread');
+  showToast('Email draft discarded');
 }
 function sendEmailFromComposer(){
   const t = TICKETS.find(x=>x.id===selectedTicketId);
   if(!t) return;
+  
+  commitRecipientInput('to');
+  commitRecipientInput('cc');
+  
+  if(ecToRecipients.length === 0){
+    showToast('Please add at least one recipient in the To field');
+    focusRecipientInput('ecToInput');
+    return;
+  }
+  
   const from = document.getElementById('ecFrom').value;
-  const to = document.getElementById('ecTo').value;
+  const toStr = ecToRecipients.map(r => r.email).join(', ');
+  const ccStr = ecCcRecipients.map(r => r.email).join(', ');
   const subject = document.getElementById('ecSubject').value.trim();
   const bodyHtml = document.getElementById('ecBody').innerHTML.trim();
+  
   if(!subject || !bodyHtml || bodyHtml==='<br>'){ showToast('Add a subject and message before sending'); return; }
-  const sigHtml = signatureForTicket(t).replace(/\n/g,'<br>');
+  
+  const sigHtml = getSignatureForFromEmail(from);
   const fullBodyHtml = `${bodyHtml}<br><br>${sigHtml}`;
   const now = new Date();
-  const sentMsg = {
-    dir:'out', chan:'Email', subject, from, to, bodyHtml: fullBodyHtml,
-    text: subject, time: now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), ts: now, status:'sending'
+  
+  const msg = {
+    dir:'out', chan:'Email', subject, from, to: toStr, cc: ccStr,
+    toRecipients: [...ecToRecipients], ccRecipients: [...ecCcRecipients],
+    bodyHtml: fullBodyHtml,
+    text: subject, time: now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), ts: now, status:'sending',
+    attachments: [...ecAttachments]
   };
-
-  if(emailComposerDraftIndex !== null && t.thread[emailComposerDraftIndex] && t.thread[emailComposerDraftIndex].draft){
-    const target = t.thread[emailComposerDraftIndex];
-    Object.assign(target, sentMsg, { draft:false, status:'sending', isDraft:false, time: sentMsg.time, ts: now, bodyHtml: fullBodyHtml, text: subject });
-    t.emailDraft = null;
-    t.activity.push(`Draft email sent to ${to}`);
-  } else {
-    t.thread.push(sentMsg);
-    t.activity.push(`Email sent to ${to}`);
-  }
-
+  t.thread.push(msg);
+  t.emailDraft = null;
+  ecAttachments = [];
+  ecToRecipients = [];
+  ecCcRecipients = [];
+  renderEmailAttachChips();
+  
+  const logMsg = `Email sent to ${toStr}${ccStr ? ` (Cc: ${ccStr})` : ''}${msg.attachments.length ? ` with ${msg.attachments.length} attachment(s)` : ''}`;
+  addLog(t, logMsg, { type:'message', by:currentRole, actor: agentName(CURRENT_AGENT_ID), undoable:false });
+  
   if(t.status==='New'||t.status==='Open') t.status='In Progress';
   t.updated = 'just now';
-  simulateDelivery(t, emailComposerDraftIndex !== null && t.thread[emailComposerDraftIndex] && !t.thread[emailComposerDraftIndex].draft ? t.thread[emailComposerDraftIndex] : sentMsg);
+  simulateDelivery(t, msg);
   closeEmailComposer();
   renderConvBody('thread');
   renderDetailList();
