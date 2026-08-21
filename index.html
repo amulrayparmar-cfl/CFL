@@ -1375,6 +1375,68 @@
       color: #4F46E5 !important;
     }
 
+    .ibutton-tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: #EEF2FF;
+      color: #4F46E5;
+      font-size: 10.5px;
+      font-weight: 800;
+      font-family: serif, sans-serif;
+      cursor: pointer;
+      line-height: 1;
+      margin-left: 4px;
+      vertical-align: middle;
+      transition: all 0.15s ease;
+      border: 1px solid #C7D2FE;
+    }
+    .ibutton-tag:hover {
+      background: #4F46E5;
+      color: #FFFFFF;
+      transform: scale(1.18);
+      box-shadow: 0 2px 5px rgba(79, 70, 229, 0.35);
+    }
+
+    /* Bulk action modal styles */
+    .bulk-action-btn {
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #334155;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .bulk-action-btn:hover {
+      background: #F8FAFC;
+      border-color: #94A3B8;
+    }
+    .bulk-action-btn.active {
+      background: #115E59 !important;
+      color: #FFFFFF !important;
+      border-color: #115E59 !important;
+      font-weight: 600;
+      box-shadow: 0 1px 3px rgba(17, 94, 89, 0.25);
+    }
+    .bulk-action-panel {
+      display: none;
+      margin-top: 12px;
+    }
+    .bulk-action-panel.show {
+      display: block;
+      animation: fadeInPanel 0.18s ease-out;
+    }
+    @keyframes fadeInPanel {
+      from { opacity: 0; transform: translateY(-3px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     /* =========================================================
        FILES REPOSITORY & MANAGEMENT TAB STYLES
     ========================================================= */
@@ -4890,12 +4952,15 @@
               <select id="fSubCategory" onchange="renderTicketList()">
                 <option value="">Sub category</option>
               </select>
-              <select id="fIntraDept" onchange="renderTicketList()">
-                <option value="">Intra department</option>
-                <option value="None">None</option>
-                <option value="Sales">Sales</option>
-                <option value="Collection">Collection</option>
-              </select>
+              <div style="display:inline-flex; align-items:center; gap:2px;">
+                <select id="fIntraDept" onchange="renderTicketList()">
+                  <option value="">Intra department</option>
+                  <option value="None">None</option>
+                  <option value="Sales">Sales</option>
+                  <option value="Collection">Collection</option>
+                </select>
+                <span class="ibutton-tag" onclick="openIntraDeptInfoModal(event)" title="Click for Intra Department &amp; SLA logic info">ℹ</span>
+              </div>
               <div class="daterange-picker-wrap">
                 <input type="hidden" id="fDateFrom">
                 <input type="hidden" id="fDateTo">
@@ -5018,12 +5083,15 @@
               <select id="mfSubCategory" onchange="renderManageAll()">
                 <option value="">Sub category</option>
               </select>
-              <select id="mfIntraDept" onchange="renderManageAll()">
-                <option value="">Intra department</option>
-                <option value="None">None</option>
-                <option value="Sales">Sales</option>
-                <option value="Collection">Collection</option>
-              </select>
+              <div style="display:inline-flex; align-items:center; gap:2px;">
+                <select id="mfIntraDept" onchange="renderManageAll()">
+                  <option value="">Intra department</option>
+                  <option value="None">None</option>
+                  <option value="Sales">Sales</option>
+                  <option value="Collection">Collection</option>
+                </select>
+                <span class="ibutton-tag" onclick="openIntraDeptInfoModal(event)" title="Click for Intra Department &amp; SLA logic info">ℹ</span>
+              </div>
               <div class="daterange-picker-wrap">
                 <input type="hidden" id="mfDateFrom">
                 <input type="hidden" id="mfDateTo">
@@ -6735,7 +6803,57 @@
     </div>
   </div>
 
-  <!-- Bulk Actions Modal (Updated with Archive and Delete) -->
+  <!-- Single Ticket Intra Transfer Modal -->
+  <div class="modal-overlay" id="modalIntraTransfer">
+    <div class="modal" style="max-width: 520px;">
+      <div class="modal-head">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:18px;">⇄</span>
+          <h3>Intra-transfer Department</h3>
+        </div>
+        <button class="close" onclick="closeModal('modalIntraTransfer')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="background:var(--paper); padding:10px 14px; border-radius:6px; border:1px solid var(--line-soft); margin-bottom:14px; font-size:12px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+            <span>Ticket: <b id="itModalTicketId">—</b></span>
+            <span>Customer: <b id="itModalCustomer">—</b></span>
+          </div>
+          <div style="display:flex; justify-content:space-between; color:var(--ink-soft);">
+            <span>Primary Dept: <b id="itModalDept">—</b></span>
+            <span>Current Owner: <b id="itModalOwner">—</b></span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label style="display:flex; align-items:center; gap:4px;">
+            Target Intra Department
+            <span class="ibutton-tag" onclick="openIntraDeptInfoModal(event)" title="Click for Intra Department &amp; SLA logic details">ℹ</span>
+          </label>
+          <select id="itTargetDept">
+            <option value="None">None (Standard Dept Handling)</option>
+            <option value="Sales">Sales</option>
+            <option value="Collection">Collection</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label>Reason / Collaboration Note (optional)</label>
+          <input type="text" id="itReason" placeholder="e.g. Needs sales verification on loan terms…">
+        </div>
+
+        <div class="notice" style="background:#EEF2FF; border-left:3px solid #4F46E5; color:#3730A3; margin-top:10px;">
+          ℹ️ <b>Preservation &amp; SLA Rule:</b> The primary Assignee and Department will remain intact. SLA and FRT timers will be paused while tagged under Sales or Collection.
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" onclick="closeModal('modalIntraTransfer')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitIntraTransfer()">Apply Intra-transfer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bulk Actions Modal (Updated with Intra-transfer Department, Archive and Delete) -->
   <div class="modal-overlay" id="modalBulk">
     <div class="modal">
       <div class="modal-head">
@@ -6753,6 +6871,8 @@
               onclick="setBulkAction('status')">Ticket Status</button>
             <button type="button" class="btn btn-sm bulk-action-btn" data-bulk-action="queue"
               onclick="setBulkAction('queue')">Transfer to Department</button>
+            <button type="button" class="btn btn-sm bulk-action-btn" data-bulk-action="intradept"
+              onclick="setBulkAction('intradept')">Intra-transfer Department</button>
             <button type="button" class="btn btn-sm bulk-action-btn" data-bulk-action="archive"
               onclick="setBulkAction('archive')">📦 Archive</button>
             <button type="button" class="btn btn-sm bulk-action-btn" data-bulk-action="delete"
@@ -6796,6 +6916,25 @@
               <option value="Legal Related">Legal Related</option>
               <option value="Grievance">Grievance</option>
             </select>
+          </div>
+        </div>
+
+        <!-- Bulk Intra-transfer Department -->
+        <div class="bulk-action-panel" id="bulkPanelIntradept">
+          <div class="form-row">
+            <label style="display:flex; align-items:center; gap:4px;">
+              Intra Department
+              <span class="ibutton-tag" onclick="openIntraDeptInfoModal(event)" title="Click for Intra Department &amp; SLA logic details">ℹ</span>
+            </label>
+            <select id="bulkIntraDept">
+              <option value="">-- Select Intra Department --</option>
+              <option value="None">None (Standard Dept Handling)</option>
+              <option value="Sales">Sales</option>
+              <option value="Collection">Collection</option>
+            </select>
+          </div>
+          <div class="notice" style="background:#EEF2FF; border-left:3px solid #4F46E5; color:#3730A3; margin-top:8px; font-size:11.5px;">
+            ℹ️ <b>Intra-Transfer Rule:</b> Owner and Primary Department remain preserved. Selecting <b>Sales</b> or <b>Collection</b> will pause SLA and FRT timers on all selected tickets.
           </div>
         </div>
 
@@ -7084,6 +7223,85 @@
         <h3>Click-to-Call</h3><button class="close" onclick="cancelCallModal()">✕</button>
       </div>
       <div class="modal-body" id="callModalBody"></div>
+    </div>
+  </div>
+
+  <!-- INTRA DEPARTMENT & SLA LOGIC INFO MODAL -->
+  <div class="modal-overlay" id="modalIntraDeptInfo">
+    <div class="modal modal-lg" style="max-width: 620px;">
+      <div class="modal-head" style="background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%); color: #FFFFFF; border-radius: 12px 12px 0 0;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:20px;">ℹ️</span>
+          <h3 style="margin:0; color:#FFFFFF;">Intra Department &amp; SLA / KPI Logic</h3>
+        </div>
+        <button class="close" onclick="closeModal('modalIntraDeptInfo')" style="color:#FFFFFF;">✕</button>
+      </div>
+      <div class="modal-body" style="padding: 20px; font-size: 13px; line-height: 1.6; color: var(--ink);">
+        
+        <div style="background: #EEF2FF; border-left: 4px solid #4F46E5; padding: 12px 16px; border-radius: 0 8px 8px 0; margin-bottom: 16px;">
+          <b style="color: #3730A3; font-size: 13.5px;">What is Intra Department?</b>
+          <p style="margin: 4px 0 0; color: #4338CA; font-size: 12.5px;">
+            Intra Department tagging routes collaborative, cross-functional customer queries between <b>Sales</b>, <b>Collection</b>, and <b>Support</b> without triggering unnecessary reassignment churn.
+          </p>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          
+          <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:8px; padding:12px 14px;">
+            <div style="font-weight:700; color:#0F172A; display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+              <span>🔒</span> 1. Owner &amp; Department Preservation Logic
+            </div>
+            <div style="font-size:12px; color:var(--ink-soft);">
+              When <b>Sales</b> or <b>Collection</b> is selected under Intra Department:
+              <ul style="margin:6px 0 0 18px; padding:0;">
+                <li>The ticket <b>Assignee (Owner)</b> remains strictly <b>unchanged</b>.</li>
+                <li>The primary <b>Department / Queue</b> remains strictly <b>unchanged</b>.</li>
+                <li>Ensures the originating agent maintains ticket responsibility while collaborating across departments.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:8px; padding:12px 14px;">
+            <div style="font-weight:700; color:#0F172A; display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+              <span>⏸️</span> 2. SLA &amp; FRT Timer Pausing Logic
+            </div>
+            <div style="font-size:12px; color:var(--ink-soft);">
+              Since intra-department queries depend on cross-team review:
+              <ul style="margin:6px 0 0 18px; padding:0;">
+                <li><b>Resolution SLA Timer:</b> Calculations are completely <b>stopped &amp; paused</b> (<code>⏸️ SLA Stopped</code>).</li>
+                <li><b>First Response Time (FRT):</b> FRT countdown is <b>stopped &amp; frozen</b> (<code>⏸️ FRT Stopped</code>).</li>
+                <li>Selecting <b>None</b> immediately restores active SLA &amp; FRT timer calculations.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:8px; padding:12px 14px;">
+            <div style="font-weight:700; color:#0F172A; display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+              <span>📊</span> 3. KPI &amp; Compliance Protection
+            </div>
+            <div style="font-size:12px; color:var(--ink-soft);">
+              <ul style="margin:4px 0 0 18px; padding:0;">
+                <li>Intra-department paused tickets are <b>excluded from SLA breach counts</b> and penalty lists.</li>
+                <li>Agent Performance Metrics (SLA Compliance %, AHT) and Team Dashboard KPIs protect agent scores while tickets are pending intra-department resolution.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:8px; padding:12px 14px;">
+            <div style="font-weight:700; color:#0F172A; display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+              <span>📝</span> 4. Activity Log &amp; Audit Trail
+            </div>
+            <div style="font-size:12px; color:var(--ink-soft);">
+              Every intra-department change is recorded into the ticket activity feed and manager team audit log with timestamps, actor information, and 1-click Undo capability.
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+      <div class="modal-foot" style="justify-content: flex-end;">
+        <button class="btn btn-primary" onclick="closeModal('modalIntraDeptInfo')">Got it</button>
+      </div>
     </div>
   </div>
 
@@ -9240,8 +9458,28 @@
       renderDetailList();
     }
 
+    function isIntraDeptTicket(t) {
+      return !!(t && t.intraDepartment && t.intraDepartment !== 'None' && t.intraDepartment !== 'none');
+    }
+
+    function isTicketSlaBreached(t) {
+      if (!t) return false;
+      if (isIntraDeptTicket(t)) return false; // Paused/stopped for Intra Department
+      if (t.status === 'Resolved' || t.status === 'Closed' || t.status === 'Merged' || t.status === 'Merge' || t.status === 'Junk') return false;
+      return t.slaMins < 0;
+    }
+
+    function openIntraDeptInfoModal(e) {
+      if (e) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+      const modal = document.getElementById('modalIntraDeptInfo');
+      if (modal) modal.classList.add('show');
+    }
+
     function updateHeaderSlaBadge() {
-      const breachedCount = TICKETS.filter(t => t.slaMins < 0 && t.status !== 'Resolved' && t.status !== 'Closed').length;
+      const breachedCount = TICKETS.filter(t => isTicketSlaBreached(t)).length;
       const container = document.getElementById('headerSlaBreachBadge');
       if (!container) return;
       if (breachedCount > 0) {
@@ -9264,7 +9502,7 @@
         renderManageAll();
       } else {
         filterSlaBreachedOnly = true;
-        const breached = TICKETS.filter(t => t.slaMins < 0 && t.status !== 'Resolved' && t.status !== 'Closed');
+        const breached = TICKETS.filter(t => isTicketSlaBreached(t));
         if (breached.length > 0) {
           openTicket(breached[0].id);
         } else {
@@ -9355,6 +9593,15 @@
       if (!agent) return 'Support';
       const dept = Object.keys(DEPT_AGENTS).find(d => DEPT_AGENTS[d].includes(agent.id));
       return dept || 'Support';
+    }
+
+    function intraDeptBadge(val) {
+      if (!val || val === 'None' || val === 'none') {
+        return `<span class="intra-dept-badge intra-dept-none">— None</span>`;
+      }
+      const cls = val.toLowerCase() === 'sales' ? 'intra-dept-sales' : 'intra-dept-collection';
+      const icon = val.toLowerCase() === 'sales' ? '💼' : '💰';
+      return `<span class="intra-dept-badge ${cls}" onclick="event.stopPropagation(); openIntraDeptInfoModal(event)" style="cursor:pointer;" title="Click for Intra Department &amp; SLA logic info">${icon} ${val} <span class="ibutton-tag" style="margin-left:3px; width:13px; height:13px; font-size:9px;">ℹ</span></span>`;
     }
 
     /* =========================================================
@@ -10023,7 +10270,7 @@
         <th class="sortable-header" onclick="toggleSort('tickets', 'priority', 'renderTicketList')">Priority${sortIcon('tickets', 'priority')}</th>
         <th class="sortable-header" onclick="toggleSort('tickets', 'status', 'renderTicketList')">Status${sortIcon('tickets', 'status')}</th>
         <th class="sortable-header" onclick="toggleSort('tickets', 'assignee', 'renderTicketList')">Assignee${sortIcon('tickets', 'assignee')}</th>
-        <th class="sortable-header" onclick="toggleSort('tickets', 'intraDepartment', 'renderTicketList')">Intra department${sortIcon('tickets', 'intraDepartment')}</th>
+        <th class="sortable-header" onclick="toggleSort('tickets', 'intraDepartment', 'renderTicketList')">Intra department <span class="ibutton-tag" onclick="openIntraDeptInfoModal(event)" title="Click for Intra Department &amp; SLA logic info">ℹ</span>${sortIcon('tickets', 'intraDepartment')}</th>
         <th class="sortable-header" onclick="toggleSort('tickets', 'slaMins', 'renderTicketList')">SLA${sortIcon('tickets', 'slaMins')}</th>
         <th class="sortable-header" onclick="toggleSort('tickets', 'updated', 'renderTicketList')">Updated${sortIcon('tickets', 'updated')}</th>
       </tr></thead>
@@ -10150,7 +10397,7 @@
         <th class="sortable-header" onclick="toggleSort('manageall', 'priority', 'renderManageAll')">Priority${sortIcon('manageall', 'priority')}</th>
         <th class="sortable-header" onclick="toggleSort('manageall', 'status', 'renderManageAll')">Status${sortIcon('manageall', 'status')}</th>
         <th class="sortable-header" onclick="toggleSort('manageall', 'assignee', 'renderManageAll')">Assignee${sortIcon('manageall', 'assignee')}</th>
-        <th class="sortable-header" onclick="toggleSort('manageall', 'intraDepartment', 'renderManageAll')">Intra department${sortIcon('manageall', 'intraDepartment')}</th>
+        <th class="sortable-header" onclick="toggleSort('manageall', 'intraDepartment', 'renderManageAll')">Intra department <span class="ibutton-tag" onclick="openIntraDeptInfoModal(event)" title="Click for Intra Department &amp; SLA logic info">ℹ</span>${sortIcon('manageall', 'intraDepartment')}</th>
         <th class="sortable-header" onclick="toggleSort('manageall', 'slaMins', 'renderManageAll')">SLA${sortIcon('manageall', 'slaMins')}</th>
         <th class="sortable-header" onclick="toggleSort('manageall', 'updated', 'renderManageAll')">Updated${sortIcon('manageall', 'updated')}</th>
       </tr></thead>
@@ -10170,10 +10417,10 @@
       document.querySelectorAll('.bulk-action-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.bulkAction === mode);
       });
-      const panels = ['bulkPanelAgent', 'bulkPanelStatus', 'bulkPanelQueue', 'bulkPanelArchive', 'bulkPanelDelete'];
+      const panels = ['bulkPanelAgent', 'bulkPanelStatus', 'bulkPanelQueue', 'bulkPanelIntradept', 'bulkPanelArchive', 'bulkPanelDelete'];
       panels.forEach(pId => {
         const el = document.getElementById(pId);
-        if (el) el.classList.toggle('show', pId === 'bulkPanel' + mode.charAt(0).toUpperCase() + mode.slice(1));
+        if (el) el.classList.toggle('show', pId.toLowerCase() === ('bulkpanel' + mode).toLowerCase());
       });
 
       const submitBtn = document.getElementById('bulkSubmitBtn');
@@ -10204,6 +10451,8 @@
       document.getElementById('bulkAgent').value = '';
       document.getElementById('bulkStatus').value = '';
       document.getElementById('bulkQueue').value = '';
+      const intraEl = document.getElementById('bulkIntraDept');
+      if (intraEl) intraEl.value = '';
       enhanceAllSelects(document.getElementById('modalBulk'));
       setBulkAction('agent');
       showToast('Bulk action options reset');
@@ -10225,6 +10474,8 @@
       document.getElementById('bulkStatus').value = '';
       agentSel.value = '';
       queueSel.value = '';
+      const intraEl = document.getElementById('bulkIntraDept');
+      if (intraEl) intraEl.value = '';
 
       enhanceAllSelects(document.getElementById('modalBulk'));
       setBulkAction('agent');
@@ -10286,6 +10537,33 @@
           changes++;
         });
         actionText = `transferred to ${queue}`;
+      } else if (bulkActionMode === 'intradept') {
+        const intraVal = document.getElementById('bulkIntraDept').value;
+        if (!intraVal) {
+          showToast('Please select an intra department first');
+          return;
+        }
+        bulkSelectedIds.forEach(id => {
+          const t = TICKETS.find(x => x.id === id);
+          if (!t) return;
+          const prevIntra = t.intraDepartment || 'None';
+          t.intraDepartment = intraVal;
+          t.updated = 'just now';
+          const isStopped = intraVal === 'Sales' || intraVal === 'Collection';
+          const logMsg = isStopped
+            ? `Bulk intra-transfer: ${prevIntra} → ${intraVal} (Owner & Dept preserved) — SLA & FRT calculations stopped`
+            : `Bulk intra-transfer cleared (${prevIntra} → None) — SLA & FRT calculations resumed`;
+          addLog(t, logMsg, {
+            type: 'field',
+            by: currentRole,
+            actor: currentRole === 'manager' ? 'Manager' : agentName(CURRENT_AGENT_ID),
+            undoable: true,
+            snapshot: { field: 'intraDepartment', oldValue: prevIntra }
+          });
+          changes++;
+        });
+        actionText = `intra-transferred to ${intraVal}`;
+        updateHeaderSlaBadge();
       } else if (bulkActionMode === 'archive') {
         bulkSelectedIds.forEach(id => {
           const t = TICKETS.find(x => x.id === id);
@@ -10317,6 +10595,54 @@
         const depts = typeof getSelectedValues === 'function' ? getSelectedValues('mfQueue') : [];
         updateBreakdownBanner(depts);
       }
+    }
+
+    /* SINGLE TICKET INTRA-TRANSFER MODAL HELPERS */
+    function openIntraTransferModal() {
+      const t = TICKETS.find(x => x.id === selectedTicketId);
+      if (!t) return;
+      document.getElementById('itModalTicketId').textContent = t.id;
+      document.getElementById('itModalCustomer').textContent = t.customer;
+      document.getElementById('itModalDept').textContent = t.department || t.queue || 'Support';
+      document.getElementById('itModalOwner').textContent = agentName(t.assignee) || 'Unassigned';
+      document.getElementById('itTargetDept').value = t.intraDepartment || 'None';
+      document.getElementById('itReason').value = '';
+      enhanceAllSelects(document.getElementById('modalIntraTransfer'));
+      document.getElementById('modalIntraTransfer').classList.add('show');
+    }
+
+    function submitIntraTransfer() {
+      const t = TICKETS.find(x => x.id === selectedTicketId);
+      if (!t) return;
+      const targetVal = document.getElementById('itTargetDept').value;
+      const reason = document.getElementById('itReason').value.trim();
+      const oldVal = t.intraDepartment || 'None';
+      if (oldVal === targetVal) {
+        closeModal('modalIntraTransfer');
+        return;
+      }
+      t.intraDepartment = targetVal;
+      t.updated = 'just now';
+      const isStopped = targetVal === 'Sales' || targetVal === 'Collection';
+      const actor = currentRole === 'manager' ? 'Manager' : agentName(CURRENT_AGENT_ID);
+      const logMsg = isStopped
+        ? `Intra-transfer to ${targetVal} (Owner & Dept preserved)${reason ? ' — ' + reason : ''} — SLA & FRT calculations stopped`
+        : `Intra-transfer cleared (${oldVal} → None)${reason ? ' — ' + reason : ''} — SLA & FRT calculations resumed`;
+      addLog(t, logMsg, {
+        type: 'field',
+        by: currentRole,
+        actor,
+        undoable: true,
+        snapshot: { field: 'intraDepartment', oldValue: oldVal }
+      });
+      closeModal('modalIntraTransfer');
+      showToast(`Ticket intra-transferred to ${targetVal}`);
+      renderDetail();
+      renderDetailList();
+      renderProps(t);
+      if (typeof renderTicketList === 'function') renderTicketList();
+      if (typeof renderManageAll === 'function') renderManageAll();
+      if (typeof updateHeaderSlaBadge === 'function') updateHeaderSlaBadge();
     }
 
     /* =========================================================
@@ -10839,7 +11165,7 @@
         badgesHtml += `<span class="nbfc-source-badge">Source: Chinmay</span>`;
       }
       if (t.intraDepartment && t.intraDepartment !== 'None' && t.intraDepartment !== 'none') {
-        badgesHtml += `<span class="intra-dept-badge intra-dept-${t.intraDepartment.toLowerCase()}" style="font-size:10px; padding:3px 8px;">Intra-dept: ${t.intraDepartment} (SLA Paused)</span>`;
+        badgesHtml += `<span class="intra-dept-badge intra-dept-${t.intraDepartment.toLowerCase()}" onclick="openIntraDeptInfoModal(event)" style="font-size:10px; padding:3px 8px; cursor:pointer;" title="Click for Intra Department &amp; SLA logic info">Intra-dept: ${t.intraDepartment} (SLA Paused) <span class="ibutton-tag" style="margin-left:3px; width:13px; height:13px; font-size:9px;">ℹ</span></span>`;
       } else if (t.slaMins < 0 && t.status !== 'Resolved' && t.status !== 'Closed') {
         badgesHtml += `<span class="sla-breached-badge" style="background:var(--red); color:#fff; font-weight:700; font-size:9.5px; padding:3px 8px; border-radius:4px; animation: pulse-sla 1.5s infinite;">⚠️ SLA BREACHED</span>`;
       }
@@ -12788,7 +13114,7 @@
         ${allowedAgents.map(a => `<option value="${a.id}" ${t.assignee === a.id ? 'selected' : ''}>${a.name}</option>`).join('')}
       </select>
     </div>
-    <div class="prop-row"><label>Intra department</label>
+    <div class="prop-row"><label style="display:inline-flex; align-items:center; gap:3px;">Intra department <span class="ibutton-tag" onclick="openIntraDeptInfoModal(event)" title="Click for Intra Department &amp; SLA/FRT logic info">ℹ</span></label>
       <select id="propIntraDepartment" onchange="updateTicketField('intraDepartment', this.value)">
         <option value="None" ${(!t.intraDepartment || t.intraDepartment === 'None') ? 'selected' : ''}>None</option>
         <option value="Sales" ${t.intraDepartment === 'Sales' ? 'selected' : ''}>Sales</option>
@@ -12814,6 +13140,7 @@
       <button class="btn btn-ghost btn-sm" onclick="openMerge()">⇄ Merge</button>
       <button class="btn btn-ghost btn-sm" onclick="openEscalate()">▲ Escalate</button>
       <button class="btn btn-ghost btn-sm" onclick="openReassign()">↻ Reassign</button>
+      <button class="btn btn-ghost btn-sm" onclick="openIntraTransferModal()">⇄ Intra Transfer</button>
       <button class="btn btn-ghost btn-sm" onclick="closeTicket()">⏹ Close</button>
       <button class="btn btn-ghost btn-sm" onclick="archiveCurrentTicket()" title="Archive this ticket">📦 Archive</button>
       <button class="btn btn-ghost btn-sm" onclick="deleteCurrentTicket()" style="color:var(--red);" title="Delete this ticket">🗑 Delete</button>
@@ -12828,10 +13155,13 @@
         <div>${t.priority} priority target</div>
         <span style="font-size:9.5px; font-weight:700; color:#4F46E5; text-transform:uppercase;">Resolution SLA</span>
       </div>
-      <div class="big" style="color:#4F46E5; font-size:16px;">⏸️ SLA Stopped (${t.intraDepartment})</div>
+      <div class="big" style="color:#4F46E5; font-size:15px; display:flex; align-items:center; justify-content:space-between;">
+        <span>⏸️ SLA Stopped (${t.intraDepartment})</span>
+        <span class="ibutton-tag" onclick="openIntraDeptInfoModal(event)" title="Click for Intra Department &amp; SLA logic details">ℹ</span>
+      </div>
     </div>
     <div style="margin-top: 8px; font-size: 11px; display: flex; flex-direction: column; gap: 6px; padding: 10px; background: var(--panel); border-radius: 6px; border: 1px solid var(--line-soft);">
-      <div style="display:flex; justify-content:space-between;"><span>Intra-dept Status:</span><b style="color:#4F46E5;">SLA calculations stopped</b></div>
+      <div style="display:flex; justify-content:space-between; align-items:center;"><span>Intra-dept Status:</span><b style="color:#4F46E5; cursor:pointer;" onclick="openIntraDeptInfoModal(event)">SLA calculations stopped ℹ</b></div>
       <div style="display:flex; justify-content:space-between;"><span>Created:</span><b>${fmtDateTime(t.createdAt)}</b></div>
       <div style="display:flex; justify-content:space-between;"><span>Closed:</span><b>${(t.status === 'Closed' || t.status === 'Resolved') ? fmtDateTime(getTicketClosedDate(t)) : '—'}</b></div>
     </div>
@@ -12857,11 +13187,14 @@
         <div>${frt.targetText}</div>
         <span style="font-size:9.5px; font-weight:700; color:#4F46E5; text-transform:uppercase;">First Response</span>
       </div>
-      <div class="big" style="color:#4F46E5; font-size:16px;">⏸️ FRT Stopped (${t.intraDepartment})</div>
+      <div class="big" style="color:#4F46E5; font-size:15px; display:flex; align-items:center; justify-content:space-between;">
+        <span>⏸️ FRT Stopped (${t.intraDepartment})</span>
+        <span class="ibutton-tag" onclick="openIntraDeptInfoModal(event)" title="Click for Intra Department &amp; FRT logic details">ℹ</span>
+      </div>
     </div>
     <div style="margin-top: 8px; font-size: 11px; display: flex; flex-direction: column; gap: 6px; padding: 10px; background: var(--panel); border-radius: 6px; border: 1px solid var(--line-soft);">
       <div style="display:flex; justify-content:space-between;"><span>FRT Target:</span><b>${frt.targetText}</b></div>
-      <div style="display:flex; justify-content:space-between;"><span>Status:</span><b style="color:#4F46E5;">Stopped for ${t.intraDepartment} intra-dept</b></div>
+      <div style="display:flex; justify-content:space-between; align-items:center;"><span>Status:</span><b style="color:#4F46E5; cursor:pointer;" onclick="openIntraDeptInfoModal(event)">Stopped for ${t.intraDepartment} intra-dept ℹ</b></div>
     </div>
     ` : `
     <div class="sla-box">
@@ -13144,10 +13477,12 @@
           snapshot: { field: 'intraDepartment', oldValue: old || 'None' }
         });
         showToast(`Intra department updated to ${value}`);
+        renderDetail();
         renderDetailList();
         renderProps(t);
         renderTicketList();
         renderManageAll();
+        updateHeaderSlaBadge();
         return;
       }
 
@@ -14088,21 +14423,25 @@
     function renderDashboard() {
       const active = TICKETS.filter(t => t.status !== 'Merged');
       const open = active.filter(t => !['Resolved', 'Closed'].includes(t.status)).length;
-      const breached = active.filter(t => t.slaMins < 0).length;
+      const breached = active.filter(t => isTicketSlaBreached(t)).length;
+      const intraDeptCount = active.filter(t => isIntraDeptTicket(t) && !['Resolved', 'Closed'].includes(t.status)).length;
       const escalated = active.filter(t => t.status === 'Escalated').length;
 
       const kpis = [
         { lbl: 'OPEN TICKETS', val: open, delta: '+4 vs yesterday', isRed: false },
-        { lbl: 'SLA BREACH %', val: Math.round(breached / active.length * 100) + '%', delta: breached + ' breached', isRed: true },
+        { lbl: 'SLA BREACH %', val: Math.round(breached / active.length * 100) + '%', delta: `${breached} breached · ${intraDeptCount} intra-dept paused`, isRed: breached > 0 },
         { lbl: 'AVG HANDLING TIME', val: '13m', delta: '−2m vs last week', isRed: false },
         { lbl: 'FIRST RESPONSE', val: '4m', delta: 'within target', isRed: false },
-        { lbl: 'NPS SCORE', val: '62', delta: '+5 vs last month', isRed: false },
-        { lbl: 'ESCALATED', val: escalated, delta: 'needs review', isRed: true },
+        { lbl: 'INTRA-DEPT PAUSED', val: intraDeptCount, delta: 'SLA & FRT paused', isRed: false, infoModal: true },
+        { lbl: 'ESCALATED', val: escalated, delta: 'needs review', isRed: escalated > 0 },
       ];
 
       document.getElementById('kpiGrid').innerHTML = kpis.map(k => `
-    <div class="kpi-card">
-      <div class="lbl">${k.lbl}</div>
+    <div class="kpi-card" ${k.infoModal ? 'onclick="openIntraDeptInfoModal(event)" style="cursor:pointer;" title="Click for Intra Department & SLA logic info"' : ''}>
+      <div class="lbl" style="display:flex; justify-content:space-between; align-items:center;">
+        <span>${k.lbl}</span>
+        ${k.infoModal ? '<span class="ibutton-tag">ℹ</span>' : ''}
+      </div>
       <div class="val">${k.val}</div>
       <div class="delta ${k.isRed ? 'down' : 'up'}">${k.delta}</div>
     </div>`).join('');
@@ -14696,7 +15035,7 @@
       document.getElementById('valReopenCount').textContent = reopens;
 
       let totalSlaEligible = tix.length || 127;
-      let violatedSla = tix.filter(t => t.slaMins < 0).length;
+      let violatedSla = tix.filter(t => isTicketSlaBreached(t)).length;
       let slaPct = totalSlaEligible > 0 ? ((totalSlaEligible - violatedSla) / totalSlaEligible * 100) : 97.4;
       if (slaPct > 100) slaPct = 100;
       document.getElementById('valSlaAdherence').textContent = slaPct.toFixed(1) + '%';
@@ -14709,7 +15048,7 @@
       let chanHtml = channels.map(c => {
         let cTix = tix.filter(t => t.channel === c || (c === 'Phone' && t.channel === 'Call') || (c === 'App' && t.channel === 'Chat'));
         let totalC = cTix.length || (c === 'Email' ? 41 : c === 'Phone' ? 31 : c === 'WhatsApp' ? 34 : 21);
-        let breachedC = cTix.filter(t => t.slaMins < 0).length || (c === 'Email' ? 7 : 0);
+        let breachedC = cTix.filter(t => isTicketSlaBreached(t)).length || (c === 'Email' ? 7 : 0);
         let adheredC = totalC - breachedC;
         let adherencePct = totalC > 0 ? (adheredC / totalC * 100) : (c === 'Email' ? 82.00 : 100.00);
 

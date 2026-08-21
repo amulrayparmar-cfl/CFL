@@ -1530,8 +1530,28 @@ function toggleMessageReadState(ticketId, msgIndex) {
   renderDetailList();
 }
 
+function isIntraDeptTicket(t) {
+  return !!(t && t.intraDepartment && t.intraDepartment !== 'None' && t.intraDepartment !== 'none');
+}
+
+function isTicketSlaBreached(t) {
+  if (!t) return false;
+  if (isIntraDeptTicket(t)) return false; // Paused/stopped for Intra Department
+  if (t.status === 'Resolved' || t.status === 'Closed' || t.status === 'Merged' || t.status === 'Merge' || t.status === 'Junk') return false;
+  return t.slaMins < 0;
+}
+
+function openIntraDeptInfoModal(e) {
+  if (e) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
+  const modal = document.getElementById('modalIntraDeptInfo');
+  if (modal) modal.classList.add('show');
+}
+
 function updateHeaderSlaBadge() {
-  const breachedCount = TICKETS.filter(t => t.slaMins < 0 && t.status !== 'Resolved' && t.status !== 'Closed').length;
+  const breachedCount = TICKETS.filter(t => isTicketSlaBreached(t)).length;
   const container = document.getElementById('headerSlaBreachBadge');
   if (!container) return;
   if (breachedCount > 0) {
@@ -1554,7 +1574,7 @@ function triggerSlaBreachedFilter() {
     renderManageAll();
   } else {
     filterSlaBreachedOnly = true;
-    const breached = TICKETS.filter(t => t.slaMins < 0 && t.status !== 'Resolved' && t.status !== 'Closed');
+    const breached = TICKETS.filter(t => isTicketSlaBreached(t));
     if (breached.length > 0) {
       openTicket(breached[0].id);
     } else {
@@ -1658,6 +1678,15 @@ function statusClass(s) { return 'status-' + s.replace(/[^a-zA-Z]/g, ''); }
 function chanClass(c) { return 'chan-' + c.toLowerCase(); }
 function initials(name) { return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(); }
 function agentName(id) { const a = AGENTS.find(x => x.id === id); return a ? a.name : '—'; }
+
+function intraDeptBadge(val) {
+  if (!val || val === 'None' || val === 'none') {
+    return `<span class="intra-dept-badge intra-dept-none">— None</span>`;
+  }
+  const cls = val.toLowerCase() === 'sales' ? 'intra-dept-sales' : 'intra-dept-collection';
+  const icon = val.toLowerCase() === 'sales' ? '💼' : '💰';
+  return `<span class="intra-dept-badge ${cls}" onclick="event.stopPropagation(); openIntraDeptInfoModal(event)" style="cursor:pointer;" title="Click for Intra Department &amp; SLA logic info">${icon} ${val} <span class="ibutton-tag" style="margin-left:3px; width:13px; height:13px; font-size:9px;">ℹ</span></span>`;
+}
 
 /* =========================================================
    OUTER RAIL SWITCHING
@@ -1975,10 +2004,10 @@ function setBulkAction(mode) {
   document.querySelectorAll('.bulk-action-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.bulkAction === mode);
   });
-  const panels = ['bulkPanelAgent', 'bulkPanelStatus', 'bulkPanelQueue', 'bulkPanelArchive', 'bulkPanelDelete'];
+  const panels = ['bulkPanelAgent', 'bulkPanelStatus', 'bulkPanelQueue', 'bulkPanelIntradept', 'bulkPanelArchive', 'bulkPanelDelete'];
   panels.forEach(pId => {
     const el = document.getElementById(pId);
-    if (el) el.classList.toggle('show', pId === 'bulkPanel' + mode.charAt(0).toUpperCase() + mode.slice(1));
+    if (el) el.classList.toggle('show', pId.toLowerCase() === ('bulkpanel' + mode).toLowerCase());
   });
 
   const submitBtn = document.getElementById('bulkSubmitBtn');
@@ -2009,6 +2038,8 @@ function resetBulkModal() {
   document.getElementById('bulkAgent').value = '';
   document.getElementById('bulkStatus').value = '';
   document.getElementById('bulkQueue').value = '';
+  const intraEl = document.getElementById('bulkIntraDept');
+  if (intraEl) intraEl.value = '';
   enhanceAllSelects(document.getElementById('modalBulk'));
   setBulkAction('agent');
   showToast('Bulk action options reset');
@@ -2030,6 +2061,8 @@ function bulkReassignOpen() {
   document.getElementById('bulkStatus').value = '';
   agentSel.value = '';
   queueSel.value = '';
+  const intraEl = document.getElementById('bulkIntraDept');
+  if (intraEl) intraEl.value = '';
 
   enhanceAllSelects(document.getElementById('modalBulk'));
   setBulkAction('agent');
@@ -2091,6 +2124,33 @@ function submitBulkReassign() {
       changes++;
     });
     actionText = `transferred to ${queue}`;
+  } else if (bulkActionMode === 'intradept') {
+    const intraVal = document.getElementById('bulkIntraDept').value;
+    if (!intraVal) {
+      showToast('Please select an intra department first');
+      return;
+    }
+    bulkSelectedIds.forEach(id => {
+      const t = TICKETS.find(x => x.id === id);
+      if (!t) return;
+      const prevIntra = t.intraDepartment || 'None';
+      t.intraDepartment = intraVal;
+      t.updated = 'just now';
+      const isStopped = intraVal === 'Sales' || intraVal === 'Collection';
+      const logMsg = isStopped
+        ? `Bulk intra-transfer: ${prevIntra} → ${intraVal} (Owner & Dept preserved) — SLA & FRT calculations stopped`
+        : `Bulk intra-transfer cleared (${prevIntra} → None) — SLA & FRT calculations resumed`;
+      addLog(t, logMsg, {
+        type: 'field',
+        by: currentRole,
+        actor: currentRole === 'manager' ? 'Manager' : agentName(CURRENT_AGENT_ID),
+        undoable: true,
+        snapshot: { field: 'intraDepartment', oldValue: prevIntra }
+      });
+      changes++;
+    });
+    actionText = `intra-transferred to ${intraVal}`;
+    if (typeof updateHeaderSlaBadge === 'function') updateHeaderSlaBadge();
   } else if (bulkActionMode === 'archive') {
     bulkSelectedIds.forEach(id => {
       const t = TICKETS.find(x => x.id === id);
@@ -2122,6 +2182,65 @@ function submitBulkReassign() {
     const depts = typeof getSelectedValues === 'function' ? getSelectedValues('mfQueue') : [];
     updateBreakdownBanner(depts);
   }
+}
+
+/* SINGLE TICKET INTRA-TRANSFER MODAL HELPERS */
+function openIntraTransferModal() {
+  const t = TICKETS.find(x => x.id === selectedTicketId);
+  if (!t) return;
+  const idEl = document.getElementById('itModalTicketId');
+  if (idEl) idEl.textContent = t.id;
+  const custEl = document.getElementById('itModalCustomer');
+  if (custEl) custEl.textContent = t.customer;
+  const deptEl = document.getElementById('itModalDept');
+  if (deptEl) deptEl.textContent = t.department || t.queue || 'Support';
+  const ownerEl = document.getElementById('itModalOwner');
+  if (ownerEl) ownerEl.textContent = agentName(t.assignee) || 'Unassigned';
+  const targetEl = document.getElementById('itTargetDept');
+  if (targetEl) targetEl.value = t.intraDepartment || 'None';
+  const reasonEl = document.getElementById('itReason');
+  if (reasonEl) reasonEl.value = '';
+  const modal = document.getElementById('modalIntraTransfer');
+  if (modal) {
+    enhanceAllSelects(modal);
+    modal.classList.add('show');
+  }
+}
+
+function submitIntraTransfer() {
+  const t = TICKETS.find(x => x.id === selectedTicketId);
+  if (!t) return;
+  const targetEl = document.getElementById('itTargetDept');
+  const targetVal = targetEl ? targetEl.value : 'None';
+  const reasonEl = document.getElementById('itReason');
+  const reason = reasonEl ? reasonEl.value.trim() : '';
+  const oldVal = t.intraDepartment || 'None';
+  if (oldVal === targetVal) {
+    closeModal('modalIntraTransfer');
+    return;
+  }
+  t.intraDepartment = targetVal;
+  t.updated = 'just now';
+  const isStopped = targetVal === 'Sales' || targetVal === 'Collection';
+  const actor = currentRole === 'manager' ? 'Manager' : agentName(CURRENT_AGENT_ID);
+  const logMsg = isStopped
+    ? `Intra-transfer to ${targetVal} (Owner & Dept preserved)${reason ? ' — ' + reason : ''} — SLA & FRT calculations stopped`
+    : `Intra-transfer cleared (${oldVal} → None)${reason ? ' — ' + reason : ''} — SLA & FRT calculations resumed`;
+  addLog(t, logMsg, {
+    type: 'field',
+    by: currentRole,
+    actor,
+    undoable: true,
+    snapshot: { field: 'intraDepartment', oldValue: oldVal }
+  });
+  closeModal('modalIntraTransfer');
+  showToast(`Ticket intra-transferred to ${targetVal}`);
+  renderDetail();
+  renderDetailList();
+  renderProps(t);
+  if (typeof renderTicketList === 'function') renderTicketList();
+  if (typeof renderManageAll === 'function') renderManageAll();
+  if (typeof updateHeaderSlaBadge === 'function') updateHeaderSlaBadge();
 }
 
 /* =========================================================
@@ -2322,7 +2441,9 @@ function renderDetail() {
   } else {
     badgesHtml += `<span class="nbfc-source-badge">Source: Chinmay</span>`;
   }
-  if (t.slaMins < 0 && t.status !== 'Resolved' && t.status !== 'Closed') {
+  if (t.intraDepartment && t.intraDepartment !== 'None' && t.intraDepartment !== 'none') {
+    badgesHtml += `<span class="intra-dept-badge intra-dept-${t.intraDepartment.toLowerCase()}" onclick="openIntraDeptInfoModal(event)" style="font-size:10px; padding:3px 8px; cursor:pointer;" title="Click for Intra Department &amp; SLA logic info">Intra-dept: ${t.intraDepartment} (SLA Paused) <span class="ibutton-tag" style="margin-left:3px; width:13px; height:13px; font-size:9px;">ℹ</span></span>`;
+  } else if (t.slaMins < 0 && t.status !== 'Resolved' && t.status !== 'Closed') {
     badgesHtml += `<span class="sla-breached-badge" style="background:var(--red); color:#fff; font-weight:700; font-size:9.5px; padding:3px 8px; border-radius:4px; animation: pulse-sla 1.5s infinite;">⚠️ SLA BREACHED</span>`;
   }
   const badgeContainer = document.getElementById('headerMetaBadges');
@@ -4285,7 +4406,7 @@ function renderProps(t) {
         ${allowedAgents.map(a => `<option value="${a.id}" ${t.assignee === a.id ? 'selected' : ''}>${a.name}</option>`).join('')}
       </select>
     </div>
-    <div class="prop-row"><label>Intra department</label>
+    <div class="prop-row"><label style="display:inline-flex; align-items:center; gap:3px;">Intra department <span class="ibutton-tag" onclick="openIntraDeptInfoModal(event)" title="Click for Intra Department &amp; SLA/FRT logic info">ℹ</span></label>
       <select id="propIntraDepartment" onchange="updateTicketField('intraDepartment', this.value)">
         <option value="None" ${(!t.intraDepartment || t.intraDepartment === 'None') ? 'selected' : ''}>None</option>
         <option value="Sales" ${t.intraDepartment === 'Sales' ? 'selected' : ''}>Sales</option>
@@ -4311,6 +4432,7 @@ function renderProps(t) {
       <button class="btn btn-ghost btn-sm" onclick="openMerge()">⇄ Merge</button>
       <button class="btn btn-ghost btn-sm" onclick="openEscalate()">▲ Escalate</button>
       <button class="btn btn-ghost btn-sm" onclick="openReassign()">↻ Reassign</button>
+      <button class="btn btn-ghost btn-sm" onclick="openIntraTransferModal()">⇄ Intra Transfer</button>
       <button class="btn btn-ghost btn-sm" onclick="closeTicket()">⏹ Close</button>
       <button class="btn btn-ghost btn-sm" onclick="archiveCurrentTicket()" title="Archive this ticket">📦 Archive</button>
       <button class="btn btn-ghost btn-sm" onclick="deleteCurrentTicket()" style="color:var(--red);" title="Delete this ticket">🗑 Delete</button>
@@ -4325,10 +4447,13 @@ function renderProps(t) {
         <div>${t.priority} priority target</div>
         <span style="font-size:9.5px; font-weight:700; color:#4F46E5; text-transform:uppercase;">Resolution SLA</span>
       </div>
-      <div class="big" style="color:#4F46E5; font-size:16px;">⏸️ SLA Stopped (${t.intraDepartment})</div>
+      <div class="big" style="color:#4F46E5; font-size:15px; display:flex; align-items:center; justify-content:space-between;">
+        <span>⏸️ SLA Stopped (${t.intraDepartment})</span>
+        <span class="ibutton-tag" onclick="openIntraDeptInfoModal(event)" title="Click for Intra Department &amp; SLA logic details">ℹ</span>
+      </div>
     </div>
     <div style="margin-top: 8px; font-size: 11px; display: flex; flex-direction: column; gap: 6px; padding: 10px; background: var(--panel); border-radius: 6px; border: 1px solid var(--line-soft);">
-      <div style="display:flex; justify-content:space-between;"><span>Intra-dept Status:</span><b style="color:#4F46E5;">SLA calculations stopped</b></div>
+      <div style="display:flex; justify-content:space-between; align-items:center;"><span>Intra-dept Status:</span><b style="color:#4F46E5; cursor:pointer;" onclick="openIntraDeptInfoModal(event)">SLA calculations stopped ℹ</b></div>
       <div style="display:flex; justify-content:space-between;"><span>Created:</span><b>${fmtDateTime(t.createdAt)}</b></div>
       <div style="display:flex; justify-content:space-between;"><span>Closed:</span><b>${(t.status === 'Closed' || t.status === 'Resolved') ? fmtDateTime(getTicketClosedDate(t)) : '—'}</b></div>
     </div>
@@ -4354,11 +4479,14 @@ function renderProps(t) {
         <div>${frt.targetText}</div>
         <span style="font-size:9.5px; font-weight:700; color:#4F46E5; text-transform:uppercase;">First Response</span>
       </div>
-      <div class="big" style="color:#4F46E5; font-size:16px;">⏸️ FRT Stopped (${t.intraDepartment})</div>
+      <div class="big" style="color:#4F46E5; font-size:15px; display:flex; align-items:center; justify-content:space-between;">
+        <span>⏸️ FRT Stopped (${t.intraDepartment})</span>
+        <span class="ibutton-tag" onclick="openIntraDeptInfoModal(event)" title="Click for Intra Department &amp; FRT logic details">ℹ</span>
+      </div>
     </div>
     <div style="margin-top: 8px; font-size: 11px; display: flex; flex-direction: column; gap: 6px; padding: 10px; background: var(--panel); border-radius: 6px; border: 1px solid var(--line-soft);">
       <div style="display:flex; justify-content:space-between;"><span>FRT Target:</span><b>${frt.targetText}</b></div>
-      <div style="display:flex; justify-content:space-between;"><span>Status:</span><b style="color:#4F46E5;">Stopped for ${t.intraDepartment} intra-dept</b></div>
+      <div style="display:flex; justify-content:space-between; align-items:center;"><span>Status:</span><b style="color:#4F46E5; cursor:pointer;" onclick="openIntraDeptInfoModal(event)">Stopped for ${t.intraDepartment} intra-dept ℹ</b></div>
     </div>
     ` : `
     <div class="sla-box">
@@ -4429,10 +4557,12 @@ function updateTicketField(field, value) {
       snapshot: { field: 'intraDepartment', oldValue: old || 'None' }
     });
     showToast(`Intra department updated to ${value}`);
+    renderDetail();
     renderDetailList();
     renderProps(t);
     if (typeof renderTicketList === 'function') renderTicketList();
     if (typeof renderManageAll === 'function') renderManageAll();
+    if (typeof updateHeaderSlaBadge === 'function') updateHeaderSlaBadge();
     return;
   }
 
