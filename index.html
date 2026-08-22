@@ -1375,30 +1375,105 @@
       color: #4F46E5 !important;
     }
 
-    .ibutton-tag {
+    /* Classification badge styles */
+    .classification-badge {
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      width: 15px;
-      height: 15px;
-      border-radius: 50%;
-      background: #EEF2FF;
-      color: #4F46E5;
+      gap: 3px;
       font-size: 10.5px;
-      font-weight: 800;
-      font-family: serif, sans-serif;
-      cursor: pointer;
-      line-height: 1;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .class-query {
+      background: #E0F2FE;
+      color: #0369A1;
+      border: 1px solid #BAE6FD;
+    }
+    .class-complain,
+    .class-complaint {
+      background: #FEE2E2;
+      color: #B91C1C;
+      border: 1px solid #FECACA;
+    }
+    .class-request {
+      background: #F3E8FF;
+      color: #7E22CE;
+      border: 1px solid #E9D5FF;
+    }
+
+
+    /* Unread Customer Message & Status Unchanged Flag Styles */
+    .unread-status-flag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #EFF6FF;
+      color: #1D4ED8;
+      border: 1px solid #BFDBFE;
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
       margin-left: 4px;
       vertical-align: middle;
-      transition: all 0.15s ease;
-      border: 1px solid #C7D2FE;
+      box-shadow: 0 1px 2px rgba(29, 78, 216, 0.08);
     }
-    .ibutton-tag:hover {
-      background: #4F46E5;
+    .unread-flag-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: #DBEAFE;
+      color: #1E40AF;
+      border: 1px solid #93C5FD;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: 10px;
+      cursor: pointer;
+      line-height: 1.2;
+      transition: all 0.15s ease;
+    }
+    .unread-flag-pill:hover {
+      background: #2563EB;
       color: #FFFFFF;
-      transform: scale(1.18);
-      box-shadow: 0 2px 5px rgba(79, 70, 229, 0.35);
+      border-color: #2563EB;
+    }
+    .unread-dot-badge {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #2563EB;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
+      animation: pulse-dot 1.8s infinite;
+    }
+    @keyframes pulse-dot {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.5); }
+      70% { transform: scale(1.1); box-shadow: 0 0 0 5px rgba(37, 99, 235, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+    }
+    @keyframes pulse-blue {
+      0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+      70% { box-shadow: 0 0 0 6px rgba(59, 130, 246, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+    }
+    .unread-msg-banner {
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      border-left: 4px solid #2563EB;
+      color: #1E40AF;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      margin: 8px 10px 4px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
     }
 
     /* Bulk action modal styles */
@@ -4946,21 +5021,29 @@
                 <option value="Legal Related">Legal Related</option>
                 <option value="Grievance">Grievance</option>
               </select>
+              <select id="fClassification" onchange="renderTicketList()">
+                <option value="">All classifications</option>
+                <option value="Query">Query</option>
+                <option value="Complain">Complain</option>
+                <option value="Request">Request</option>
+              </select>
               <select id="fCategory" onchange="onCategoryChange('f')">
                 <option value="">Category</option>
               </select>
               <select id="fSubCategory" onchange="renderTicketList()">
                 <option value="">Sub category</option>
               </select>
-              <div style="display:inline-flex; align-items:center; gap:2px;">
-                <select id="fIntraDept" onchange="renderTicketList()">
-                  <option value="">Intra department</option>
-                  <option value="None">None</option>
-                  <option value="Sales">Sales</option>
-                  <option value="Collection">Collection</option>
-                </select>
-                <span class="ibutton-tag" onclick="openIntraDeptInfoModal(event)" title="Click for Intra Department &amp; SLA logic info">ℹ</span>
-              </div>
+              <select id="fIntraDept" onchange="renderTicketList()">
+                <option value="">Intra department</option>
+                <option value="None">None</option>
+                <option value="Sales">Sales</option>
+                <option value="Collection">Collection</option>
+              </select>
+              <select id="fUnread" onchange="renderTicketList()">
+                <option value="">All read &amp; unread</option>
+                <option value="unread">🔵 Unread Msg (Status Unchanged)</option>
+                <option value="read">✓ Read / Handled</option>
+              </select>
               <div class="daterange-picker-wrap">
                 <input type="hidden" id="fDateFrom">
                 <input type="hidden" id="fDateTo">
@@ -5077,21 +5160,29 @@
                 <option>Call</option>
                 <option>SMS</option>
               </select>
+              <select id="mfClassification" onchange="renderManageAll()">
+                <option value="">All classifications</option>
+                <option value="Query">Query</option>
+                <option value="Complain">Complain</option>
+                <option value="Request">Request</option>
+              </select>
               <select id="mfCategory" onchange="onCategoryChange('mf')">
                 <option value="">Category</option>
               </select>
               <select id="mfSubCategory" onchange="renderManageAll()">
                 <option value="">Sub category</option>
               </select>
-              <div style="display:inline-flex; align-items:center; gap:2px;">
-                <select id="mfIntraDept" onchange="renderManageAll()">
-                  <option value="">Intra department</option>
-                  <option value="None">None</option>
-                  <option value="Sales">Sales</option>
-                  <option value="Collection">Collection</option>
-                </select>
-                <span class="ibutton-tag" onclick="openIntraDeptInfoModal(event)" title="Click for Intra Department &amp; SLA logic info">ℹ</span>
-              </div>
+              <select id="mfIntraDept" onchange="renderManageAll()">
+                <option value="">Intra department</option>
+                <option value="None">None</option>
+                <option value="Sales">Sales</option>
+                <option value="Collection">Collection</option>
+              </select>
+              <select id="mfUnread" onchange="renderManageAll()">
+                <option value="">All read &amp; unread</option>
+                <option value="unread">🔵 Unread Msg (Status Unchanged)</option>
+                <option value="read">✓ Read / Handled</option>
+              </select>
               <div class="daterange-picker-wrap">
                 <input type="hidden" id="mfDateFrom">
                 <input type="hidden" id="mfDateTo">
@@ -5358,6 +5449,37 @@
                   style="display: flex; justify-content: space-between; font-size: 10px; color: var(--ink-soft); border-top: 1px solid var(--line); padding-top: 8px; margin-top: 12px;">
                   <span style="color: var(--primary); text-decoration: underline; cursor: pointer; font-weight: 600;"
                     onclick="openKpiReport('channel_sla')">View Report: Channel-Wise SLA</span>
+                  <span class="kpi-time">As of 08-Aug-2026, 11:58 am</span>
+                </div>
+              </div>
+
+              <!-- Inbound Calls (table) -->
+              <div class="kpi-card"
+                style="grid-column: span 6; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 20px; min-height: 200px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <div>
+                  <div
+                    style="font-size: 12px; font-weight: 600; color: var(--ink-soft); text-transform: uppercase; margin-bottom: 12px;">
+                    Inbound Calls</div>
+                  <table
+                    style="width: 100%; border-collapse: collapse; font-size: 12px; color: var(--ink); text-align: left;">
+                    <thead>
+                      <tr style="border-bottom: 1px solid var(--line); color: var(--ink-soft); font-weight: 600;">
+                        <th style="padding: 6px 4px;">Agent name</th>
+                        <th style="padding: 6px 4px;">Total calls</th>
+                        <th style="padding: 6px 4px;">Calls answered</th>
+                        <th style="padding: 6px 4px;">Missed calls</th>
+                        <th style="padding: 6px 4px; text-align: right;">AHT</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tblInboundCalls">
+                      <!-- Dynamic rows -->
+                    </tbody>
+                  </table>
+                </div>
+                <div
+                  style="display: flex; justify-content: space-between; font-size: 10px; color: var(--ink-soft); border-top: 1px solid var(--line); padding-top: 8px; margin-top: 12px;">
+                  <span style="color: var(--primary); text-decoration: underline; cursor: pointer; font-weight: 600;"
+                    onclick="openKpiReport('inbound_calls')">View Report: Inbound Calls</span>
                   <span class="kpi-time">As of 08-Aug-2026, 11:58 am</span>
                 </div>
               </div>
@@ -5735,20 +5857,46 @@
 
             <!-- Report Page Filters -->
             <div
-              style="background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center;">
-              <div style="flex: 1; min-width: 200px;">
+              style="background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end;">
+              <div style="flex: 1; min-width: 180px;">
                 <label
                   style="display: block; font-size: 11px; font-weight: 600; color: var(--ink-soft); margin-bottom: 6px; text-transform: uppercase;">Search
                   Records</label>
                 <input type="text" id="kpiReportSearch" oninput="updateKpiReportPage()"
                   placeholder="Search by name, ID, or subject..."
-                  style="width: 100%; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 12.5px; outline: none;">
+                  style="width: 100%; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 12.5px; outline: none; box-sizing: border-box;">
               </div>
-              <div style="width: 150px;">
+              <div style="min-width: 140px;">
+                <label
+                  style="display: block; font-size: 11px; font-weight: 600; color: var(--ink-soft); margin-bottom: 6px; text-transform: uppercase;">Date &amp; Time Range</label>
+                <select id="kpiReportDatePreset" onchange="onKpiReportDatePresetChange()"
+                  style="width: 100%; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 12.5px; outline: none; cursor: pointer; box-sizing: border-box;">
+                  <option value="All">All Time</option>
+                  <option value="Today">Today</option>
+                  <option value="Yesterday">Yesterday</option>
+                  <option value="This Week">This Week</option>
+                  <option value="Last 7 Days">Last 7 Days</option>
+                  <option value="This Month">This Month</option>
+                  <option value="Custom">Custom Range</option>
+                </select>
+              </div>
+              <div id="kpiReportDateFromWrap" style="min-width: 160px;">
+                <label
+                  style="display: block; font-size: 11px; font-weight: 600; color: var(--ink-soft); margin-bottom: 6px; text-transform: uppercase;">From (Date &amp; Time)</label>
+                <input type="datetime-local" id="kpiReportDateTimeFrom" onchange="updateKpiReportPage()"
+                  style="width: 100%; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 7px 8px; font-size: 12px; outline: none; box-sizing: border-box;">
+              </div>
+              <div id="kpiReportDateToWrap" style="min-width: 160px;">
+                <label
+                  style="display: block; font-size: 11px; font-weight: 600; color: var(--ink-soft); margin-bottom: 6px; text-transform: uppercase;">To (Date &amp; Time)</label>
+                <input type="datetime-local" id="kpiReportDateTimeTo" onchange="updateKpiReportPage()"
+                  style="width: 100%; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 7px 8px; font-size: 12px; outline: none; box-sizing: border-box;">
+              </div>
+              <div style="min-width: 120px;">
                 <label
                   style="display: block; font-size: 11px; font-weight: 600; color: var(--ink-soft); margin-bottom: 6px; text-transform: uppercase;">Status</label>
                 <select id="kpiReportFilterStatus" onchange="updateKpiReportPage()"
-                  style="width: 100%; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 12.5px; outline: none; cursor: pointer;">
+                  style="width: 100%; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 12.5px; outline: none; cursor: pointer; box-sizing: border-box;">
                   <option value="All">All Statuses</option>
                   <option value="unassigned">unassigned</option>
                   <option value="Assigned">Assigned</option>
@@ -5762,11 +5910,11 @@
                   <option value="Reopened">Reopened</option>
                 </select>
               </div>
-              <div style="width: 150px;">
+              <div style="min-width: 110px;">
                 <label
                   style="display: block; font-size: 11px; font-weight: 600; color: var(--ink-soft); margin-bottom: 6px; text-transform: uppercase;">Channel</label>
                 <select id="kpiReportFilterChannel" onchange="updateKpiReportPage()"
-                  style="width: 100%; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 12.5px; outline: none; cursor: pointer;">
+                  style="width: 100%; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 12.5px; outline: none; cursor: pointer; box-sizing: border-box;">
                   <option value="All">All Channels</option>
                   <option value="WhatsApp">WhatsApp</option>
                   <option value="Email">Email</option>
@@ -5774,16 +5922,19 @@
                   <option value="Call">Call</option>
                 </select>
               </div>
-              <div style="width: 150px;">
+              <div style="min-width: 110px;">
                 <label
                   style="display: block; font-size: 11px; font-weight: 600; color: var(--ink-soft); margin-bottom: 6px; text-transform: uppercase;">Priority</label>
                 <select id="kpiReportFilterPriority" onchange="updateKpiReportPage()"
-                  style="width: 100%; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 12.5px; outline: none; cursor: pointer;">
+                  style="width: 100%; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 12.5px; outline: none; cursor: pointer; box-sizing: border-box;">
                   <option value="All">All Priorities</option>
                   <option value="High">High</option>
                   <option value="Medium">Medium</option>
                   <option value="Low">Low</option>
                 </select>
+              </div>
+              <div>
+                <button class="btn btn-ghost btn-sm" onclick="resetKpiReportFilters()" style="padding: 7px 12px; font-size: 11.5px; border-color: var(--line); color: var(--ink-soft);" title="Reset all filters">✕ Reset</button>
               </div>
             </div>
 
@@ -6706,7 +6857,13 @@
               <option value="Gujarati">Gujarati</option>
             </select>
           </div>
-          <div class="form-row"></div>
+          <div class="form-row"><label>Classification</label>
+            <select id="ctClassification">
+              <option value="Query" selected>Query</option>
+              <option value="Complain">Complain</option>
+              <option value="Request">Request</option>
+            </select>
+          </div>
         </div>
         <div class="form-row"><label>Description</label><textarea id="ctDesc"
             placeholder="What does the customer need?"></textarea></div>
@@ -6826,10 +6983,7 @@
         </div>
 
         <div class="form-row">
-          <label style="display:flex; align-items:center; gap:4px;">
-            Target Intra Department
-            <span class="ibutton-tag" onclick="openIntraDeptInfoModal(event)" title="Click for Intra Department &amp; SLA logic details">ℹ</span>
-          </label>
+          <label>Target Intra Department</label>
           <select id="itTargetDept">
             <option value="None">None (Standard Dept Handling)</option>
             <option value="Sales">Sales</option>
@@ -6922,10 +7076,7 @@
         <!-- Bulk Intra-transfer Department -->
         <div class="bulk-action-panel" id="bulkPanelIntradept">
           <div class="form-row">
-            <label style="display:flex; align-items:center; gap:4px;">
-              Intra Department
-              <span class="ibutton-tag" onclick="openIntraDeptInfoModal(event)" title="Click for Intra Department &amp; SLA logic details">ℹ</span>
-            </label>
+            <label>Intra Department</label>
             <select id="bulkIntraDept">
               <option value="">-- Select Intra Department --</option>
               <option value="None">None (Standard Dept Handling)</option>
@@ -7226,84 +7377,7 @@
     </div>
   </div>
 
-  <!-- INTRA DEPARTMENT & SLA LOGIC INFO MODAL -->
-  <div class="modal-overlay" id="modalIntraDeptInfo">
-    <div class="modal modal-lg" style="max-width: 620px;">
-      <div class="modal-head" style="background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%); color: #FFFFFF; border-radius: 12px 12px 0 0;">
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span style="font-size:20px;">ℹ️</span>
-          <h3 style="margin:0; color:#FFFFFF;">Intra Department &amp; SLA / KPI Logic</h3>
-        </div>
-        <button class="close" onclick="closeModal('modalIntraDeptInfo')" style="color:#FFFFFF;">✕</button>
-      </div>
-      <div class="modal-body" style="padding: 20px; font-size: 13px; line-height: 1.6; color: var(--ink);">
-        
-        <div style="background: #EEF2FF; border-left: 4px solid #4F46E5; padding: 12px 16px; border-radius: 0 8px 8px 0; margin-bottom: 16px;">
-          <b style="color: #3730A3; font-size: 13.5px;">What is Intra Department?</b>
-          <p style="margin: 4px 0 0; color: #4338CA; font-size: 12.5px;">
-            Intra Department tagging routes collaborative, cross-functional customer queries between <b>Sales</b>, <b>Collection</b>, and <b>Support</b> without triggering unnecessary reassignment churn.
-          </p>
-        </div>
 
-        <div style="display:flex; flex-direction:column; gap:12px;">
-          
-          <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:8px; padding:12px 14px;">
-            <div style="font-weight:700; color:#0F172A; display:flex; align-items:center; gap:6px; margin-bottom:4px;">
-              <span>🔒</span> 1. Owner &amp; Department Preservation Logic
-            </div>
-            <div style="font-size:12px; color:var(--ink-soft);">
-              When <b>Sales</b> or <b>Collection</b> is selected under Intra Department:
-              <ul style="margin:6px 0 0 18px; padding:0;">
-                <li>The ticket <b>Assignee (Owner)</b> remains strictly <b>unchanged</b>.</li>
-                <li>The primary <b>Department / Queue</b> remains strictly <b>unchanged</b>.</li>
-                <li>Ensures the originating agent maintains ticket responsibility while collaborating across departments.</li>
-              </ul>
-            </div>
-          </div>
-
-          <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:8px; padding:12px 14px;">
-            <div style="font-weight:700; color:#0F172A; display:flex; align-items:center; gap:6px; margin-bottom:4px;">
-              <span>⏸️</span> 2. SLA &amp; FRT Timer Pausing Logic
-            </div>
-            <div style="font-size:12px; color:var(--ink-soft);">
-              Since intra-department queries depend on cross-team review:
-              <ul style="margin:6px 0 0 18px; padding:0;">
-                <li><b>Resolution SLA Timer:</b> Calculations are completely <b>stopped &amp; paused</b> (<code>⏸️ SLA Stopped</code>).</li>
-                <li><b>First Response Time (FRT):</b> FRT countdown is <b>stopped &amp; frozen</b> (<code>⏸️ FRT Stopped</code>).</li>
-                <li>Selecting <b>None</b> immediately restores active SLA &amp; FRT timer calculations.</li>
-              </ul>
-            </div>
-          </div>
-
-          <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:8px; padding:12px 14px;">
-            <div style="font-weight:700; color:#0F172A; display:flex; align-items:center; gap:6px; margin-bottom:4px;">
-              <span>📊</span> 3. KPI &amp; Compliance Protection
-            </div>
-            <div style="font-size:12px; color:var(--ink-soft);">
-              <ul style="margin:4px 0 0 18px; padding:0;">
-                <li>Intra-department paused tickets are <b>excluded from SLA breach counts</b> and penalty lists.</li>
-                <li>Agent Performance Metrics (SLA Compliance %, AHT) and Team Dashboard KPIs protect agent scores while tickets are pending intra-department resolution.</li>
-              </ul>
-            </div>
-          </div>
-
-          <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:8px; padding:12px 14px;">
-            <div style="font-weight:700; color:#0F172A; display:flex; align-items:center; gap:6px; margin-bottom:4px;">
-              <span>📝</span> 4. Activity Log &amp; Audit Trail
-            </div>
-            <div style="font-size:12px; color:var(--ink-soft);">
-              Every intra-department change is recorded into the ticket activity feed and manager team audit log with timestamps, actor information, and 1-click Undo capability.
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-      <div class="modal-foot" style="justify-content: flex-end;">
-        <button class="btn btn-primary" onclick="closeModal('modalIntraDeptInfo')">Got it</button>
-      </div>
-    </div>
-  </div>
 
   <div id="toast"></div>
 
@@ -9389,6 +9463,22 @@
       }
     ];
 
+    // Ensure all tickets have a valid classification (Query, Complain, Request)
+    TICKETS.forEach(t => {
+      if (!t.classification) {
+        const sub = (t.subject || '').toLowerCase();
+        const cat = (t.category || '').toLowerCase();
+        const dept = (t.department || t.queue || '').toLowerCase();
+        if (dept === 'grievance' || sub.includes('complaint') || sub.includes('harassment') || cat.includes('charges') || cat.includes('dispute')) {
+          t.classification = 'Complain';
+        } else if (sub.includes('request') || sub.includes('refund') || sub.includes('waiver') || sub.includes('update') || cat.includes('refund') || cat.includes('change')) {
+          t.classification = 'Request';
+        } else {
+          t.classification = 'Query';
+        }
+      }
+    });
+
     function getCustomerPhoto(name) {
       const photos = {
         'Amul Roy': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120',
@@ -9448,18 +9538,64 @@
       }
     }
 
+    function hasUnreadCustomerMessage(t) {
+      if (!t || !t.thread || t.thread.length === 0) return false;
+      if (t.status === 'Resolved' || t.status === 'Closed' || t.status === 'Merged' || t.status === 'Merge' || t.status === 'Junk') return false;
+
+      // 1. Explicit unread flag on any inbound customer message
+      if (t.thread.some(m => m.dir === 'in' && m.dir !== 'note' && m.unread)) return true;
+
+      // 2. Explicit statusUnchanged flag on ticket
+      if (t.statusUnchanged === true) return true;
+
+      // 3. Status not updated after inbound customer message
+      if (t.status === 'unassigned' || t.status === 'Reopened') {
+        const hasInbound = t.thread.some(m => m.dir === 'in' && m.dir !== 'note');
+        if (hasInbound && !t.statusChangedAfterMsg) return true;
+      }
+
+      return false;
+    }
+
     function toggleMessageReadState(ticketId, msgIndex) {
       const t = TICKETS.find(x => x.id === ticketId);
-      if (!t) return;
+      if (!t || !t.thread || !t.thread[msgIndex]) return;
       const m = t.thread[msgIndex];
-      if (!m) return;
       m.unread = !m.unread;
-      renderConvBody('thread');
+      if (!m.unread) {
+        const anyRemaining = t.thread.some((x, idx) => idx !== msgIndex && x.dir === 'in' && x.unread);
+        if (!anyRemaining) t.statusUnchanged = false;
+      }
+      renderConvBody(currentActiveTab || 'thread');
       renderDetailList();
+      renderTicketList();
+      renderManageAll();
+      renderDetail();
+    }
+
+    function filterUnreadStatusOnly() {
+      setRole('manager');
+      switchView('manageall');
+      const sel = document.getElementById('mfUnread');
+      if (sel) {
+        sel.value = 'unread';
+        updateSselLabel(sel);
+      }
+      renderManageAll();
     }
 
     function isIntraDeptTicket(t) {
       return !!(t && t.intraDepartment && t.intraDepartment !== 'None' && t.intraDepartment !== 'none');
+    }
+
+    function formatHms(mins) {
+      if (mins === undefined || mins === null || isNaN(mins)) return '00:00:00';
+      const totalSec = Math.round(Math.abs(mins) * 60);
+      const h = Math.floor(totalSec / 3600);
+      const m = Math.floor((totalSec % 3600) / 60);
+      const s = totalSec % 60;
+      const p = (n) => String(n).padStart(2, '0');
+      return `${p(h)}:${p(m)}:${p(s)}`;
     }
 
     function isTicketSlaBreached(t) {
@@ -9469,14 +9605,7 @@
       return t.slaMins < 0;
     }
 
-    function openIntraDeptInfoModal(e) {
-      if (e) {
-        e.stopPropagation();
-        e.preventDefault();
-      }
-      const modal = document.getElementById('modalIntraDeptInfo');
-      if (modal) modal.classList.add('show');
-    }
+    function openIntraDeptInfoModal(e) {}
 
     function updateHeaderSlaBadge() {
       const breachedCount = TICKETS.filter(t => isTicketSlaBreached(t)).length;
@@ -9601,7 +9730,7 @@
       }
       const cls = val.toLowerCase() === 'sales' ? 'intra-dept-sales' : 'intra-dept-collection';
       const icon = val.toLowerCase() === 'sales' ? '💼' : '💰';
-      return `<span class="intra-dept-badge ${cls}" onclick="event.stopPropagation(); openIntraDeptInfoModal(event)" style="cursor:pointer;" title="Click for Intra Department &amp; SLA logic info">${icon} ${val} <span class="ibutton-tag" style="margin-left:3px; width:13px; height:13px; font-size:9px;">ℹ</span></span>`;
+      return `<span class="intra-dept-badge ${cls}">${icon} ${val}</span>`;
     }
 
     /* =========================================================
@@ -9936,9 +10065,11 @@
         prefix + 'Agent',
         prefix + 'Priority',
         prefix + 'Channel',
+        prefix + 'Classification',
         prefix + 'Category',
         prefix + 'SubCategory',
-        prefix + 'IntraDept'
+        prefix + 'IntraDept',
+        prefix + 'Unread'
       ];
       ids.forEach(id => {
         const el = document.getElementById(id);
@@ -10222,6 +10353,7 @@
       const pris = getSelectedValues('fPriority');
       const chans = getSelectedValues('fChannel');
       const depts = getSelectedValues('fQueue');
+      const classifications = getSelectedValues('fClassification');
       const cats = getSelectedValues('fCategory');
       const subCats = getSelectedValues('fSubCategory');
       const intraDepts = getSelectedValues('fIntraDept');
@@ -10229,14 +10361,19 @@
       const dateFrom = document.getElementById('fDateFrom').value;
       const dateTo = document.getElementById('fDateTo').value;
 
+      const unreadVal = document.getElementById('fUnread') ? document.getElementById('fUnread').value : '';
+
       let rows = TICKETS.filter(t => t.status !== 'Merged');
       if (statuses.length > 0) rows = rows.filter(t => statuses.includes(t.status));
       if (pris.length > 0) rows = rows.filter(t => pris.includes(t.priority));
       if (chans.length > 0) rows = rows.filter(t => chans.includes(t.channel));
       if (depts.length > 0) rows = rows.filter(t => depts.includes(t.department));
+      if (classifications.length > 0) rows = rows.filter(t => classifications.includes(t.classification || 'Query'));
       if (cats.length > 0) rows = rows.filter(t => cats.includes(t.category));
       if (subCats.length > 0) rows = rows.filter(t => subCats.includes(t.subCategory));
       if (intraDepts.length > 0) rows = rows.filter(t => intraDepts.includes(t.intraDepartment || 'None'));
+      if (unreadVal === 'unread') rows = rows.filter(t => hasUnreadCustomerMessage(t));
+      if (unreadVal === 'read') rows = rows.filter(t => !hasUnreadCustomerMessage(t));
       if (search) rows = rows.filter(t => t.id.toLowerCase().includes(search) || t.customer.toLowerCase().includes(search) || t.phone.toLowerCase().includes(search));
       updateBreakdownBanner('f', depts);
 
@@ -10245,6 +10382,7 @@
         sortArray(rows, sort.field, sort.asc, (t, field) => {
           if (field === 'assignee') return agentName(t.assignee);
           if (field === 'intraDepartment') return t.intraDepartment || 'None';
+          if (field === 'classification') return t.classification || 'Query';
           return t[field];
         });
       }
@@ -10265,16 +10403,17 @@
         <th class="sortable-header" onclick="toggleSort('tickets', 'customer', 'renderTicketList')">Customer${sortIcon('tickets', 'customer')}</th>
         <th class="sortable-header" onclick="toggleSort('tickets', 'channel', 'renderTicketList')">Channel${sortIcon('tickets', 'channel')}</th>
         <th class="sortable-header" onclick="toggleSort('tickets', 'department', 'renderTicketList')">Department${sortIcon('tickets', 'department')}</th>
+        <th class="sortable-header" onclick="toggleSort('tickets', 'classification', 'renderTicketList')">Classification${sortIcon('tickets', 'classification')}</th>
         <th class="sortable-header" onclick="toggleSort('tickets', 'category', 'renderTicketList')">Category${sortIcon('tickets', 'category')}</th>
         <th class="sortable-header" onclick="toggleSort('tickets', 'subCategory', 'renderTicketList')">Sub Category${sortIcon('tickets', 'subCategory')}</th>
         <th class="sortable-header" onclick="toggleSort('tickets', 'priority', 'renderTicketList')">Priority${sortIcon('tickets', 'priority')}</th>
         <th class="sortable-header" onclick="toggleSort('tickets', 'status', 'renderTicketList')">Status${sortIcon('tickets', 'status')}</th>
         <th class="sortable-header" onclick="toggleSort('tickets', 'assignee', 'renderTicketList')">Assignee${sortIcon('tickets', 'assignee')}</th>
-        <th class="sortable-header" onclick="toggleSort('tickets', 'intraDepartment', 'renderTicketList')">Intra department <span class="ibutton-tag" onclick="openIntraDeptInfoModal(event)" title="Click for Intra Department &amp; SLA logic info">ℹ</span>${sortIcon('tickets', 'intraDepartment')}</th>
+        <th class="sortable-header" onclick="toggleSort('tickets', 'intraDepartment', 'renderTicketList')">Intra department${sortIcon('tickets', 'intraDepartment')}</th>
         <th class="sortable-header" onclick="toggleSort('tickets', 'slaMins', 'renderTicketList')">SLA${sortIcon('tickets', 'slaMins')}</th>
         <th class="sortable-header" onclick="toggleSort('tickets', 'updated', 'renderTicketList')">Updated${sortIcon('tickets', 'updated')}</th>
       </tr></thead>
-      <tbody id="ticketTableBody">${pageRows.map(rowHtml).join('') || `<tr><td colspan="13" style="text-align:center;color:var(--ink-faint);padding:30px;">No tickets match these filters.</td></tr>`}</tbody>
+      <tbody id="ticketTableBody">${pageRows.map(rowHtml).join('') || `<tr><td colspan="14" style="text-align:center;color:var(--ink-faint);padding:30px;">No tickets match these filters.</td></tr>`}</tbody>
     `;
       }
     }
@@ -10288,24 +10427,35 @@
         return `<span style="color:var(--ink-faint); font-size:10px; font-weight:700; background:#F1F5F9; padding:2px 6px; border-radius:4px; border: 1px solid #E2E8F0;">Completed</span>`;
       }
       if (mins < 0) {
-        return `<span style="color:var(--red); font-size:10px; font-weight:700; background:var(--red-tint); padding:2px 6px; border-radius:4px; border: 1.5px solid rgba(220, 38, 38, 0.25); display:inline-block; animation: pulse-sla 1.5s infinite;">⚠️ -${Math.abs(mins)}m</span>`;
+        return `<span style="color:var(--red); font-size:10px; font-weight:700; background:var(--red-tint); padding:2px 6px; border-radius:4px; border: 1.5px solid rgba(220, 38, 38, 0.25); display:inline-block; animation: pulse-sla 1.5s infinite;">⚠️ -${formatHms(mins)}</span>`;
       }
       if (mins < 60) {
-        return `<span style="color:var(--amber); font-size:10px; font-weight:700; background:var(--amber-tint); padding:2px 6px; border-radius:4px; border: 1.5px solid rgba(217, 119, 6, 0.25); display:inline-block;">⏱️ ${mins}m left</span>`;
+        return `<span style="color:var(--amber); font-size:10px; font-weight:700; background:var(--amber-tint); padding:2px 6px; border-radius:4px; border: 1.5px solid rgba(217, 119, 6, 0.25); display:inline-block;">⏱️ ${formatHms(mins)} due</span>`;
       }
-      const h = Math.floor(mins / 60), m = mins % 60;
-      return `<span style="color:var(--teal); font-size:10px; font-weight:700; background:var(--teal-tint); padding:2px 6px; border-radius:4px; border: 1.5px solid rgba(13, 148, 136, 0.25); display:inline-block;">⏱️ ${h}h ${m}m</span>`;
+      return `<span style="color:var(--teal); font-size:10px; font-weight:700; background:var(--teal-tint); padding:2px 6px; border-radius:4px; border: 1.5px solid rgba(13, 148, 136, 0.25); display:inline-block;">⏱️ ${formatHms(mins)} due</span>`;
     }
 
     function rowHtml(t) {
       const chk = `<input type="checkbox" class="checkbox bulk-cb" data-id="${t.id}" ${bulkSelectedIds.has(t.id) ? 'checked' : ''} onchange="toggleBulk('${t.id}',this.checked)">`;
       const creationLabel = t.creationType === 'manual' ? 'Manual' : 'System';
+      const isUnread = hasUnreadCustomerMessage(t);
+      const unreadBadge = isUnread
+        ? `<span class="unread-status-flag" title="Customer message is UNREAD — ticket status has not been changed!">🔵 Unread</span>`
+        : '';
+
       return `<tr class="trow" onclick="openTicket('${t.id}')">
     <td onclick="event.stopPropagation()">${chk}</td>
-    <td><div class="subj">${t.subject}</div><div class="subj-cust">${t.id} · <span class="creation-badge badge-${t.creationType || 'system'}">${creationLabel}</span></div></td>
+    <td>
+      <div class="subj" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+        <span>${t.subject}</span>
+        ${unreadBadge}
+      </div>
+      <div class="subj-cust">${t.id} · <span class="creation-badge badge-${t.creationType || 'system'}">${creationLabel}</span></div>
+    </td>
     <td>${t.customer}</td>
     <td><span class="chan-badge ${chanClass(t.channel)}">${t.channel}</span></td>
     <td>${t.department || t.queue || '—'}</td>
+    <td><span class="classification-badge class-${(t.classification || 'Query').toLowerCase()}">${t.classification || 'Query'}</span></td>
     <td>${t.category || '—'}</td>
     <td>${t.subCategory || '—'}</td>
     <td><span class="pri-badge pri-${t.priority}">${t.priority}</span></td>
@@ -10332,9 +10482,11 @@
       const statuses = getSelectedValues(statusSel);
       const depts = getSelectedValues('mfQueue');
       const chans = getSelectedValues('mfChannel');
+      const classifications = getSelectedValues('mfClassification');
       const cats = getSelectedValues('mfCategory');
       const subCats = getSelectedValues('mfSubCategory');
       const intraDepts = getSelectedValues('mfIntraDept');
+      const unreadVal = document.getElementById('mfUnread') ? document.getElementById('mfUnread').value : '';
       const dateFrom = document.getElementById('mfDateFrom').value;
       const dateTo = document.getElementById('mfDateTo').value;
       const search = document.getElementById('mfSearch').value.toLowerCase();
@@ -10358,9 +10510,12 @@
         if (statuses.length > 0) rows = rows.filter(t => statuses.includes(t.status));
         if (depts.length > 0) rows = rows.filter(t => depts.includes(t.department));
         if (chans.length > 0) rows = rows.filter(t => chans.includes(t.channel));
+        if (classifications.length > 0) rows = rows.filter(t => classifications.includes(t.classification || 'Query'));
         if (cats.length > 0) rows = rows.filter(t => cats.includes(t.category));
         if (subCats.length > 0) rows = rows.filter(t => subCats.includes(t.subCategory));
         if (intraDepts.length > 0) rows = rows.filter(t => intraDepts.includes(t.intraDepartment || 'None'));
+        if (unreadVal === 'unread') rows = rows.filter(t => hasUnreadCustomerMessage(t));
+        if (unreadVal === 'read') rows = rows.filter(t => !hasUnreadCustomerMessage(t));
         if (search) rows = rows.filter(t => t.id.toLowerCase().includes(search) || t.customer.toLowerCase().includes(search) || t.phone.toLowerCase().includes(search));
         rows = rows.filter(t => inDateRange(t, dateFrom, dateTo));
       }
@@ -10372,6 +10527,7 @@
         sortArray(rows, sort.field, sort.asc, (t, field) => {
           if (field === 'assignee') return agentName(t.assignee);
           if (field === 'intraDepartment') return t.intraDepartment || 'None';
+          if (field === 'classification') return t.classification || 'Query';
           return t[field];
         });
       }
@@ -10392,16 +10548,17 @@
         <th class="sortable-header" onclick="toggleSort('manageall', 'customer', 'renderManageAll')">Customer${sortIcon('manageall', 'customer')}</th>
         <th class="sortable-header" onclick="toggleSort('manageall', 'channel', 'renderManageAll')">Channel${sortIcon('manageall', 'channel')}</th>
         <th class="sortable-header" onclick="toggleSort('manageall', 'department', 'renderManageAll')">Department${sortIcon('manageall', 'department')}</th>
+        <th class="sortable-header" onclick="toggleSort('manageall', 'classification', 'renderManageAll')">Classification${sortIcon('manageall', 'classification')}</th>
         <th class="sortable-header" onclick="toggleSort('manageall', 'category', 'renderManageAll')">Category${sortIcon('manageall', 'category')}</th>
         <th class="sortable-header" onclick="toggleSort('manageall', 'subCategory', 'renderManageAll')">Sub Category${sortIcon('manageall', 'subCategory')}</th>
         <th class="sortable-header" onclick="toggleSort('manageall', 'priority', 'renderManageAll')">Priority${sortIcon('manageall', 'priority')}</th>
         <th class="sortable-header" onclick="toggleSort('manageall', 'status', 'renderManageAll')">Status${sortIcon('manageall', 'status')}</th>
         <th class="sortable-header" onclick="toggleSort('manageall', 'assignee', 'renderManageAll')">Assignee${sortIcon('manageall', 'assignee')}</th>
-        <th class="sortable-header" onclick="toggleSort('manageall', 'intraDepartment', 'renderManageAll')">Intra department <span class="ibutton-tag" onclick="openIntraDeptInfoModal(event)" title="Click for Intra Department &amp; SLA logic info">ℹ</span>${sortIcon('manageall', 'intraDepartment')}</th>
+        <th class="sortable-header" onclick="toggleSort('manageall', 'intraDepartment', 'renderManageAll')">Intra department${sortIcon('manageall', 'intraDepartment')}</th>
         <th class="sortable-header" onclick="toggleSort('manageall', 'slaMins', 'renderManageAll')">SLA${sortIcon('manageall', 'slaMins')}</th>
         <th class="sortable-header" onclick="toggleSort('manageall', 'updated', 'renderManageAll')">Updated${sortIcon('manageall', 'updated')}</th>
       </tr></thead>
-      <tbody id="manageAllBody">${pageRows.map(rowHtml).join('') || `<tr><td colspan="13" style="text-align:center;color:var(--ink-faint);padding:30px;">No tickets match.</td></tr>`}</tbody>
+      <tbody id="manageAllBody">${pageRows.map(rowHtml).join('') || `<tr><td colspan="14" style="text-align:center;color:var(--ink-faint);padding:30px;">No tickets match.</td></tr>`}</tbody>
     `;
       }
     }
@@ -10517,6 +10674,13 @@
           if (!t) return;
           const prevStatus = t.status;
           t.status = newStatus;
+          t.statusChangedAfterMsg = true;
+          t.statusUnchanged = false;
+          if (t.thread) {
+            t.thread.forEach(m => {
+              if (m.dir === 'in') m.unread = false;
+            });
+          }
           addLog(t, `Bulk status update: ${prevStatus} → ${newStatus}`, { type: 'status', by: currentRole, actor: currentRole === 'manager' ? 'Manager' : agentName(CURRENT_AGENT_ID), undoable: true, snapshot: { field: 'status', oldValue: prevStatus } });
           changes++;
         });
@@ -11077,8 +11241,9 @@
       }
 
       container.innerHTML = filtered.map(t => {
-        const hasUnread = t.thread && t.thread.some(m => m.dir === 'in' && m.dir !== 'note' && m.unread);
-        const unreadDot = hasUnread ? `<span class="unread-dot-badge" style="background:#2563EB; width:8px; height:8px; border-radius:50%; display:inline-block; margin-left:6px; vertical-align:middle;" title="Unread messages"></span>` : '';
+        const isUnread = hasUnreadCustomerMessage(t);
+        const unreadDot = isUnread ? `<span class="unread-dot-badge" style="background:#2563EB; width:8px; height:8px; border-radius:50%; display:inline-block; margin-left:6px; vertical-align:middle;" title="Customer message unread (Status unchanged)"></span>` : '';
+        const unreadTag = isUnread ? ` · <span class="unread-flag-pill" style="font-size:8px; padding:1px 4px; border-radius:3px;">🔵 Unread</span>` : '';
 
         const isClosedOrResolved = t.status === 'Resolved' || t.status === 'Closed';
         const isIntraDept = t.intraDepartment && t.intraDepartment !== 'None' && t.intraDepartment !== 'none';
@@ -11087,9 +11252,9 @@
           slaBadge = `<span class="sla-badge-mini" style="background:#EEF2FF; color:#4F46E5; border:1px solid #C7D2FE; font-size:8px; padding:1px 4px; border-radius:3px; font-weight:700; margin-left:4px; vertical-align:middle; display:inline-block;" title="SLA calculation stopped for ${t.intraDepartment} intra-dept">⏸️ SLA Paused</span>`;
         } else if (!isClosedOrResolved) {
           if (t.slaMins < 0) {
-            slaBadge = `<span class="sla-badge-mini" style="background:var(--red-tint); color:var(--red); border:1.5px solid rgba(220, 38, 38, 0.25); font-size:8px; padding:1px 4px; border-radius:3px; font-weight:700; margin-left:4px; vertical-align:middle; display:inline-block; animation: pulse-sla 1.5s infinite;">⚠️ -${Math.abs(t.slaMins)}m</span>`;
+            slaBadge = `<span class="sla-badge-mini" style="background:var(--red-tint); color:var(--red); border:1.5px solid rgba(220, 38, 38, 0.25); font-size:8px; padding:1px 4px; border-radius:3px; font-weight:700; margin-left:4px; vertical-align:middle; display:inline-block; animation: pulse-sla 1.5s infinite;">⚠️ -${formatHms(t.slaMins)}</span>`;
           } else {
-            slaBadge = `<span class="sla-badge-mini" style="background:var(--teal-tint); color:var(--teal); border:1.5px solid rgba(13, 148, 136, 0.25); font-size:8px; padding:1px 4px; border-radius:3px; font-weight:700; margin-left:4px; vertical-align:middle; display:inline-block;">⏱️ ${t.slaMins}m</span>`;
+            slaBadge = `<span class="sla-badge-mini" style="background:var(--teal-tint); color:var(--teal); border:1.5px solid rgba(13, 148, 136, 0.25); font-size:8px; padding:1px 4px; border-radius:3px; font-weight:700; margin-left:4px; vertical-align:middle; display:inline-block;">⏱️ ${formatHms(t.slaMins)} due</span>`;
           }
         }
 
@@ -11097,7 +11262,7 @@
 
         return `
       <div class="dl-item ${t.id === selectedTicketId ? 'active' : ''}" onclick="openTicket('${t.id}')">
-        <div class="dl-id">${t.id} · <span class="status-badge ${statusClass(t.status)}" style="font-size:9.5px;padding:1px 6px;">${t.status}</span> · <span class="creation-badge badge-${t.creationType || 'system'}" style="font-size:8px;padding:1px 4px;border-radius:3px;">${t.creationType === 'manual' ? 'Manual' : 'System'}</span>${intraDeptTag}${unreadDot}${slaBadge}</div>
+        <div class="dl-id">${t.id} · <span class="status-badge ${statusClass(t.status)}" style="font-size:9.5px;padding:1px 6px;">${t.status}</span> · <span class="creation-badge badge-${t.creationType || 'system'}" style="font-size:8px;padding:1px 4px;border-radius:3px;">${t.creationType === 'manual' ? 'Manual' : 'System'}</span>${intraDeptTag}${unreadTag}${unreadDot}${slaBadge}</div>
         <div class="dl-subj">${t.subject}</div>
         <div class="dl-cust">${t.customer} · <span class="chan-badge ${chanClass(t.channel)}" style="font-size:9px;padding:1px 5px;">${t.channel}</span> · <span class="pri-badge pri-${t.priority}" style="font-size:8.5px;padding:1px 5px;">${t.priority}</span></div>
       </div>`;
@@ -11164,8 +11329,11 @@
       } else {
         badgesHtml += `<span class="nbfc-source-badge">Source: Chinmay</span>`;
       }
+      if (hasUnreadCustomerMessage(t)) {
+        badgesHtml += `<span class="unread-status-flag" style="font-size:10px; padding:3px 8px; animation: pulse-blue 2s infinite;" title="Customer message is UNREAD because ticket status has not been changed">💬 Customer Message Unread (Status Unchanged)</span>`;
+      }
       if (t.intraDepartment && t.intraDepartment !== 'None' && t.intraDepartment !== 'none') {
-        badgesHtml += `<span class="intra-dept-badge intra-dept-${t.intraDepartment.toLowerCase()}" onclick="openIntraDeptInfoModal(event)" style="font-size:10px; padding:3px 8px; cursor:pointer;" title="Click for Intra Department &amp; SLA logic info">Intra-dept: ${t.intraDepartment} (SLA Paused) <span class="ibutton-tag" style="margin-left:3px; width:13px; height:13px; font-size:9px;">ℹ</span></span>`;
+        badgesHtml += `<span class="intra-dept-badge intra-dept-${t.intraDepartment.toLowerCase()}" style="font-size:10px; padding:3px 8px;">Intra-dept: ${t.intraDepartment} (SLA Paused)</span>`;
       } else if (t.slaMins < 0 && t.status !== 'Resolved' && t.status !== 'Closed') {
         badgesHtml += `<span class="sla-breached-badge" style="background:var(--red); color:#fff; font-weight:700; font-size:9.5px; padding:3px 8px; border-radius:4px; animation: pulse-sla 1.5s infinite;">⚠️ SLA BREACHED</span>`;
       }
@@ -12999,7 +13167,7 @@
           status: 'Stopped',
           statusText: `Stopped (${t.intraDepartment})`,
           badgeClass: 'sla-stopped',
-          targetText: `${targetMins}m target`,
+          targetText: `${formatHms(targetMins)} target`,
           timeStr: `Stopped for ${t.intraDepartment} intra-dept`,
           achieved: false,
           frtMins: 0,
@@ -13017,9 +13185,9 @@
 
         return {
           status: 'Achieved',
-          statusText: `${frtAchievedMins}m (Met Target)`,
+          statusText: `${formatHms(frtAchievedMins)} (Met Target)`,
           badgeClass: 'sla-ok',
-          targetText: `${targetMins}m target`,
+          targetText: `${formatHms(targetMins)} target`,
           timeStr: firstReply.time || '10:05 AM',
           achieved: true,
           frtMins: frtAchievedMins
@@ -13033,9 +13201,9 @@
 
         return {
           status: 'Pending',
-          statusText: isBreached ? `Breached by ${Math.abs(remainingMins)}m` : `${remainingMins}m remaining`,
+          statusText: isBreached ? `Breached by ${formatHms(remainingMins)}` : `${formatHms(remainingMins)} due`,
           badgeClass: isBreached ? 'sla-breach' : (remainingMins < 10 ? 'sla-warn' : 'sla-ok'),
-          targetText: `${targetMins}m target`,
+          targetText: `${formatHms(targetMins)} target`,
           timeStr: 'Awaiting first agent reply',
           achieved: false,
           frtMins: remainingMins
@@ -13098,7 +13266,15 @@
 
       document.getElementById('propsPanel').innerHTML = `
     <!-- 1. Ticket properties -->
-    <h4 style="margin-top:0;">Ticket properties</h4>
+    <h4 style="margin-top:0; display:flex; justify-content:space-between; align-items:center;">
+      <span>Ticket properties</span>
+      ${hasUnreadCustomerMessage(t) ? '<span class="unread-status-flag" style="margin:0; font-size:9px;">🔵 Unread Msg</span>' : ''}
+    </h4>
+    ${hasUnreadCustomerMessage(t) ? `
+      <div style="background:#EFF6FF; border:1px solid #BFDBFE; border-left:3px solid #2563EB; border-radius:4px; padding:6px 8px; margin-bottom:10px; font-size:10.5px; color:#1E40AF; line-height:1.35;">
+        <b>💬 Customer message unread:</b> Ticket status has not been changed. Updating the status will mark the message as read.
+      </div>
+    ` : ''}
     <div class="prop-row"><label>Status</label>
       <select onchange="updateTicketField('status', this.value)">${STATUSES.map(s => `<option ${s === t.status ? 'selected' : ''}>${s}</option>`).join('')}</select>
     </div>
@@ -13114,11 +13290,16 @@
         ${allowedAgents.map(a => `<option value="${a.id}" ${t.assignee === a.id ? 'selected' : ''}>${a.name}</option>`).join('')}
       </select>
     </div>
-    <div class="prop-row"><label style="display:inline-flex; align-items:center; gap:3px;">Intra department <span class="ibutton-tag" onclick="openIntraDeptInfoModal(event)" title="Click for Intra Department &amp; SLA/FRT logic info">ℹ</span></label>
+    <div class="prop-row"><label>Intra department</label>
       <select id="propIntraDepartment" onchange="updateTicketField('intraDepartment', this.value)">
         <option value="None" ${(!t.intraDepartment || t.intraDepartment === 'None') ? 'selected' : ''}>None</option>
         <option value="Sales" ${t.intraDepartment === 'Sales' ? 'selected' : ''}>Sales</option>
         <option value="Collection" ${t.intraDepartment === 'Collection' ? 'selected' : ''}>Collection</option>
+      </select>
+    </div>
+    <div class="prop-row"><label>Classification</label>
+      <select id="propClassification" onchange="updateTicketField('classification', this.value)">
+        ${['Query', 'Complain', 'Request'].map(c => `<option value="${c}" ${(c === (t.classification || 'Query')) ? 'selected' : ''}>${c}</option>`).join('')}
       </select>
     </div>
     <div class="prop-row"><label>Category</label>
@@ -13157,11 +13338,10 @@
       </div>
       <div class="big" style="color:#4F46E5; font-size:15px; display:flex; align-items:center; justify-content:space-between;">
         <span>⏸️ SLA Stopped (${t.intraDepartment})</span>
-        <span class="ibutton-tag" onclick="openIntraDeptInfoModal(event)" title="Click for Intra Department &amp; SLA logic details">ℹ</span>
       </div>
     </div>
     <div style="margin-top: 8px; font-size: 11px; display: flex; flex-direction: column; gap: 6px; padding: 10px; background: var(--panel); border-radius: 6px; border: 1px solid var(--line-soft);">
-      <div style="display:flex; justify-content:space-between; align-items:center;"><span>Intra-dept Status:</span><b style="color:#4F46E5; cursor:pointer;" onclick="openIntraDeptInfoModal(event)">SLA calculations stopped ℹ</b></div>
+      <div style="display:flex; justify-content:space-between; align-items:center;"><span>Intra-dept Status:</span><b style="color:#4F46E5;">SLA calculations stopped</b></div>
       <div style="display:flex; justify-content:space-between;"><span>Created:</span><b>${fmtDateTime(t.createdAt)}</b></div>
       <div style="display:flex; justify-content:space-between;"><span>Closed:</span><b>${(t.status === 'Closed' || t.status === 'Resolved') ? fmtDateTime(getTicketClosedDate(t)) : '—'}</b></div>
     </div>
@@ -13171,7 +13351,7 @@
         <div>${t.priority} priority target</div>
         <span style="font-size:9.5px; font-weight:700; color:var(--ink-faint); text-transform:uppercase;">Resolution SLA</span>
       </div>
-      <div class="big ${t.slaMins < 0 ? 'sla-breach' : (t.slaMins < 60 ? 'sla-warn' : 'sla-ok')}">${t.slaMins < 0 ? 'Breached by ' + Math.abs(t.slaMins) + 'm' : t.slaMins + 'm remaining'}</div>
+      <div class="big ${t.slaMins < 0 ? 'sla-breach' : (t.slaMins < 60 ? 'sla-warn' : 'sla-ok')}">${t.slaMins < 0 ? 'Breached by ' + formatHms(t.slaMins) : formatHms(t.slaMins) + ' due'}</div>
     </div>
     <div style="margin-top: 8px; font-size: 11px; display: flex; flex-direction: column; gap: 6px; padding: 10px; background: var(--panel); border-radius: 6px; border: 1px solid var(--line-soft);">
       <div style="display:flex; justify-content:space-between;"><span>Created:</span><b>${fmtDateTime(t.createdAt)}</b></div>
@@ -13189,12 +13369,11 @@
       </div>
       <div class="big" style="color:#4F46E5; font-size:15px; display:flex; align-items:center; justify-content:space-between;">
         <span>⏸️ FRT Stopped (${t.intraDepartment})</span>
-        <span class="ibutton-tag" onclick="openIntraDeptInfoModal(event)" title="Click for Intra Department &amp; FRT logic details">ℹ</span>
       </div>
     </div>
     <div style="margin-top: 8px; font-size: 11px; display: flex; flex-direction: column; gap: 6px; padding: 10px; background: var(--panel); border-radius: 6px; border: 1px solid var(--line-soft);">
       <div style="display:flex; justify-content:space-between;"><span>FRT Target:</span><b>${frt.targetText}</b></div>
-      <div style="display:flex; justify-content:space-between; align-items:center;"><span>Status:</span><b style="color:#4F46E5; cursor:pointer;" onclick="openIntraDeptInfoModal(event)">Stopped for ${t.intraDepartment} intra-dept ℹ</b></div>
+      <div style="display:flex; justify-content:space-between; align-items:center;"><span>Status:</span><b style="color:#4F46E5;">Stopped for ${t.intraDepartment} intra-dept</b></div>
     </div>
     ` : `
     <div class="sla-box">
@@ -13450,6 +13629,15 @@
       const old = t[field];
       if (old === value) return;
       t[field] = value;
+      if (field === 'status') {
+        t.statusChangedAfterMsg = true;
+        t.statusUnchanged = false;
+        if (t.thread) {
+          t.thread.forEach(m => {
+            if (m.dir === 'in') m.unread = false;
+          });
+        }
+      }
       if (field === 'department') {
         t.queue = value;
         if (DEPT_CAT_SUBCAT[value]) {
@@ -13501,6 +13689,7 @@
       });
 
       showToast(`${fieldLabel} updated to ${newLabel}`);
+      renderDetail();
       renderDetailList();
       renderProps(t);
       renderTicketList();
@@ -13652,8 +13841,8 @@
 
     function isMultipleSelect(select) {
       return select.multiple || [
-        'fStatus', 'fPriority', 'fChannel', 'fQueue', 'fCategory', 'fSubCategory',
-        'mfAgent', 'mfStatus', 'mfQueue', 'mfCategory', 'mfSubCategory',
+        'fStatus', 'fPriority', 'fChannel', 'fQueue', 'fClassification', 'fCategory', 'fSubCategory',
+        'mfAgent', 'mfStatus', 'mfQueue', 'mfChannel', 'mfClassification', 'mfCategory', 'mfSubCategory',
         'kpiFilterCreated', 'kpiFilterDept', 'kpiFilterNBFC', 'kpiFilterClosed', 'kpiFilterTeammate',
         'kpiReportFilterStatus', 'kpiReportFilterChannel', 'kpiReportFilterPriority'
       ].includes(select.id);
@@ -14039,6 +14228,7 @@
       const match = CUSTOMERS.find(c => c.name.toLowerCase() === custInput.toLowerCase());
       const priority = document.getElementById('ctPriority').value;
       const deptVal = document.getElementById('ctQueue').value || 'Support';
+      const classificationVal = document.getElementById('ctClassification') ? document.getElementById('ctClassification').value : 'Query';
       const catVal = document.getElementById('ctCategory').value || 'General Query';
       const subCatVal = document.getElementById('ctSubCategory').value || 'General Info';
 
@@ -14069,7 +14259,7 @@
       const t = {
         id: newId, subject, customer: match ? match.name : custInput, phone: match ? match.phone : '—',
         channel: chanVal, priority, status: 'New',
-        queue: deptVal, department: deptVal, category: catVal, subCategory: subCatVal,
+        queue: deptVal, department: deptVal, classification: classificationVal, category: catVal, subCategory: subCatVal,
         assignee: assigneeVal, updated: 'just now', slaMins: slaTarget, createdAt: new Date(),
         language: langVal,
         thread: [{ dir: 'in', text: document.getElementById('ctDesc').value || '(No description provided)', chan: chanVal, time: 'now' }],
@@ -14423,28 +14613,36 @@
     function renderDashboard() {
       const active = TICKETS.filter(t => t.status !== 'Merged');
       const open = active.filter(t => !['Resolved', 'Closed'].includes(t.status)).length;
+      const unreadCount = active.filter(t => hasUnreadCustomerMessage(t)).length;
       const breached = active.filter(t => isTicketSlaBreached(t)).length;
       const intraDeptCount = active.filter(t => isIntraDeptTicket(t) && !['Resolved', 'Closed'].includes(t.status)).length;
       const escalated = active.filter(t => t.status === 'Escalated').length;
 
       const kpis = [
         { lbl: 'OPEN TICKETS', val: open, delta: '+4 vs yesterday', isRed: false },
+        { lbl: 'UNREAD (STATUS UNCHANGED)', val: unreadCount, delta: `${unreadCount} awaiting status change`, isRed: unreadCount > 0, filterUnread: true },
         { lbl: 'SLA BREACH %', val: Math.round(breached / active.length * 100) + '%', delta: `${breached} breached · ${intraDeptCount} intra-dept paused`, isRed: breached > 0 },
         { lbl: 'AVG HANDLING TIME', val: '13m', delta: '−2m vs last week', isRed: false },
         { lbl: 'FIRST RESPONSE', val: '4m', delta: 'within target', isRed: false },
-        { lbl: 'INTRA-DEPT PAUSED', val: intraDeptCount, delta: 'SLA & FRT paused', isRed: false, infoModal: true },
+        { lbl: 'INTRA-DEPT PAUSED', val: intraDeptCount, delta: 'SLA & FRT paused', isRed: false },
         { lbl: 'ESCALATED', val: escalated, delta: 'needs review', isRed: escalated > 0 },
       ];
 
-      document.getElementById('kpiGrid').innerHTML = kpis.map(k => `
-    <div class="kpi-card" ${k.infoModal ? 'onclick="openIntraDeptInfoModal(event)" style="cursor:pointer;" title="Click for Intra Department & SLA logic info"' : ''}>
+      document.getElementById('kpiGrid').innerHTML = kpis.map(k => {
+        let clickAttr = '';
+        if (k.filterUnread) {
+          clickAttr = 'onclick="filterUnreadStatusOnly()" style="cursor:pointer; border-top: 3px solid #2563EB;" title="Click to view all tickets with unread customer messages and unchanged status"';
+        }
+        return `
+    <div class="kpi-card" ${clickAttr}>
       <div class="lbl" style="display:flex; justify-content:space-between; align-items:center;">
         <span>${k.lbl}</span>
-        ${k.infoModal ? '<span class="ibutton-tag">ℹ</span>' : ''}
+        ${k.filterUnread ? '<span style="font-size:11px;">🔵</span>' : ''}
       </div>
       <div class="val">${k.val}</div>
       <div class="delta ${k.isRed ? 'down' : 'up'}">${k.delta}</div>
-    </div>`).join('');
+    </div>`;
+      }).join('');
 
       const sort = sortState.agentperf;
       let list = [...AGENTS];
@@ -15076,6 +15274,50 @@
   `;
       document.getElementById('tblChannelSla').innerHTML = chanHtml;
 
+      // Inbound Calls
+      const inboundCallAgents = [
+        { name: 'Kiran Shah', total: 38, answered: 34, missed: 4, aht: '4m 12s' },
+        { name: 'Pushpa Singh', total: 32, answered: 28, missed: 4, aht: '3m 48s' },
+        { name: 'Mitesh Panchal', total: 28, answered: 24, missed: 4, aht: '3m 35s' },
+        { name: 'Sujoy Banerjee', total: 24, answered: 22, missed: 2, aht: '4m 05s' },
+        { name: 'Shreya Chhetri', total: 20, answered: 16, missed: 4, aht: '3m 22s' }
+      ];
+
+      let totalInboundCalls = 0;
+      let totalInboundAnswered = 0;
+      let totalInboundMissed = 0;
+
+      let inboundHtml = inboundCallAgents.map(a => {
+        totalInboundCalls += a.total;
+        totalInboundAnswered += a.answered;
+        totalInboundMissed += a.missed;
+
+        return `
+          <tr>
+            <td style="padding: 6px 4px; font-weight: 500;">${a.name}</td>
+            <td style="padding: 6px 4px;">${a.total}</td>
+            <td style="padding: 6px 4px; color: #10B981; font-weight: 600;">${a.answered}</td>
+            <td style="padding: 6px 4px; color: ${a.missed > 0 ? '#EF4444' : 'var(--ink-soft)'}; font-weight: 600;">${a.missed}</td>
+            <td style="padding: 6px 4px; text-align: right; color: var(--ink); font-weight: 600;">${a.aht}</td>
+          </tr>
+        `;
+      }).join('');
+
+      let inbAnsPct = totalInboundCalls > 0 ? (totalInboundAnswered / totalInboundCalls * 100).toFixed(2) : '0.00';
+      let inbMisPct = totalInboundCalls > 0 ? (totalInboundMissed / totalInboundCalls * 100).toFixed(2) : '0.00';
+
+      inboundHtml += `
+        <tr style="border-top: 1px solid #475569; font-weight: 700; color: #F8FAFC;">
+          <td style="padding: 6px 4px;">Total</td>
+          <td style="padding: 6px 4px;">${totalInboundCalls}</td>
+          <td style="padding: 6px 4px; color: #10B981;">${totalInboundAnswered} <span style="font-size: 10.5px; font-weight: 600;">(${inbAnsPct}% Answered)</span></td>
+          <td style="padding: 6px 4px; color: #EF4444;">${totalInboundMissed} <span style="font-size: 10.5px; font-weight: 600;">(${inbMisPct}% Missed)</span></td>
+          <td style="padding: 6px 4px; text-align: right; color: #F8FAFC;">3m 54s</td>
+        </tr>
+      `;
+      const tblInboundEl = document.getElementById('tblInboundCalls');
+      if (tblInboundEl) tblInboundEl.innerHTML = inboundHtml;
+
       renderDonutChart('donutChatNps', [
         { value: 2, color: '#10B981', label: 'Promoter (9-10)' },
         { value: 1, color: '#EF4444', label: 'Detractor (0-6)' }
@@ -15262,14 +15504,71 @@
     let currentKpiReportType = '';
     let kpiReportFilteredData = [];
 
+    function onKpiReportDatePresetChange() {
+      const preset = document.getElementById('kpiReportDatePreset') ? document.getElementById('kpiReportDatePreset').value : 'All';
+      const fromEl = document.getElementById('kpiReportDateTimeFrom');
+      const toEl = document.getElementById('kpiReportDateTimeTo');
+      if (!fromEl || !toEl) return;
+
+      const now = new Date();
+      const p = n => String(n).padStart(2, '0');
+      const fmtDt = d => `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+
+      if (preset === 'All') {
+        fromEl.value = '';
+        toEl.value = '';
+      } else if (preset === 'Today') {
+        const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+        const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+        fromEl.value = fmtDt(start);
+        toEl.value = fmtDt(end);
+      } else if (preset === 'Yesterday') {
+        const y = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        const start = new Date(y.getFullYear(), y.getMonth(), y.getDate(), 0, 0, 0);
+        const end = new Date(y.getFullYear(), y.getMonth(), y.getDate(), 23, 59, 59);
+        fromEl.value = fmtDt(start);
+        toEl.value = fmtDt(end);
+      } else if (preset === 'This Week') {
+        const day = now.getDay() || 7;
+        const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day + 1, 0, 0, 0);
+        const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+        fromEl.value = fmtDt(start);
+        toEl.value = fmtDt(end);
+      } else if (preset === 'Last 7 Days') {
+        const start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        fromEl.value = fmtDt(start);
+        toEl.value = fmtDt(now);
+      } else if (preset === 'This Month') {
+        const start = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
+        const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+        fromEl.value = fmtDt(start);
+        toEl.value = fmtDt(end);
+      }
+      updateKpiReportPage();
+    }
+
+    function resetKpiReportFilters() {
+      if (document.getElementById('kpiReportSearch')) document.getElementById('kpiReportSearch').value = '';
+      if (document.getElementById('kpiReportDatePreset')) document.getElementById('kpiReportDatePreset').value = 'All';
+      if (document.getElementById('kpiReportDateTimeFrom')) document.getElementById('kpiReportDateTimeFrom').value = '';
+      if (document.getElementById('kpiReportDateTimeTo')) document.getElementById('kpiReportDateTimeTo').value = '';
+      if (document.getElementById('kpiReportFilterStatus')) document.getElementById('kpiReportFilterStatus').value = 'All';
+      if (document.getElementById('kpiReportFilterChannel')) document.getElementById('kpiReportFilterChannel').value = 'All';
+      if (document.getElementById('kpiReportFilterPriority')) document.getElementById('kpiReportFilterPriority').value = 'All';
+      updateKpiReportPage();
+    }
+
     function openKpiReport(reportType) {
       currentKpiReportType = reportType;
 
       // Clear any existing filters in the report view page
-      document.getElementById('kpiReportSearch').value = '';
-      document.getElementById('kpiReportFilterStatus').value = 'All';
-      document.getElementById('kpiReportFilterChannel').value = 'All';
-      document.getElementById('kpiReportFilterPriority').value = 'All';
+      if (document.getElementById('kpiReportSearch')) document.getElementById('kpiReportSearch').value = '';
+      if (document.getElementById('kpiReportDatePreset')) document.getElementById('kpiReportDatePreset').value = 'All';
+      if (document.getElementById('kpiReportDateTimeFrom')) document.getElementById('kpiReportDateTimeFrom').value = '';
+      if (document.getElementById('kpiReportDateTimeTo')) document.getElementById('kpiReportDateTimeTo').value = '';
+      if (document.getElementById('kpiReportFilterStatus')) document.getElementById('kpiReportFilterStatus').value = 'All';
+      if (document.getElementById('kpiReportFilterChannel')) document.getElementById('kpiReportFilterChannel').value = 'All';
+      if (document.getElementById('kpiReportFilterPriority')) document.getElementById('kpiReportFilterPriority').value = 'All';
 
       updateKpiReportPage();
       switchView('kpi-report');
@@ -15305,10 +15604,22 @@
       }
 
       // Now apply the report page filters:
-      const searchVal = document.getElementById('kpiReportSearch').value.toLowerCase();
-      const statusVal = document.getElementById('kpiReportFilterStatus').value;
-      const chanVal = document.getElementById('kpiReportFilterChannel').value;
-      const priorityVal = document.getElementById('kpiReportFilterPriority').value;
+      const searchVal = document.getElementById('kpiReportSearch') ? document.getElementById('kpiReportSearch').value.toLowerCase() : '';
+      const datePresetVal = document.getElementById('kpiReportDatePreset') ? document.getElementById('kpiReportDatePreset').value : 'All';
+      const fromDtVal = document.getElementById('kpiReportDateTimeFrom') ? document.getElementById('kpiReportDateTimeFrom').value : '';
+      const toDtVal = document.getElementById('kpiReportDateTimeTo') ? document.getElementById('kpiReportDateTimeTo').value : '';
+      const statusVal = document.getElementById('kpiReportFilterStatus') ? document.getElementById('kpiReportFilterStatus').value : 'All';
+      const chanVal = document.getElementById('kpiReportFilterChannel') ? document.getElementById('kpiReportFilterChannel').value : 'All';
+      const priorityVal = document.getElementById('kpiReportFilterPriority') ? document.getElementById('kpiReportFilterPriority').value : 'All';
+
+      if (fromDtVal) {
+        const fromDate = new Date(fromDtVal);
+        tix = tix.filter(t => t.createdAt && new Date(t.createdAt) >= fromDate);
+      }
+      if (toDtVal) {
+        const toDate = new Date(toDtVal);
+        tix = tix.filter(t => t.createdAt && new Date(t.createdAt) <= toDate);
+      }
 
       if (searchVal) {
         tix = tix.filter(t =>
@@ -15335,6 +15646,60 @@
       let rows = '';
 
       switch (currentKpiReportType) {
+        case 'inbound_calls':
+          title = 'Inbound Calls Performance Report';
+          sub = 'Detailed agent-level inbound call breakdown, including total calls, calls answered, missed calls, answered percentage, missed percentage, and AHT (Average Handling Time).';
+          headers = `<tr><th>Agent Name</th><th>Total Calls</th><th>Calls Answered</th><th>Missed Calls</th><th>Answered %</th><th>Missed %</th><th>AHT</th><th>Quality Score</th></tr>`;
+
+          let inboundData = [
+            { name: 'Kiran Shah', total: 38, answered: 34, missed: 4, aht: '4m 12s', quality: '96%' },
+            { name: 'Pushpa Singh', total: 32, answered: 28, missed: 4, aht: '3m 48s', quality: '94%' },
+            { name: 'Mitesh Panchal', total: 28, answered: 24, missed: 4, aht: '3m 35s', quality: '92%' },
+            { name: 'Sujoy Banerjee', total: 24, answered: 22, missed: 2, aht: '4m 05s', quality: '98%' },
+            { name: 'Shreya Chhetri', total: 20, answered: 16, missed: 4, aht: '3m 22s', quality: '90%' }
+          ];
+
+          if (searchVal) {
+            inboundData = inboundData.filter(d => d.name.toLowerCase().includes(searchVal));
+          }
+
+          rows = inboundData.map(d => {
+            const ansPct = d.total > 0 ? (d.answered / d.total * 100).toFixed(2) : '0.00';
+            const misPct = d.total > 0 ? (d.missed / d.total * 100).toFixed(2) : '0.00';
+            return `
+              <tr>
+                <td><span class="assignee-pill"><span class="mini-avatar">${initials(d.name)}</span>${d.name}</span></td>
+                <td><strong>${d.total}</strong></td>
+                <td style="color: #10B981; font-weight: 700;">${d.answered}</td>
+                <td style="color: ${d.missed > 0 ? '#EF4444' : 'var(--ink-soft)'}; font-weight: 700;">${d.missed}</td>
+                <td style="font-weight: 700; color: ${parseFloat(ansPct) >= 85 ? '#10B981' : '#F59E0B'};">${ansPct}%</td>
+                <td style="font-weight: 700; color: ${parseFloat(misPct) > 15 ? '#EF4444' : '#10B981'};">${misPct}%</td>
+                <td><strong>${d.aht}</strong></td>
+                <td><span class="status-badge status-Resolved">${d.quality}</span></td>
+              </tr>
+            `;
+          }).join('');
+
+          const totCalls = inboundData.reduce((s, x) => s + x.total, 0);
+          const totAns = inboundData.reduce((s, x) => s + x.answered, 0);
+          const totMis = inboundData.reduce((s, x) => s + x.missed, 0);
+          const totAnsPct = totCalls > 0 ? (totAns / totCalls * 100).toFixed(2) : '0.00';
+          const totMisPct = totCalls > 0 ? (totMis / totCalls * 100).toFixed(2) : '0.00';
+
+          rows += `
+            <tr style="border-top: 2px solid var(--line); font-weight: 800; background: var(--bg-soft); color: var(--ink);">
+              <td><strong>Total Summary</strong></td>
+              <td><strong>${totCalls}</strong></td>
+              <td style="color: #10B981;"><strong>${totAns}</strong></td>
+              <td style="color: #EF4444;"><strong>${totMis}</strong></td>
+              <td style="color: #10B981;"><strong>${totAnsPct}%</strong></td>
+              <td style="color: #EF4444;"><strong>${totMisPct}%</strong></td>
+              <td><strong>3m 54s</strong></td>
+              <td><span class="status-badge status-Resolved">94.0%</span></td>
+            </tr>
+          `;
+          break;
+
         case 'avg_frt':
           title = 'Agent Average Response Time Report';
           sub = 'Calculates average response times in business hours for each agent based on their closed cases.';
@@ -15557,11 +15922,44 @@
       subEl.textContent = sub;
       headEl.innerHTML = headers;
       bodyEl.innerHTML = rows || `<tr><td colspan="10" style="text-align: center; color: var(--ink-soft); padding: 30px;">No matching records found for active filters.</td></tr>`;
-      countEl.textContent = `Showing ${tix.length} matching records`;
-      filterSummaryEl.textContent = `Dashboard Filters: Dept=${deptFilter.join(', ') || 'All'}, NBFC=${nbfcFilter.join(', ') || 'All'}, Closed=${closedFilter.join(', ') || 'All'}, Teammate=${teammateFilter.join(', ') || 'All'} | Active Report Filters: Search="${searchVal || 'None'}", Status=${statusVal}, Channel=${chanVal}, Priority=${priorityVal}`;
+      countEl.textContent = `Showing ${currentKpiReportType === 'inbound_calls' ? 5 : tix.length} matching records`;
+      filterSummaryEl.textContent = `Dashboard Filters: Dept=${deptFilter.join(', ') || 'All'}, NBFC=${nbfcFilter.join(', ') || 'All'}, Closed=${closedFilter.join(', ') || 'All'}, Teammate=${teammateFilter.join(', ') || 'All'} | Active Report Filters: Search="${searchVal || 'None'}", Date Range=${datePresetVal || 'All Time'}${fromDtVal ? ` (${fromDtVal} to ${toDtVal || 'now'})` : ''}, Status=${statusVal}, Channel=${chanVal}, Priority=${priorityVal}`;
     }
 
     function exportKpiReportToCSV() {
+      if (currentKpiReportType === 'inbound_calls') {
+        let csv = 'Agent Name,Total Calls,Calls Answered,Missed Calls,Answered Percentage,Missed Percentage,AHT,Quality Score\n';
+        const inboundData = [
+          { name: 'Kiran Shah', total: 38, answered: 34, missed: 4, aht: '4m 12s', quality: '96%' },
+          { name: 'Pushpa Singh', total: 32, answered: 28, missed: 4, aht: '3m 48s', quality: '94%' },
+          { name: 'Mitesh Panchal', total: 28, answered: 24, missed: 4, aht: '3m 35s', quality: '92%' },
+          { name: 'Sujoy Banerjee', total: 24, answered: 22, missed: 2, aht: '4m 05s', quality: '98%' },
+          { name: 'Shreya Chhetri', total: 20, answered: 16, missed: 4, aht: '3m 22s', quality: '90%' }
+        ];
+        inboundData.forEach(d => {
+          const ansPct = d.total > 0 ? (d.answered / d.total * 100).toFixed(2) : '0.00';
+          const misPct = d.total > 0 ? (d.missed / d.total * 100).toFixed(2) : '0.00';
+          csv += `"${d.name}",${d.total},${d.answered},${d.missed},"${ansPct}%","${misPct}%","${d.aht}","${d.quality}"\n`;
+        });
+        const totCalls = inboundData.reduce((s, x) => s + x.total, 0);
+        const totAns = inboundData.reduce((s, x) => s + x.answered, 0);
+        const totMis = inboundData.reduce((s, x) => s + x.missed, 0);
+        const totAnsPct = (totAns / totCalls * 100).toFixed(2);
+        const totMisPct = (totMis / totCalls * 100).toFixed(2);
+        csv += `"Total",${totCalls},${totAns},${totMis},"${totAnsPct}%","${totMisPct}%","3m 54s","94.0%"\n`;
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.setAttribute("href", URL.createObjectURL(blob));
+        link.setAttribute("download", `inbound_calls_report_export.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast('Inbound Calls Report exported to CSV successfully.');
+        return;
+      }
+
       if (!kpiReportFilteredData || kpiReportFilteredData.length === 0) {
         showToast('No records to export');
         return;

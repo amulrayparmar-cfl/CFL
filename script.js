@@ -1461,6 +1461,22 @@ let TICKETS = [
   }
 ];
 
+// Ensure all tickets have a valid classification (Query, Complain, Request)
+TICKETS.forEach(t => {
+  if (!t.classification) {
+    const sub = (t.subject || '').toLowerCase();
+    const cat = (t.category || '').toLowerCase();
+    const dept = (t.department || t.queue || '').toLowerCase();
+    if (dept === 'grievance' || sub.includes('complaint') || sub.includes('harassment') || cat.includes('charges') || cat.includes('dispute')) {
+      t.classification = 'Complain';
+    } else if (sub.includes('request') || sub.includes('refund') || sub.includes('waiver') || sub.includes('update') || cat.includes('refund') || cat.includes('change')) {
+      t.classification = 'Request';
+    } else {
+      t.classification = 'Query';
+    }
+  }
+});
+
 function getCustomerPhoto(name) {
   const photos = {
     'Amul Roy': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120',
@@ -1541,14 +1557,7 @@ function isTicketSlaBreached(t) {
   return t.slaMins < 0;
 }
 
-function openIntraDeptInfoModal(e) {
-  if (e) {
-    e.stopPropagation();
-    e.preventDefault();
-  }
-  const modal = document.getElementById('modalIntraDeptInfo');
-  if (modal) modal.classList.add('show');
-}
+function openIntraDeptInfoModal(e) {}
 
 function updateHeaderSlaBadge() {
   const breachedCount = TICKETS.filter(t => isTicketSlaBreached(t)).length;
@@ -1685,7 +1694,7 @@ function intraDeptBadge(val) {
   }
   const cls = val.toLowerCase() === 'sales' ? 'intra-dept-sales' : 'intra-dept-collection';
   const icon = val.toLowerCase() === 'sales' ? '💼' : '💰';
-  return `<span class="intra-dept-badge ${cls}" onclick="event.stopPropagation(); openIntraDeptInfoModal(event)" style="cursor:pointer;" title="Click for Intra Department &amp; SLA logic info">${icon} ${val} <span class="ibutton-tag" style="margin-left:3px; width:13px; height:13px; font-size:9px;">ℹ</span></span>`;
+  return `<span class="intra-dept-badge ${cls}">${icon} ${val}</span>`;
 }
 
 /* =========================================================
@@ -1911,19 +1920,47 @@ function renderTicketList() {
   document.getElementById('ticketTableBody').innerHTML = rows.map(rowHtml).join('') || `<tr><td colspan="10" style="text-align:center;color:var(--ink-faint);padding:30px;">No tickets match these filters.</td></tr>`;
 }
 
+function hasUnreadCustomerMessage(t) {
+  if (!t || !t.thread || t.thread.length === 0) return false;
+  if (t.status === 'Resolved' || t.status === 'Closed' || t.status === 'Merged' || t.status === 'Merge' || t.status === 'Junk') return false;
+
+  // 1. Explicit unread flag on any inbound customer message
+  if (t.thread.some(m => m.dir === 'in' && m.dir !== 'note' && m.unread)) return true;
+
+  // 2. Explicit statusUnchanged flag on ticket
+  if (t.statusUnchanged === true) return true;
+
+  // 3. Status not updated after inbound customer message
+  if (t.status === 'unassigned' || t.status === 'Reopened') {
+    const hasInbound = t.thread.some(m => m.dir === 'in' && m.dir !== 'note');
+    if (hasInbound && !t.statusChangedAfterMsg) return true;
+  }
+
+  return false;
+}
+
+function formatHms(mins) {
+  if (mins === undefined || mins === null || isNaN(mins)) return '00:00:00';
+  const totalSec = Math.round(Math.abs(mins) * 60);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${pad(h)}:${pad(m)}:${pad(s)}`;
+}
+
 function slaLabel(mins, status) {
   const isClosedOrResolved = status === 'Resolved' || status === 'Closed';
   if (isClosedOrResolved) {
     return `<span style="color:var(--ink-faint); font-size:10px; font-weight:700; background:#F1F5F9; padding:2px 6px; border-radius:4px; border: 1px solid #E2E8F0;">Completed</span>`;
   }
   if (mins < 0) {
-    return `<span style="color:var(--red); font-size:10px; font-weight:700; background:var(--red-tint); padding:2px 6px; border-radius:4px; border: 1.5px solid rgba(220, 38, 38, 0.25); display:inline-block; animation: pulse-sla 1.5s infinite;">⚠️ -${Math.abs(mins)}m</span>`;
+    return `<span style="color:var(--red); font-size:10px; font-weight:700; background:var(--red-tint); padding:2px 6px; border-radius:4px; border: 1.5px solid rgba(220, 38, 38, 0.25); display:inline-block; animation: pulse-sla 1.5s infinite;">⚠️ -${formatHms(mins)}</span>`;
   }
   if (mins < 60) {
-    return `<span style="color:var(--amber); font-size:10px; font-weight:700; background:var(--amber-tint); padding:2px 6px; border-radius:4px; border: 1.5px solid rgba(217, 119, 6, 0.25); display:inline-block;">⏱️ ${mins}m left</span>`;
+    return `<span style="color:var(--amber); font-size:10px; font-weight:700; background:var(--amber-tint); padding:2px 6px; border-radius:4px; border: 1.5px solid rgba(217, 119, 6, 0.25); display:inline-block;">⏱️ ${formatHms(mins)} due</span>`;
   }
-  const h = Math.floor(mins / 60), m = mins % 60;
-  return `<span style="color:var(--teal); font-size:10px; font-weight:700; background:var(--teal-tint); padding:2px 6px; border-radius:4px; border: 1.5px solid rgba(13, 148, 136, 0.25); display:inline-block;">⏱️ ${h}h ${m}m</span>`;
+  return `<span style="color:var(--teal); font-size:10px; font-weight:700; background:var(--teal-tint); padding:2px 6px; border-radius:4px; border: 1.5px solid rgba(13, 148, 136, 0.25); display:inline-block;">⏱️ ${formatHms(mins)} due</span>`;
 }
 
 function rowHtml(t) {
@@ -1931,9 +1968,20 @@ function rowHtml(t) {
   const chk = canBulk
     ? `<input type="checkbox" class="checkbox bulk-cb" data-id="${t.id}" onchange="toggleBulk('${t.id}',this.checked)">`
     : `<input type="checkbox" class="checkbox" disabled title="Bulk actions are limited to team leads and managers">`;
-  return `<tr class="trow" onclick="openTicket('${t.id}')">
+  const isUnread = hasUnreadCustomerMessage(t);
+  const unreadBadge = isUnread
+    ? `<span class="unread-status-flag" title="Customer message is UNREAD — ticket status has not been changed!">🔵 Unread</span>`
+    : '';
+
+  return `<tr class="trow ${isUnread ? 'trow-unread' : ''}" onclick="openTicket('${t.id}')">
     <td onclick="event.stopPropagation()">${chk}</td>
-    <td><div class="subj">${t.subject}</div><div class="subj-cust">${t.id}</div></td>
+    <td>
+      <div class="subj" style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+        <span>${t.subject}</span>
+        ${unreadBadge}
+      </div>
+      <div class="subj-cust">${t.id}</div>
+    </td>
     <td>${t.customer}</td>
     <td><span class="chan-badge ${chanClass(t.channel)}">${t.channel}</span></td>
     <td><span class="pri-badge pri-${t.priority}">${t.priority}</span></td>
@@ -2104,6 +2152,13 @@ function submitBulkReassign() {
       if (!t) return;
       const prevStatus = t.status;
       t.status = newStatus;
+      t.statusChangedAfterMsg = true;
+      t.statusUnchanged = false;
+      if (t.thread) {
+        t.thread.forEach(m => {
+          if (m.dir === 'in') m.unread = false;
+        });
+      }
       addLog(t, `Bulk status update: ${prevStatus} → ${newStatus}`, { type: 'status', by: currentRole, actor: currentRole === 'manager' ? 'Manager' : agentName(CURRENT_AGENT_ID), undoable: true, snapshot: { field: 'status', oldValue: prevStatus } });
       changes++;
     });
@@ -2442,7 +2497,7 @@ function renderDetail() {
     badgesHtml += `<span class="nbfc-source-badge">Source: Chinmay</span>`;
   }
   if (t.intraDepartment && t.intraDepartment !== 'None' && t.intraDepartment !== 'none') {
-    badgesHtml += `<span class="intra-dept-badge intra-dept-${t.intraDepartment.toLowerCase()}" onclick="openIntraDeptInfoModal(event)" style="font-size:10px; padding:3px 8px; cursor:pointer;" title="Click for Intra Department &amp; SLA logic info">Intra-dept: ${t.intraDepartment} (SLA Paused) <span class="ibutton-tag" style="margin-left:3px; width:13px; height:13px; font-size:9px;">ℹ</span></span>`;
+    badgesHtml += `<span class="intra-dept-badge intra-dept-${t.intraDepartment.toLowerCase()}" style="font-size:10px; padding:3px 8px;">Intra-dept: ${t.intraDepartment} (SLA Paused)</span>`;
   } else if (t.slaMins < 0 && t.status !== 'Resolved' && t.status !== 'Closed') {
     badgesHtml += `<span class="sla-breached-badge" style="background:var(--red); color:#fff; font-weight:700; font-size:9.5px; padding:3px 8px; border-radius:4px; animation: pulse-sla 1.5s infinite;">⚠️ SLA BREACHED</span>`;
   }
@@ -4406,7 +4461,7 @@ function renderProps(t) {
         ${allowedAgents.map(a => `<option value="${a.id}" ${t.assignee === a.id ? 'selected' : ''}>${a.name}</option>`).join('')}
       </select>
     </div>
-    <div class="prop-row"><label style="display:inline-flex; align-items:center; gap:3px;">Intra department <span class="ibutton-tag" onclick="openIntraDeptInfoModal(event)" title="Click for Intra Department &amp; SLA/FRT logic info">ℹ</span></label>
+    <div class="prop-row"><label>Intra department</label>
       <select id="propIntraDepartment" onchange="updateTicketField('intraDepartment', this.value)">
         <option value="None" ${(!t.intraDepartment || t.intraDepartment === 'None') ? 'selected' : ''}>None</option>
         <option value="Sales" ${t.intraDepartment === 'Sales' ? 'selected' : ''}>Sales</option>
@@ -4449,11 +4504,10 @@ function renderProps(t) {
       </div>
       <div class="big" style="color:#4F46E5; font-size:15px; display:flex; align-items:center; justify-content:space-between;">
         <span>⏸️ SLA Stopped (${t.intraDepartment})</span>
-        <span class="ibutton-tag" onclick="openIntraDeptInfoModal(event)" title="Click for Intra Department &amp; SLA logic details">ℹ</span>
       </div>
     </div>
     <div style="margin-top: 8px; font-size: 11px; display: flex; flex-direction: column; gap: 6px; padding: 10px; background: var(--panel); border-radius: 6px; border: 1px solid var(--line-soft);">
-      <div style="display:flex; justify-content:space-between; align-items:center;"><span>Intra-dept Status:</span><b style="color:#4F46E5; cursor:pointer;" onclick="openIntraDeptInfoModal(event)">SLA calculations stopped ℹ</b></div>
+      <div style="display:flex; justify-content:space-between; align-items:center;"><span>Intra-dept Status:</span><b style="color:#4F46E5;">SLA calculations stopped</b></div>
       <div style="display:flex; justify-content:space-between;"><span>Created:</span><b>${fmtDateTime(t.createdAt)}</b></div>
       <div style="display:flex; justify-content:space-between;"><span>Closed:</span><b>${(t.status === 'Closed' || t.status === 'Resolved') ? fmtDateTime(getTicketClosedDate(t)) : '—'}</b></div>
     </div>
@@ -4481,12 +4535,11 @@ function renderProps(t) {
       </div>
       <div class="big" style="color:#4F46E5; font-size:15px; display:flex; align-items:center; justify-content:space-between;">
         <span>⏸️ FRT Stopped (${t.intraDepartment})</span>
-        <span class="ibutton-tag" onclick="openIntraDeptInfoModal(event)" title="Click for Intra Department &amp; FRT logic details">ℹ</span>
       </div>
     </div>
     <div style="margin-top: 8px; font-size: 11px; display: flex; flex-direction: column; gap: 6px; padding: 10px; background: var(--panel); border-radius: 6px; border: 1px solid var(--line-soft);">
       <div style="display:flex; justify-content:space-between;"><span>FRT Target:</span><b>${frt.targetText}</b></div>
-      <div style="display:flex; justify-content:space-between; align-items:center;"><span>Status:</span><b style="color:#4F46E5; cursor:pointer;" onclick="openIntraDeptInfoModal(event)">Stopped for ${t.intraDepartment} intra-dept ℹ</b></div>
+      <div style="display:flex; justify-content:space-between; align-items:center;"><span>Status:</span><b style="color:#4F46E5;">Stopped for ${t.intraDepartment} intra-dept</b></div>
     </div>
     ` : `
     <div class="sla-box">
@@ -5789,6 +5842,50 @@ function filterKpi() {
   `;
   document.getElementById('tblChannelSla').innerHTML = chanHtml;
 
+  // Inbound Calls
+  const inboundCallAgents = [
+    { name: 'Kiran Shah', total: 38, answered: 34, missed: 4, aht: '4m 12s' },
+    { name: 'Pushpa Singh', total: 32, answered: 28, missed: 4, aht: '3m 48s' },
+    { name: 'Mitesh Panchal', total: 28, answered: 24, missed: 4, aht: '3m 35s' },
+    { name: 'Sujoy Banerjee', total: 24, answered: 22, missed: 2, aht: '4m 05s' },
+    { name: 'Shreya Chhetri', total: 20, answered: 16, missed: 4, aht: '3m 22s' }
+  ];
+
+  let totalInboundCalls = 0;
+  let totalInboundAnswered = 0;
+  let totalInboundMissed = 0;
+
+  let inboundHtml = inboundCallAgents.map(a => {
+    totalInboundCalls += a.total;
+    totalInboundAnswered += a.answered;
+    totalInboundMissed += a.missed;
+
+    return `
+      <tr>
+        <td style="padding: 6px 4px; font-weight: 500;">${a.name}</td>
+        <td style="padding: 6px 4px;">${a.total}</td>
+        <td style="padding: 6px 4px; color: #10B981; font-weight: 600;">${a.answered}</td>
+        <td style="padding: 6px 4px; color: ${a.missed > 0 ? '#EF4444' : 'var(--ink-soft)'}; font-weight: 600;">${a.missed}</td>
+        <td style="padding: 6px 4px; text-align: right; color: var(--ink); font-weight: 600;">${a.aht}</td>
+      </tr>
+    `;
+  }).join('');
+
+  let inbAnsPct = totalInboundCalls > 0 ? (totalInboundAnswered / totalInboundCalls * 100).toFixed(2) : '0.00';
+  let inbMisPct = totalInboundCalls > 0 ? (totalInboundMissed / totalInboundCalls * 100).toFixed(2) : '0.00';
+
+  inboundHtml += `
+    <tr style="border-top: 1px solid #475569; font-weight: 700; color: #F8FAFC;">
+      <td style="padding: 6px 4px;">Total</td>
+      <td style="padding: 6px 4px;">${totalInboundCalls}</td>
+      <td style="padding: 6px 4px; color: #10B981;">${totalInboundAnswered} <span style="font-size: 10.5px; font-weight: 600;">(${inbAnsPct}% Answered)</span></td>
+      <td style="padding: 6px 4px; color: #EF4444;">${totalInboundMissed} <span style="font-size: 10.5px; font-weight: 600;">(${inbMisPct}% Missed)</span></td>
+      <td style="padding: 6px 4px; text-align: right; color: #F8FAFC;">3m 54s</td>
+    </tr>
+  `;
+  const tblInboundEl = document.getElementById('tblInboundCalls');
+  if (tblInboundEl) tblInboundEl.innerHTML = inboundHtml;
+
   renderDonutChart('donutChatNps', [
     { value: 2, color: '#10B981', label: 'Promoter (9-10)' },
     { value: 1, color: '#EF4444', label: 'Detractor (0-6)' }
@@ -5970,14 +6067,71 @@ function filterKpi() {
 let currentKpiReportType = '';
 let kpiReportFilteredData = [];
 
+function onKpiReportDatePresetChange() {
+  const preset = document.getElementById('kpiReportDatePreset') ? document.getElementById('kpiReportDatePreset').value : 'All';
+  const fromEl = document.getElementById('kpiReportDateTimeFrom');
+  const toEl = document.getElementById('kpiReportDateTimeTo');
+  if (!fromEl || !toEl) return;
+
+  const now = new Date();
+  const p = n => String(n).padStart(2, '0');
+  const fmtDt = d => `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+
+  if (preset === 'All') {
+    fromEl.value = '';
+    toEl.value = '';
+  } else if (preset === 'Today') {
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+    const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+    fromEl.value = fmtDt(start);
+    toEl.value = fmtDt(end);
+  } else if (preset === 'Yesterday') {
+    const y = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const start = new Date(y.getFullYear(), y.getMonth(), y.getDate(), 0, 0, 0);
+    const end = new Date(y.getFullYear(), y.getMonth(), y.getDate(), 23, 59, 59);
+    fromEl.value = fmtDt(start);
+    toEl.value = fmtDt(end);
+  } else if (preset === 'This Week') {
+    const day = now.getDay() || 7;
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day + 1, 0, 0, 0);
+    const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+    fromEl.value = fmtDt(start);
+    toEl.value = fmtDt(end);
+  } else if (preset === 'Last 7 Days') {
+    const start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    fromEl.value = fmtDt(start);
+    toEl.value = fmtDt(now);
+  } else if (preset === 'This Month') {
+    const start = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
+    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+    fromEl.value = fmtDt(start);
+    toEl.value = fmtDt(end);
+  }
+  updateKpiReportPage();
+}
+
+function resetKpiReportFilters() {
+  if (document.getElementById('kpiReportSearch')) document.getElementById('kpiReportSearch').value = '';
+  if (document.getElementById('kpiReportDatePreset')) document.getElementById('kpiReportDatePreset').value = 'All';
+  if (document.getElementById('kpiReportDateTimeFrom')) document.getElementById('kpiReportDateTimeFrom').value = '';
+  if (document.getElementById('kpiReportDateTimeTo')) document.getElementById('kpiReportDateTimeTo').value = '';
+  if (document.getElementById('kpiReportFilterStatus')) document.getElementById('kpiReportFilterStatus').value = 'All';
+  if (document.getElementById('kpiReportFilterChannel')) document.getElementById('kpiReportFilterChannel').value = 'All';
+  if (document.getElementById('kpiReportFilterPriority')) document.getElementById('kpiReportFilterPriority').value = 'All';
+  updateKpiReportPage();
+}
+
 function openKpiReport(reportType) {
   currentKpiReportType = reportType;
 
   // Clear any existing filters in the report view page
-  document.getElementById('kpiReportSearch').value = '';
-  document.getElementById('kpiReportFilterStatus').value = 'All';
-  document.getElementById('kpiReportFilterChannel').value = 'All';
-  document.getElementById('kpiReportFilterPriority').value = 'All';
+  if (document.getElementById('kpiReportSearch')) document.getElementById('kpiReportSearch').value = '';
+  if (document.getElementById('kpiReportDatePreset')) document.getElementById('kpiReportDatePreset').value = 'All';
+  if (document.getElementById('kpiReportDateTimeFrom')) document.getElementById('kpiReportDateTimeFrom').value = '';
+  if (document.getElementById('kpiReportDateTimeTo')) document.getElementById('kpiReportDateTimeTo').value = '';
+  if (document.getElementById('kpiReportFilterStatus')) document.getElementById('kpiReportFilterStatus').value = 'All';
+  if (document.getElementById('kpiReportFilterChannel')) document.getElementById('kpiReportFilterChannel').value = 'All';
+  if (document.getElementById('kpiReportFilterPriority')) document.getElementById('kpiReportFilterPriority').value = 'All';
 
   updateKpiReportPage();
   switchView('kpi-report');
@@ -5994,10 +6148,10 @@ function updateKpiReportPage() {
   if (!titleEl || !subEl || !headEl || !bodyEl || !countEl) return;
 
   // Let's filter tickets using the active KPI dashboard filters first!
-  const createdFilter = document.getElementById('kpiFilterCreated').value;
-  const deptFilter = document.getElementById('kpiFilterDept').value;
-  const nbfcFilter = document.getElementById('kpiFilterNBFC').value;
-  const closedFilter = document.getElementById('kpiFilterClosed').value;
+  const createdFilter = document.getElementById('kpiFilterCreated') ? document.getElementById('kpiFilterCreated').value : 'All';
+  const deptFilter = document.getElementById('kpiFilterDept') ? document.getElementById('kpiFilterDept').value : 'All';
+  const nbfcFilter = document.getElementById('kpiFilterNBFC') ? document.getElementById('kpiFilterNBFC').value : 'All';
+  const closedFilter = document.getElementById('kpiFilterClosed') ? document.getElementById('kpiFilterClosed').value : 'All';
 
   let tix = [...TICKETS];
   if (deptFilter !== 'All') tix = tix.filter(t => t.department === deptFilter);
@@ -6009,10 +6163,22 @@ function updateKpiReportPage() {
   }
 
   // Now apply the report page filters:
-  const searchVal = document.getElementById('kpiReportSearch').value.toLowerCase();
-  const statusVal = document.getElementById('kpiReportFilterStatus').value;
-  const chanVal = document.getElementById('kpiReportFilterChannel').value;
-  const priorityVal = document.getElementById('kpiReportFilterPriority').value;
+  const searchVal = document.getElementById('kpiReportSearch') ? document.getElementById('kpiReportSearch').value.toLowerCase() : '';
+  const datePresetVal = document.getElementById('kpiReportDatePreset') ? document.getElementById('kpiReportDatePreset').value : 'All';
+  const fromDtVal = document.getElementById('kpiReportDateTimeFrom') ? document.getElementById('kpiReportDateTimeFrom').value : '';
+  const toDtVal = document.getElementById('kpiReportDateTimeTo') ? document.getElementById('kpiReportDateTimeTo').value : '';
+  const statusVal = document.getElementById('kpiReportFilterStatus') ? document.getElementById('kpiReportFilterStatus').value : 'All';
+  const chanVal = document.getElementById('kpiReportFilterChannel') ? document.getElementById('kpiReportFilterChannel').value : 'All';
+  const priorityVal = document.getElementById('kpiReportFilterPriority') ? document.getElementById('kpiReportFilterPriority').value : 'All';
+
+  if (fromDtVal) {
+    const fromDate = new Date(fromDtVal);
+    tix = tix.filter(t => t.createdAt && new Date(t.createdAt) >= fromDate);
+  }
+  if (toDtVal) {
+    const toDate = new Date(toDtVal);
+    tix = tix.filter(t => t.createdAt && new Date(t.createdAt) <= toDate);
+  }
 
   if (searchVal) {
     tix = tix.filter(t =>
@@ -6039,6 +6205,60 @@ function updateKpiReportPage() {
   let rows = '';
 
   switch (currentKpiReportType) {
+    case 'inbound_calls':
+      title = 'Inbound Calls Performance Report';
+      sub = 'Detailed agent-level inbound call breakdown, including total calls, calls answered, missed calls, answered percentage, missed percentage, and AHT (Average Handling Time).';
+      headers = `<tr><th>Agent Name</th><th>Total Calls</th><th>Calls Answered</th><th>Missed Calls</th><th>Answered %</th><th>Missed %</th><th>AHT</th><th>Quality Score</th></tr>`;
+
+      let inboundData = [
+        { name: 'Kiran Shah', total: 38, answered: 34, missed: 4, aht: '4m 12s', quality: '96%' },
+        { name: 'Pushpa Singh', total: 32, answered: 28, missed: 4, aht: '3m 48s', quality: '94%' },
+        { name: 'Mitesh Panchal', total: 28, answered: 24, missed: 4, aht: '3m 35s', quality: '92%' },
+        { name: 'Sujoy Banerjee', total: 24, answered: 22, missed: 2, aht: '4m 05s', quality: '98%' },
+        { name: 'Shreya Chhetri', total: 20, answered: 16, missed: 4, aht: '3m 22s', quality: '90%' }
+      ];
+
+      if (searchVal) {
+        inboundData = inboundData.filter(d => d.name.toLowerCase().includes(searchVal));
+      }
+
+      rows = inboundData.map(d => {
+        const ansPct = d.total > 0 ? (d.answered / d.total * 100).toFixed(2) : '0.00';
+        const misPct = d.total > 0 ? (d.missed / d.total * 100).toFixed(2) : '0.00';
+        return `
+          <tr>
+            <td><span class="assignee-pill"><span class="mini-avatar">${initials(d.name)}</span>${d.name}</span></td>
+            <td><strong>${d.total}</strong></td>
+            <td style="color: #10B981; font-weight: 700;">${d.answered}</td>
+            <td style="color: ${d.missed > 0 ? '#EF4444' : 'var(--ink-soft)'}; font-weight: 700;">${d.missed}</td>
+            <td style="font-weight: 700; color: ${parseFloat(ansPct) >= 85 ? '#10B981' : '#F59E0B'};">${ansPct}%</td>
+            <td style="font-weight: 700; color: ${parseFloat(misPct) > 15 ? '#EF4444' : '#10B981'};">${misPct}%</td>
+            <td><strong>${d.aht}</strong></td>
+            <td><span class="status-badge status-Resolved">${d.quality}</span></td>
+          </tr>
+        `;
+      }).join('');
+
+      const totCalls = inboundData.reduce((s, x) => s + x.total, 0);
+      const totAns = inboundData.reduce((s, x) => s + x.answered, 0);
+      const totMis = inboundData.reduce((s, x) => s + x.missed, 0);
+      const totAnsPct = totCalls > 0 ? (totAns / totCalls * 100).toFixed(2) : '0.00';
+      const totMisPct = totCalls > 0 ? (totMis / totCalls * 100).toFixed(2) : '0.00';
+
+      rows += `
+        <tr style="border-top: 2px solid var(--line); font-weight: 800; background: var(--bg-soft); color: var(--ink);">
+          <td><strong>Total Summary</strong></td>
+          <td><strong>${totCalls}</strong></td>
+          <td style="color: #10B981;"><strong>${totAns}</strong></td>
+          <td style="color: #EF4444;"><strong>${totMis}</strong></td>
+          <td style="color: #10B981;"><strong>${totAnsPct}%</strong></td>
+          <td style="color: #EF4444;"><strong>${totMisPct}%</strong></td>
+          <td><strong>3m 54s</strong></td>
+          <td><span class="status-badge status-Resolved">94.0%</span></td>
+        </tr>
+      `;
+      break;
+
     case 'avg_frt':
       title = 'Agent Average Response Time Report';
       sub = 'Calculates average response times in business hours for each agent based on their closed cases.';
@@ -6261,11 +6481,44 @@ function updateKpiReportPage() {
   subEl.textContent = sub;
   headEl.innerHTML = headers;
   bodyEl.innerHTML = rows || `<tr><td colspan="10" style="text-align: center; color: var(--ink-soft); padding: 30px;">No matching records found for active filters.</td></tr>`;
-  countEl.textContent = `Showing ${tix.length} matching records`;
-  filterSummaryEl.textContent = `Dashboard Filters: Dept=${deptFilter}, NBFC=${nbfcFilter}, Closed=${closedFilter} | Active Report Filters: Search="${searchVal || 'None'}", Status=${statusVal}, Channel=${chanVal}, Priority=${priorityVal}`;
+  countEl.textContent = `Showing ${currentKpiReportType === 'inbound_calls' ? 5 : tix.length} matching records`;
+  filterSummaryEl.textContent = `Dashboard Filters: Dept=${deptFilter}, NBFC=${nbfcFilter}, Closed=${closedFilter} | Active Report Filters: Search="${searchVal || 'None'}", Date Range=${datePresetVal || 'All Time'}${fromDtVal ? ` (${fromDtVal} to ${toDtVal || 'now'})` : ''}, Status=${statusVal}, Channel=${chanVal}, Priority=${priorityVal}`;
 }
 
 function exportKpiReportToCSV() {
+  if (currentKpiReportType === 'inbound_calls') {
+    let csv = 'Agent Name,Total Calls,Calls Answered,Missed Calls,Answered Percentage,Missed Percentage,AHT,Quality Score\n';
+    const inboundData = [
+      { name: 'Kiran Shah', total: 38, answered: 34, missed: 4, aht: '4m 12s', quality: '96%' },
+      { name: 'Pushpa Singh', total: 32, answered: 28, missed: 4, aht: '3m 48s', quality: '94%' },
+      { name: 'Mitesh Panchal', total: 28, answered: 24, missed: 4, aht: '3m 35s', quality: '92%' },
+      { name: 'Sujoy Banerjee', total: 24, answered: 22, missed: 2, aht: '4m 05s', quality: '98%' },
+      { name: 'Shreya Chhetri', total: 20, answered: 16, missed: 4, aht: '3m 22s', quality: '90%' }
+    ];
+    inboundData.forEach(d => {
+      const ansPct = d.total > 0 ? (d.answered / d.total * 100).toFixed(2) : '0.00';
+      const misPct = d.total > 0 ? (d.missed / d.total * 100).toFixed(2) : '0.00';
+      csv += `"${d.name}",${d.total},${d.answered},${d.missed},"${ansPct}%","${misPct}%","${d.aht}","${d.quality}"\n`;
+    });
+    const totCalls = inboundData.reduce((s, x) => s + x.total, 0);
+    const totAns = inboundData.reduce((s, x) => s + x.answered, 0);
+    const totMis = inboundData.reduce((s, x) => s + x.missed, 0);
+    const totAnsPct = (totAns / totCalls * 100).toFixed(2);
+    const totMisPct = (totMis / totCalls * 100).toFixed(2);
+    csv += `"Total",${totCalls},${totAns},${totMis},"${totAnsPct}%","${totMisPct}%","3m 54s","94.0%"\n`;
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.setAttribute("href", URL.createObjectURL(blob));
+    link.setAttribute("download", `inbound_calls_report_export.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('Inbound Calls Report exported to CSV successfully.');
+    return;
+  }
+
   if (!kpiReportFilteredData || kpiReportFilteredData.length === 0) {
     showToast('No records to export');
     return;
