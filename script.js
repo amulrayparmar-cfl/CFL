@@ -1664,6 +1664,69 @@ let replyChannel = 'Chat';
 let mergeSelectedId = null;
 let bulkSelectedIds = new Set();
 
+const TEMPLATES = [
+  // Chat
+  { id: 'tpl1', channel: 'Chat', shortcut: 'greet', title: 'Greeting — opening', body: "Hi {{customer}}, thanks for reaching out! I'm pulling up your account now — one moment please." },
+  { id: 'tpl2', channel: 'Chat', shortcut: 'info', title: 'Ask for more info', body: "Could you share a few more details (loan ID, screenshot, or date of the transaction) so I can look into this quickly?" },
+  { id: 'tpl3', channel: 'Chat', shortcut: 'investigating', title: 'Investigating', body: "I've found your account and I'm reviewing the transaction history now — I'll update you shortly." },
+  { id: 'tpl4', channel: 'Chat', shortcut: 'resolved', title: 'Resolved — closing', body: "This has been resolved on our end. Is there anything else I can help you with today?" },
+  { id: 'tpl5', channel: 'Chat', shortcut: 'tenure', title: 'Repayment tenure options', body: "We currently offer 6, 9 and 12-month repayment tenures — you can change this anytime from Loan > Manage EMI in the app." },
+  // WhatsApp
+  { id: 'tpl6', channel: 'WhatsApp', shortcut: 'greet', title: 'Greeting — opening', body: "Hi {{customer}}, sorry for the trouble — pulling up your loan account now." },
+  { id: 'tpl7', channel: 'WhatsApp', shortcut: 'refund', title: 'Refund initiated', body: "Confirmed the duplicate charge — a refund has been initiated and should reflect in 3–5 business days." },
+  { id: 'tpl8', channel: 'WhatsApp', shortcut: 'kyc', title: 'KYC re-upload help', body: "Please re-upload your document in good lighting with all four corners visible — this usually resolves the blur rejection." },
+  { id: 'tpl9', channel: 'WhatsApp', shortcut: 'escalate', title: 'Escalated to specialist team', body: "I've escalated this to our specialist team with priority — you'll hear back within 24 hours." },
+  { id: 'tpl10', channel: 'WhatsApp', shortcut: 'reminder', title: 'Payment reminder', body: "Reminder: your EMI of ₹{{amount}} is due on {{date}}. Reply PAY to get a quick payment link." },
+  // SMS
+  { id: 'tpl11', channel: 'SMS', shortcut: 'ack', title: 'Short acknowledgement', body: "Hi {{customer}}, we've received your query (Ref: {{ticket}}) and are looking into it. We'll update you shortly." },
+  { id: 'tpl12', channel: 'SMS', shortcut: 'otp', title: 'OTP / verification help', body: "For account verification issues, please ensure your registered mobile number is active and retry after 5 minutes." },
+  { id: 'tpl13', channel: 'SMS', shortcut: 'payment', title: 'Payment confirmation', body: "Your EMI payment has been received. Thank you for banking with Lenditt." },
+  { id: 'tpl14', channel: 'SMS', shortcut: 'escalate', title: 'Escalation notice', body: "Your issue has been escalated (Ref: {{ticket}}). Our team will call you within 24 hours." },
+  // Email
+  { id: 'tpl15', channel: 'Email', shortcut: 'ack', title: 'Formal acknowledgement', body: "Dear {{customer}},\n\nThank you for contacting Lenditt Support. We've logged your request under reference {{ticket}} and are reviewing it. We'll respond with an update within one business day.\n\nRegards,\nLenditt Customer Support" },
+  { id: 'tpl16', channel: 'Email', shortcut: 'refund', title: 'Refund confirmation', body: "Dear {{customer}},\n\nWe've confirmed the duplicate charge on your account and initiated a refund. Please allow 3–5 business days for it to reflect in your original payment method.\n\nRegards,\nLenditt Customer Support" },
+  { id: 'tpl17', channel: 'Email', shortcut: 'kyc', title: 'KYC document request', body: "Dear {{customer}},\n\nTo proceed with your KYC verification, please re-upload a clear photo of your document with all four corners visible and no glare.\n\nRegards,\nLenditt Customer Support" },
+  { id: 'tpl18', channel: 'Email', shortcut: 'close', title: 'Closing / resolution', body: "Dear {{customer}},\n\nWe're confirming that the issue reported under {{ticket}} has now been resolved. Please let us know if you have any further questions.\n\nRegards,\nLenditt Customer Support" },
+];
+
+function fillTemplate(body, t) {
+  return body.replace(/\{\{customer\}\}/g, t ? t.customer : 'Customer').replace(/\{\{ticket\}\}/g, t ? t.id : 'TCK-000').replace(/\{\{amount\}\}/g, '—').replace(/\{\{date\}\}/g, '—');
+}
+
+const COMPANY_WHATSAPP_NUMBERS = [
+  { number: '9510644456', display: '9510644456' },
+  { number: '7984479612', display: '7984479612' },
+  { number: '8488886341', display: '8488886341' },
+  { number: '7862839654', display: '7862839654' }
+];
+
+function formatWhatsAppNumber(num) {
+  if (!num) return '9510644456';
+  const clean = String(num).replace(/\D/g, '');
+  if (clean.length >= 10) {
+    return clean.slice(-10);
+  }
+  return String(num).trim();
+}
+
+function getTicketDefaultWhatsAppNumber(t) {
+  if (!t) return '9510644456';
+  if (t.selectedWhatsAppNumber) return t.selectedWhatsAppNumber;
+  if (t.companyWhatsApp) return t.companyWhatsApp;
+  if (t.thread && t.thread.length) {
+    for (let i = t.thread.length - 1; i >= 0; i--) {
+      const m = t.thread[i];
+      if (m.chan === 'WhatsApp' && (m.companyWhatsApp || m.to || m.fromNumber)) {
+        return m.companyWhatsApp || m.to || m.fromNumber;
+      }
+    }
+  }
+  if (t.department === 'Collection' || t.queue === 'Collection') return '7984479612';
+  if (t.department === 'Legal Related' || t.queue === 'Legal Related') return '8488886341';
+  if (t.department === 'Grievance' || t.queue === 'Grievance') return '7862839654';
+  return '9510644456';
+}
+
 const STATUSES = ['unassigned', 'Assigned', 'Waiting from customer', 'Junk', 'Merge', 'Hold', 'Escalated', 'Resolved', 'Closed', 'Reopened'];
 function fmtDateTime(dt) {
   if (!dt) return '—';
@@ -2743,6 +2806,14 @@ function renderConvBody(tab) {
       const ticks = m.dir === 'out' ? statusTicks(m.status || 'delivered') : '';
       const errorBlock = isFailed ? `<div class="msg-error">⚠ ${m.error || failureReason(m.chan)}</div>` : '';
 
+      let waTag = '';
+      if (m.chan === 'WhatsApp' && m.dir !== 'note') {
+        const num = m.dir === 'out'
+          ? (m.fromNumber || m.companyWhatsApp || (item.ticketObj && item.ticketObj.selectedWhatsAppNumber) || (item.ticketObj && item.ticketObj.companyWhatsApp) || '9510644456')
+          : (m.to || m.companyWhatsApp || (item.ticketObj && item.ticketObj.companyWhatsApp) || '9510644456');
+        waTag = `<span class="wa-source-pill" title="Company WhatsApp: ${formatWhatsAppNumber(num)}"><span style="color:#16A34A; font-size:8.5px;">●</span> ${formatWhatsAppNumber(num)}</span>`;
+      }
+
       if (m.dir !== 'note' && m.chan === 'Email') {
         const isDraft = !!m.draft || m.status === 'draft';
         const draftBadge = isDraft ? `<div class="ec-head" style="color:var(--amber-dark);">✉ Draft email</div>` : `<div class="ec-head">✉ ${m.dir === 'out' ? 'Email sent' : 'System email'}</div>`;
@@ -2767,7 +2838,7 @@ function renderConvBody(tab) {
         <div class="mavatar">${av}</div>
         <div>
           ${isFailed ? `<div class="msg-row-fail"><span class="fail-badge">!</span>${bubbleInner}</div>` : bubbleInner}
-          <div class="meta-line"><span class="chan-tag ${chanTagClass(m.dir === 'note' ? 'Internal' : m.chan)}">${m.dir === 'note' ? 'Internal note' : m.chan}</span>${tsLabel}${ticks}</div>
+          <div class="meta-line"><span class="chan-tag ${chanTagClass(m.dir === 'note' ? 'Internal' : m.chan)}">${m.dir === 'note' ? 'Internal note' : m.chan}</span>${waTag}${tsLabel}${ticks}</div>
           ${errorBlock}
         </div>
       </div>`;
@@ -2982,6 +3053,14 @@ function renderConvBody(tab) {
       ? `<span onclick="openTicket('${tId}')" style="cursor: pointer; font-size: 9.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px; margin-right: 6px; display: inline-flex; align-items: center; border: 1px solid ${tId === selectedTicketId ? 'var(--teal)' : 'var(--line)'}; background: ${tId === selectedTicketId ? 'var(--teal-tint)' : 'var(--panel)'}; color: ${tId === selectedTicketId ? 'var(--teal-dark)' : 'var(--ink-soft)'};" title="Click to view ticket details">${tId}</span>`
       : '';
 
+    let waTag = '';
+    if (m.chan === 'WhatsApp' && m.dir !== 'note') {
+      const num = m.dir === 'out'
+        ? (m.fromNumber || m.companyWhatsApp || item.ticketObj.selectedWhatsAppNumber || item.ticketObj.companyWhatsApp || '9510644456')
+        : (m.to || m.companyWhatsApp || item.ticketObj.companyWhatsApp || '9510644456');
+      waTag = `<span class="wa-source-pill" title="Company WhatsApp: ${formatWhatsAppNumber(num)}"><span style="color:#16A34A; font-size:8.5px;">●</span> ${formatWhatsAppNumber(num)}</span>`;
+    }
+
     if (m.dir !== 'note' && m.chan === 'Email') {
       const cardInner = `<div class="email-card">
             <div class="ec-head">✉ ${m.dir === 'out' ? 'Email sent' : 'System email'}</div>
@@ -3010,7 +3089,7 @@ function renderConvBody(tab) {
       <div>
         ${isFailed ? `<div class="msg-row-fail"><span class="fail-badge" title="${m.error || failureReason(m.chan)}">!</span>${bubbleInner}</div>` : bubbleInner}
         ${attachHtml}
-        <div class="meta-line">${ticketTag}<span class="chan-tag ${chanTagClass(m.dir === 'note' ? 'Internal' : m.chan)}">${m.dir === 'note' ? 'Internal note' : m.chan}</span>${tsLabel}${ticks}${readToggle}</div>
+        <div class="meta-line">${ticketTag}<span class="chan-tag ${chanTagClass(m.dir === 'note' ? 'Internal' : m.chan)}">${m.dir === 'note' ? 'Internal note' : m.chan}</span>${waTag}${tsLabel}${ticks}${readToggle}</div>
         ${errorBlock}
       </div>
     </div>`;
@@ -4148,9 +4227,14 @@ function sendReply() {
   const chan = ['WhatsApp', 'SMS', 'Chat'].includes(replyChannel) ? replyChannel : (t.channel || 'Chat');
   const actor = currentRole === 'manager' ? 'Manager' : agentName(CURRENT_AGENT_ID);
 
+  const waSel = document.getElementById('replyWhatsAppNumber');
+  const selectedWaNum = (chan === 'WhatsApp' && waSel) ? waSel.value : getTicketDefaultWhatsAppNumber(t);
+
   const newMsg = {
     dir: isNote ? 'note' : 'out',
     chan: isNote ? 'Internal' : chan,
+    companyWhatsApp: (!isNote && chan === 'WhatsApp') ? selectedWaNum : undefined,
+    fromNumber: (!isNote && chan === 'WhatsApp') ? selectedWaNum : undefined,
     text: text || (replyAttachments.length ? `[Sent ${replyAttachments.length} attachment(s)]` : ''),
     time: timeStr,
     ts: now,
@@ -4158,6 +4242,11 @@ function sendReply() {
     status: 'sending',
     attachments: replyAttachments.length ? [...replyAttachments] : []
   };
+
+  if (!isNote && chan === 'WhatsApp') {
+    t.selectedWhatsAppNumber = selectedWaNum;
+    t.companyWhatsApp = selectedWaNum;
+  }
 
   t.thread = t.thread || [];
   t.thread.push(newMsg);
@@ -4169,7 +4258,9 @@ function sendReply() {
   const attText = newMsg.attachments.length ? ` with ${newMsg.attachments.length} attachment(s)` : '';
   const logText = isNote
     ? `Internal note added by ${actor}${attText}`
-    : `Reply sent via ${chan} by ${actor}${attText}`;
+    : (chan === 'WhatsApp'
+      ? `Reply sent via WhatsApp (${formatWhatsAppNumber(selectedWaNum)}) by ${actor}${attText}`
+      : `Reply sent via ${chan} by ${actor}${attText}`);
   addLog(t, logText, {
     type: 'message',
     by: currentRole,
@@ -4185,7 +4276,7 @@ function sendReply() {
   renderDetailList();
   renderProps(t);
   updateFilesTabCount(t);
-  showToast(isNote ? 'Internal note added' : `Reply sent via ${chan}`);
+  showToast(isNote ? 'Internal note added' : (chan === 'WhatsApp' ? `Reply sent via WhatsApp (${formatWhatsAppNumber(selectedWaNum)})` : `Reply sent via ${chan}`));
 }
 
 const DEPARTMENT_TAXONOMY = {
@@ -4754,17 +4845,55 @@ function setReplyMode(mode) {
     replyText.classList.toggle('internal-active', mode === 'note');
   }
 }
+
+function onReplyWhatsAppNumberChange(val) {
+  const t = TICKETS.find(x => x.id === selectedTicketId);
+  if (t) {
+    t.selectedWhatsAppNumber = val;
+  }
+  updateReplyPlaceholder();
+}
+
 function setReplyChannel(chan) {
   replyChannel = chan;
   const dot = document.getElementById('replyChanDot');
-  dot.className = 'chan-dot ' + { Email: 'chan-dot-email', Chat: 'chan-dot-chat', WhatsApp: 'chan-dot-whatsapp', SMS: 'chan-dot-sms' }[chan];
+  if (dot) {
+    dot.className = 'chan-dot ' + ({ Email: 'chan-dot-email', Chat: 'chan-dot-chat', WhatsApp: 'chan-dot-whatsapp', SMS: 'chan-dot-sms' }[chan] || 'chan-dot-chat');
+  }
+
+  const waWrap = document.getElementById('replyWhatsAppNumberWrap');
+  if (waWrap) {
+    if (chan === 'WhatsApp') {
+      waWrap.style.display = 'inline-flex';
+      const t = TICKETS.find(x => x.id === selectedTicketId);
+      const defNum = getTicketDefaultWhatsAppNumber(t);
+      const waSelect = document.getElementById('replyWhatsAppNumber');
+      if (waSelect) {
+        waSelect.value = defNum;
+      }
+    } else {
+      waWrap.style.display = 'none';
+    }
+  }
+
   updateReplyPlaceholder();
-  if (document.getElementById('templatePanel').classList.contains('show')) renderTemplateList();
+  if (document.getElementById('templatePanel') && document.getElementById('templatePanel').classList.contains('show')) renderTemplateList();
 }
+
 function updateReplyPlaceholder() {
-  document.getElementById('replyText').placeholder = replyMode === 'reply'
-    ? `Type a reply — it will send via ${replyChannel}…`
-    : "Add an internal note — not visible to the customer…";
+  const t = TICKETS.find(x => x.id === selectedTicketId);
+  let placeholder = '';
+  if (replyMode === 'note') {
+    placeholder = "Add an internal note — not visible to the customer…";
+  } else if (replyChannel === 'WhatsApp') {
+    const waSel = document.getElementById('replyWhatsAppNumber');
+    const num = (waSel && waSel.value) ? waSel.value : getTicketDefaultWhatsAppNumber(t);
+    placeholder = `Type a reply — it will send via WhatsApp (${formatWhatsAppNumber(num)})…`;
+  } else {
+    placeholder = `Type a reply — it will send via ${replyChannel}…`;
+  }
+  const el = document.getElementById('replyText');
+  if (el) el.placeholder = placeholder;
 }
 
 /* ---- Pre-approved templates ---- */
@@ -5103,14 +5232,233 @@ function refreshSearchSelect(select) {
 function enhanceAllSelects(root) {
   (root || document).querySelectorAll('select').forEach(enhanceSearchSelect);
 }
-document.addEventListener('click', () => {
+document.addEventListener('click', (e) => {
   document.querySelectorAll('.ssel-panel.show').forEach(p => { p.classList.remove('show'); const b = p.previousElementSibling; if (b) b.classList.remove('ssel-open'); });
+  const macroPopup = document.getElementById('macroSuggestPopup');
+  if (macroPopup && macroPopup.style.display !== 'none' && !macroPopup.contains(e.target) && e.target.id !== 'replyText') {
+    hideMacroSuggestions();
+  }
 });
+
+/* =========================================================
+   MACRO / SLASH COMMAND AUTOCOMPLETE (/)
+========================================================= */
+let macroActiveIndex = 0;
+let macroFilteredList = [];
+let macroSlashIndex = -1;
+
+function escapeHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function getMacroMatchAtCursor(textarea) {
+  if (!textarea) return null;
+  const cursorPos = textarea.selectionStart;
+  const text = textarea.value;
+  const textBefore = text.slice(0, cursorPos);
+
+  // Find last slash before cursor
+  const slashPos = textBefore.lastIndexOf('/');
+  if (slashPos === -1) return null;
+
+  // Ensure slash is preceded by start of text, space, or newline
+  if (slashPos > 0 && !/\s/.test(textBefore[slashPos - 1])) {
+    return null;
+  }
+
+  // Ensure there are no spaces or newlines between slash and cursor
+  const query = textBefore.slice(slashPos + 1);
+  if (/\s/.test(query)) {
+    return null;
+  }
+
+  return {
+    slashIndex: slashPos,
+    cursorPos: cursorPos,
+    query: query.toLowerCase()
+  };
+}
+
+function handleReplyInput(e) {
+  const textarea = e.target;
+  const match = getMacroMatchAtCursor(textarea);
+
+  if (!match) {
+    hideMacroSuggestions();
+    return;
+  }
+
+  macroSlashIndex = match.slashIndex;
+  const q = match.query;
+
+  // Filter templates: match shortcut, title, body, or channel
+  const currentChan = replyChannel || 'Chat';
+  const exactChanTemplates = TEMPLATES.filter(tp => tp.channel === currentChan);
+  const otherChanTemplates = TEMPLATES.filter(tp => tp.channel !== currentChan);
+  const pool = [...exactChanTemplates, ...otherChanTemplates];
+
+  if (q) {
+    macroFilteredList = pool.filter(tp => {
+      const sc = (tp.shortcut || '').toLowerCase();
+      const ti = (tp.title || '').toLowerCase();
+      const bo = (tp.body || '').toLowerCase();
+      const ch = (tp.channel || '').toLowerCase();
+      return sc.includes(q) || ti.includes(q) || bo.includes(q) || ch.startsWith(q);
+    });
+  } else {
+    // If just '/', show pool with current channel templates on top
+    macroFilteredList = pool;
+  }
+
+  if (macroFilteredList.length === 0) {
+    renderMacroSuggestionsEmpty(q);
+    return;
+  }
+
+  if (macroActiveIndex >= macroFilteredList.length) {
+    macroActiveIndex = 0;
+  }
+
+  renderMacroSuggestionsList(q);
+}
+
+function renderMacroSuggestionsList(q) {
+  const popup = document.getElementById('macroSuggestPopup');
+  const list = document.getElementById('macroSuggestList');
+  if (!popup || !list) return;
+
+  const t = TICKETS.find(x => x.id === selectedTicketId) || { customer: 'Customer', id: 'TCK-1000' };
+
+  list.innerHTML = macroFilteredList.map((tp, idx) => {
+    const isAct = idx === macroActiveIndex;
+    const filledBody = fillTemplate(tp.body, t).replace(/\n/g, ' ');
+    const chanBadgeClass = chanClass(tp.channel);
+    const codeDisplay = tp.shortcut ? `/${tp.shortcut}` : `/${tp.title.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 10)}`;
+
+    return `
+      <div class="msp-item ${isAct ? 'active' : ''}" data-idx="${idx}" onmousedown="event.preventDefault(); selectMacroItem(${idx});">
+        <div class="msp-item-top">
+          <span class="msp-item-code">${highlightMatch(codeDisplay, q ? '/' + q : '')}</span>
+          <span class="msp-item-title">${highlightMatch(tp.title, q)}</span>
+          <span class="msp-item-chan chan-badge ${chanBadgeClass}">${tp.channel}</span>
+        </div>
+        <div class="msp-item-preview">${highlightMatch(filledBody, q)}</div>
+      </div>
+    `;
+  }).join('');
+
+  popup.style.display = 'block';
+
+  // Scroll active item into view
+  const activeEl = list.querySelector('.msp-item.active');
+  if (activeEl) {
+    activeEl.scrollIntoView({ block: 'nearest' });
+  }
+}
+
+function renderMacroSuggestionsEmpty(q) {
+  const popup = document.getElementById('macroSuggestPopup');
+  const list = document.getElementById('macroSuggestList');
+  if (!popup || !list) return;
+
+  list.innerHTML = `<div class="msp-empty">No templates matching "<b>/${escapeHtml(q)}</b>"</div>`;
+  popup.style.display = 'block';
+}
+
+function hideMacroSuggestions() {
+  const popup = document.getElementById('macroSuggestPopup');
+  if (popup) popup.style.display = 'none';
+  macroActiveIndex = 0;
+  macroFilteredList = [];
+  macroSlashIndex = -1;
+}
+
+function selectMacroItem(idx) {
+  if (idx < 0 || idx >= macroFilteredList.length) return;
+  const tp = macroFilteredList[idx];
+  const textarea = document.getElementById('replyText');
+  if (!textarea) return;
+
+  const t = TICKETS.find(x => x.id === selectedTicketId) || { customer: 'Customer', id: 'TCK-1000' };
+  const filledText = fillTemplate(tp.body, t);
+
+  const text = textarea.value;
+  const cursorPos = textarea.selectionStart;
+  const slashPos = macroSlashIndex >= 0 ? macroSlashIndex : text.slice(0, cursorPos).lastIndexOf('/');
+
+  if (slashPos >= 0 && slashPos <= cursorPos) {
+    const before = text.slice(0, slashPos);
+    const after = text.slice(cursorPos);
+    textarea.value = before + filledText + (after.startsWith(' ') || after === '' ? '' : ' ') + after;
+    const newCursorPos = before.length + filledText.length;
+    textarea.selectionStart = newCursorPos;
+    textarea.selectionEnd = newCursorPos;
+  } else {
+    textarea.value = filledText;
+  }
+
+  hideMacroSuggestions();
+  textarea.focus();
+  showToast(`Inserted template: ${tp.title}`);
+}
+
+function handleReplyKeydown(e) {
+  const popup = document.getElementById('macroSuggestPopup');
+  const isOpen = popup && popup.style.display !== 'none' && macroFilteredList.length > 0;
+
+  if (isOpen) {
+    if (e.key === 'Tab' || e.key === 'Enter') {
+      e.preventDefault();
+      selectMacroItem(macroActiveIndex);
+      return;
+    }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      macroActiveIndex = (macroActiveIndex + 1) % macroFilteredList.length;
+      updateMacroActiveItem();
+      return;
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      macroActiveIndex = (macroActiveIndex - 1 + macroFilteredList.length) % macroFilteredList.length;
+      updateMacroActiveItem();
+      return;
+    }
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      hideMacroSuggestions();
+      return;
+    }
+  }
+
+  // Shortcut: Cmd/Ctrl + Enter sends reply
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+    e.preventDefault();
+    sendReply();
+  }
+}
+
+function updateMacroActiveItem() {
+  const list = document.getElementById('macroSuggestList');
+  if (!list) return;
+  const items = list.querySelectorAll('.msp-item');
+  items.forEach((it, idx) => {
+    it.classList.toggle('active', idx === macroActiveIndex);
+    if (idx === macroActiveIndex) {
+      it.scrollIntoView({ block: 'nearest' });
+    }
+  });
+}
 
 function renderTemplateList() {
   const q = document.getElementById('tplSearch').value.trim().toLowerCase();
   let items = TEMPLATES.filter(tp => tp.channel === replyChannel);
-  if (q) items = items.filter(tp => tp.title.toLowerCase().includes(q) || tp.body.toLowerCase().includes(q));
+  if (q) items = items.filter(tp => tp.title.toLowerCase().includes(q) || tp.body.toLowerCase().includes(q) || (tp.shortcut && tp.shortcut.toLowerCase().includes(q)));
   const list = document.getElementById('tplList');
   if (items.length === 0) {
     list.innerHTML = `<div class="tpl-empty">No ${replyChannel} templates match "${q}".</div>`;
@@ -5118,7 +5466,7 @@ function renderTemplateList() {
   }
   list.innerHTML = items.map(tp => `
     <div class="tpl-item" onclick="useTemplate('${tp.id}')">
-      <div class="tpl-title">${highlightMatch(tp.title, q)}</div>
+      <div class="tpl-title"><span style="color:var(--teal); font-family:var(--mono); font-size:11px;">/${tp.shortcut || ''}</span> ${highlightMatch(tp.title, q)}</div>
       <div class="tpl-preview">${highlightMatch(tp.body.replace(/\n/g, ' '), q)}</div>
     </div>`).join('');
 }
@@ -5128,32 +5476,10 @@ function useTemplate(id) {
   if (!tp || !t) return;
   document.getElementById('replyText').value = fillTemplate(tp.body, t);
   closeTemplates();
+  hideMacroSuggestions();
   document.getElementById('replyText').focus();
 }
 
-function sendReply() {
-  const text = document.getElementById('replyText').value.trim();
-  if (!text) return;
-  const t = TICKETS.find(x => x.id === selectedTicketId);
-  const now = new Date();
-  const timeLabel = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  if (replyMode === 'note') {
-    t.thread.push({ dir: 'note', text, chan: 'Internal', time: timeLabel, ts: now });
-    t.activity.push('Internal note added');
-  } else {
-    const msg = { dir: 'out', text, chan: replyChannel, time: timeLabel, ts: now, status: 'sending', subject: replyChannel === 'Email' ? t.subject : undefined };
-    t.thread.push(msg);
-    t.activity.push(`Agent replied via ${replyChannel}`);
-    if (t.status === 'unassigned') t.status = 'Assigned';
-    simulateDelivery(t, msg);
-  }
-  document.getElementById('replyText').value = '';
-  t.updated = 'just now';
-  renderConvBody('thread');
-  renderDetailList();
-  renderProps(t);
-  showToast(replyMode === 'note' ? 'Internal note saved' : `Reply sent via ${replyChannel}`);
-}
 function resolveTicket() { updateTicketField('status', 'Resolved'); }
 function closeTicket() { updateTicketField('status', 'Closed'); }
 
