@@ -1765,53 +1765,83 @@ function intraDeptBadge(val) {
 ========================================================= */
 function switchRailItem(el, targetKey) {
   document.querySelectorAll('.left-rail .rail-item').forEach(item => item.classList.remove('active'));
-  el.classList.add('active');
+  if (el) el.classList.add('active');
 
   const mainChat = document.getElementById('main-chat-console');
   const genericView = document.getElementById('generic-rail-view');
+  const miscView = document.getElementById('misc-did-view');
 
-  if (targetKey === 'chat') {
-    mainChat.style.display = 'grid';
-    genericView.style.display = 'none';
+  if (targetKey === 'misc') {
+    if (mainChat) mainChat.style.display = 'none';
+    if (genericView) genericView.style.display = 'none';
+    if (miscView) {
+      miscView.style.display = 'flex';
+      if (window.didApp) {
+        window.didApp.renderKPIs();
+        window.didApp.renderDidTable();
+        window.didApp.populateCompanyNumberDropdown();
+      }
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    }
+  } else if (targetKey === 'chat') {
+    if (mainChat) mainChat.style.display = 'grid';
+    if (genericView) genericView.style.display = 'none';
+    if (miscView) miscView.style.display = 'none';
     switchView('tickets');
   } else if (targetKey === 'home') {
-    mainChat.style.display = 'grid';
-    genericView.style.display = 'none';
+    if (mainChat) mainChat.style.display = 'grid';
+    if (genericView) genericView.style.display = 'none';
+    if (miscView) miscView.style.display = 'none';
     setRole('manager');
     switchView('dashboard');
   } else if (targetKey === 'tasks') {
-    mainChat.style.display = 'grid';
-    genericView.style.display = 'none';
+    if (mainChat) mainChat.style.display = 'grid';
+    if (genericView) genericView.style.display = 'none';
+    if (miscView) miscView.style.display = 'none';
     switchView('tickets');
     document.getElementById('fSearch').value = '';
-    setStatusFilter('Open');
+    setStatusFilter('Assigned');
   } else if (targetKey === 'teams') {
-    mainChat.style.display = 'grid';
-    genericView.style.display = 'none';
+    if (mainChat) mainChat.style.display = 'grid';
+    if (genericView) genericView.style.display = 'none';
+    if (miscView) miscView.style.display = 'none';
     switchView('customers');
+  } else if (targetKey === 'analytics') {
+    if (mainChat) mainChat.style.display = 'grid';
+    if (genericView) genericView.style.display = 'none';
+    if (miscView) miscView.style.display = 'none';
+    setRole('manager');
+    switchView('kpi');
   } else {
-    mainChat.style.display = 'none';
-    genericView.style.display = 'flex';
+    if (mainChat) mainChat.style.display = 'none';
+    if (miscView) miscView.style.display = 'none';
+    if (genericView) genericView.style.display = 'flex';
 
     const iconsMap = {
       financials: '₹', broadcasts: '📣', security: '🛡️', accounts: '👤',
-      branches: '🏢', reports: '📄', contacts: '📇', settings: '⚙️'
+      branches: '🏢', reports: '📄', contacts: '📇', settings: '⚙️',
+      legal: '⚖️', activity: '🕒'
     };
     const titlesMap = {
-      financials: 'Financials & EMI Records', broadcasts: 'Broadcasts & Campaigns',
-      security: 'Security & Compliance Matrix', accounts: 'User Account Management',
-      branches: 'Branches & Entity Settings', reports: 'System Reports & Audits',
-      contacts: 'Contact Directory & CRM', settings: 'System Preferences'
+      financials: 'Financials & Currency Records', broadcasts: 'Broadcasts & Campaigns',
+      security: 'Security & Compliance Matrix', accounts: 'Customer Profiles & Accounts',
+      branches: 'Banking Services & Branches', reports: 'System Reports & Documents',
+      contacts: 'Agent Directory & Contacts', settings: 'System Settings & Preferences',
+      legal: 'Legal & Risk Assessment', activity: 'Activity Logs & 90-Day Cooldowns'
     };
     const descMap = {
       financials: 'View loan disbursals, EMI schedules, repayment tracking and financial reconciliation logs.',
       broadcasts: 'Manage mass notifications, SMS alerts, WhatsApp campaigns and customer broadcasts.',
       security: 'Configure access permissions, RBI compliance audit logs and security policies.',
-      accounts: 'Manage agent user profiles, authentication rules and credential settings.',
-      branches: 'Overview of regional operational branches, call center routing and department structures.',
+      accounts: 'Manage agent user profiles, customer verification and credential settings.',
+      branches: 'Overview of regional operational branches, banking integrations and department structures.',
       reports: 'Generate and download deep compliance reports, ticket logs and customer SLA exports.',
       contacts: 'Full list of registered phone numbers, customer contacts and partner contacts.',
-      settings: 'Configure platform dark mode, integration webhooks and automated workflow rules.'
+      settings: 'Configure platform dark mode, integration webhooks and automated workflow rules.',
+      legal: 'Legal notices, compliance audits, loan agreements and regulatory dispute management.',
+      activity: 'Live audit trails of DID allocations, cooldown clocks, and agent calling logs.'
     };
 
     document.getElementById('genericViewIcon').textContent = iconsMap[targetKey] || '⚙️';
@@ -1878,6 +1908,892 @@ function handlePhoneSearch(val) {
   switchView('tickets');
   document.getElementById('fSearch').value = val;
   renderTicketList();
+}
+
+/* =========================================================
+   MISC · DID MANAGEMENT & CLICK-TO-CALL ENGINE
+========================================================= */
+const INITIAL_DID_DATA = {
+  currentUser: {
+    name: "Adam",
+    role: "MANAGER",
+    department: "Lead",
+    avatar: "AD",
+    id: "MGR-2041"
+  },
+  departments: [
+    { id: "collection", name: "Collection" },
+    { id: "lead", name: "Lead" },
+    { id: "lending", name: "Lending" },
+    { id: "support", name: "Support" },
+    { id: "legal", name: "Legal" }
+  ],
+  providers: ["Tata Tele", "Airtel"],
+  default1600Number: "16008901234",
+  dids: [
+    { id: "did-1", number: "918408001101", provider: "Tata Tele", department: "Lead", status: "Assigned", assignedBy: "Adam", assignedOn: "2024-05-01T10:30:00", lastReleasedOn: null, cooldownUntil: null, releasedFromDept: null, totalCallsCount: 342 },
+    { id: "did-2", number: "918408001102", provider: "Airtel", department: "Lending", status: "Assigned", assignedBy: "Adam", assignedOn: "2024-05-02T10:30:00", lastReleasedOn: null, cooldownUntil: null, releasedFromDept: null, totalCallsCount: 290 },
+    { id: "did-3", number: "918408001103", provider: "Tata Tele", department: "Lead", status: "Assigned", assignedBy: "Adam", assignedOn: "2024-05-03T10:30:00", lastReleasedOn: null, cooldownUntil: null, releasedFromDept: null, totalCallsCount: 415 },
+    { id: "did-4", number: "918408001104", provider: "Airtel", department: "Lead", status: "On Cooldown", assignedBy: "Adam", assignedOn: "2024-05-04T10:30:00", lastReleasedOn: "2024-07-20T14:15:00", cooldownUntil: "2024-10-18T14:15:00", releasedFromDept: "Lead", totalCallsCount: 512 },
+    { id: "did-5", number: "918408001105", provider: "Tata Tele", department: null, status: "Available", assignedBy: "Adam", assignedOn: "2024-05-05T10:30:00", lastReleasedOn: "2024-03-01T09:00:00", cooldownUntil: null, releasedFromDept: "Lead", totalCallsCount: 180 },
+    { id: "did-6", number: "918408001106", provider: "Airtel", department: "Collection", status: "Assigned", assignedBy: "Arwin White", assignedOn: "2024-05-06T11:00:00", lastReleasedOn: null, cooldownUntil: null, releasedFromDept: null, totalCallsCount: 620 },
+    { id: "did-7", number: "918408001107", provider: "Tata Tele", department: "Collection", status: "Assigned", assignedBy: "Arwin White", assignedOn: "2024-05-07T11:30:00", lastReleasedOn: null, cooldownUntil: null, releasedFromDept: null, totalCallsCount: 580 },
+    { id: "did-8", number: "918408001108", provider: "Airtel", department: "Lead", status: "Assigned", assignedBy: "Adam", assignedOn: "2024-05-08T09:15:00", lastReleasedOn: null, cooldownUntil: null, releasedFromDept: null, totalCallsCount: 390 },
+    { id: "did-9", number: "918408001109", provider: "Tata Tele", department: "Support", status: "Assigned", assignedBy: "Adam", assignedOn: "2024-05-09T14:00:00", lastReleasedOn: null, cooldownUntil: null, releasedFromDept: null, totalCallsCount: 420 },
+    { id: "did-10", number: "918408001110", provider: "Airtel", department: "Legal", status: "Assigned", assignedBy: "Adam", assignedOn: "2024-05-10T16:20:00", lastReleasedOn: null, cooldownUntil: null, releasedFromDept: null, totalCallsCount: 195 },
+    { id: "did-11", number: "918408001111", provider: "Tata Tele", department: "Lending", status: "Assigned", assignedBy: "Allen Tusk", assignedOn: "2024-05-11T10:00:00", lastReleasedOn: null, cooldownUntil: null, releasedFromDept: null, totalCallsCount: 310 },
+    { id: "did-12", number: "918408001112", provider: "Airtel", department: "Collection", status: "Assigned", assignedBy: "Arwin White", assignedOn: "2024-05-12T11:30:00", lastReleasedOn: null, cooldownUntil: null, releasedFromDept: null, totalCallsCount: 450 },
+    { id: "did-13", number: "918408001113", provider: "Tata Tele", department: null, status: "Available", assignedBy: "Adam", assignedOn: null, lastReleasedOn: null, cooldownUntil: null, releasedFromDept: null, totalCallsCount: 50 },
+    { id: "did-14", number: "918408001114", provider: "Airtel", department: "Lending", status: "Assigned", assignedBy: "Allen Tusk", assignedOn: "2024-05-14T10:15:00", lastReleasedOn: null, cooldownUntil: null, releasedFromDept: null, totalCallsCount: 275 },
+    { id: "did-15", number: "918408001115", provider: "Tata Tele", department: "Support", status: "Assigned", assignedBy: "Arwin White", assignedOn: "2024-05-15T09:00:00", lastReleasedOn: null, cooldownUntil: null, releasedFromDept: null, totalCallsCount: 510 },
+    { id: "did-16", number: "918408001116", provider: "Airtel", department: "Lead", status: "Assigned", assignedBy: "Adam", assignedOn: "2024-05-16T12:45:00", lastReleasedOn: null, cooldownUntil: null, releasedFromDept: null, totalCallsCount: 330 },
+    { id: "did-17", number: "918408001117", provider: "Tata Tele", department: null, status: "Available", assignedBy: "Adam", assignedOn: null, lastReleasedOn: null, cooldownUntil: null, releasedFromDept: null, totalCallsCount: 40 },
+    { id: "did-18", number: "918408001118", provider: "Airtel", department: "Collection", status: "On Cooldown", assignedBy: "Arwin White", assignedOn: "2024-05-18T10:00:00", lastReleasedOn: "2024-08-01T17:00:00", cooldownUntil: "2024-10-30T17:00:00", releasedFromDept: "Collection", totalCallsCount: 480 },
+    { id: "did-19", number: "918408001119", provider: "Tata Tele", department: "Lead", status: "Assigned", assignedBy: "Adam", assignedOn: "2024-05-19T11:15:00", lastReleasedOn: null, cooldownUntil: null, releasedFromDept: null, totalCallsCount: 360 },
+    { id: "did-20", number: "918408001120", provider: "Airtel", department: "Legal", status: "Assigned", assignedBy: "Allen Tusk", assignedOn: "2024-05-20T14:30:00", lastReleasedOn: null, cooldownUntil: null, releasedFromDept: null, totalCallsCount: 220 },
+    { id: "did-21", number: "918408001121", provider: "Tata Tele", department: "Collection", status: "Assigned", assignedBy: "Arwin White", assignedOn: "2024-05-21T09:30:00", lastReleasedOn: null, cooldownUntil: null, releasedFromDept: null, totalCallsCount: 590 },
+    { id: "did-22", number: "918408001122", provider: "Airtel", department: null, status: "Available", assignedBy: "Adam", assignedOn: null, lastReleasedOn: null, cooldownUntil: null, releasedFromDept: null, totalCallsCount: 15 },
+    { id: "did-23", number: "918408001123", provider: "Tata Tele", department: "Lead", status: "Assigned", assignedBy: "Adam", assignedOn: "2024-05-23T15:00:00", lastReleasedOn: null, cooldownUntil: null, releasedFromDept: null, totalCallsCount: 305 },
+    { id: "did-24", number: "918408001124", provider: "Airtel", department: "Lending", status: "Assigned", assignedBy: "Allen Tusk", assignedOn: "2024-05-24T10:00:00", lastReleasedOn: null, cooldownUntil: null, releasedFromDept: null, totalCallsCount: 260 },
+    { id: "did-25", number: "918408001125", provider: "Tata Tele", department: "Collection", status: "Assigned", assignedBy: "Arwin White", assignedOn: "2024-05-25T11:45:00", lastReleasedOn: null, cooldownUntil: null, releasedFromDept: null, totalCallsCount: 630 },
+    { id: "did-26", number: "918408001126", provider: "Airtel", department: null, status: "Available", assignedBy: "Adam", assignedOn: null, lastReleasedOn: null, cooldownUntil: null, releasedFromDept: null, totalCallsCount: 10 },
+    { id: "did-27", number: "918408001127", provider: "Tata Tele", department: "Support", status: "Assigned", assignedBy: "Adam", assignedOn: "2024-05-27T10:30:00", lastReleasedOn: null, cooldownUntil: null, releasedFromDept: null, totalCallsCount: 285 },
+    { id: "did-28", number: "918408001128", provider: "Airtel", department: "Collection", status: "Assigned", assignedBy: "Arwin White", assignedOn: "2024-05-28T09:15:00", lastReleasedOn: null, cooldownUntil: null, releasedFromDept: null, totalCallsCount: 540 },
+    { id: "did-29", number: "918408001129", provider: "Tata Tele", department: null, status: "Available", assignedBy: "Adam", assignedOn: null, lastReleasedOn: null, cooldownUntil: null, releasedFromDept: null, totalCallsCount: 25 },
+    { id: "did-30", number: "918408001130", provider: "Airtel", department: null, status: "Available", assignedBy: "Adam", assignedOn: null, lastReleasedOn: null, cooldownUntil: null, releasedFromDept: null, totalCallsCount: 5 }
+  ],
+  leads: [
+    { id: "LEAD-88421", customerName: "Alex Monk", phone: "+1 234 567 8900", loanType: "Personal Loan", amount: "$ 45,000", department: "Lead", assignedAgent: "Alinor High", leadStatus: "New Lead", lastCallStatus: "Not Called", createdDate: "2024-08-26 11:30 AM" },
+    { id: "LEAD-88422", customerName: "Arwin White", phone: "+1 234 567 8901", loanType: "Home Loan Top-Up", amount: "$ 150,000", department: "Lead", assignedAgent: "Alinor High", leadStatus: "Contact Attempted", lastCallStatus: "1600 Unanswered", createdDate: "2024-08-26 02:15 PM" },
+    { id: "LEAD-88423", customerName: "Allen Tusk", phone: "+1 234 567 8902", loanType: "Business SME Loan", amount: "$ 250,000", department: "Lending", assignedAgent: "Alex Monk", leadStatus: "Document Pending", lastCallStatus: "Connected via DID", createdDate: "2024-08-25 10:00 AM" },
+    { id: "COLL-55210", customerName: "Arwin White", phone: "+1 234 567 8904", loanType: "Personal Loan (Overdue)", amount: "$ 3,845 (DPD 45)", department: "Collection", assignedAgent: "Arwin White", leadStatus: "Overdue Stage 2", lastCallStatus: "1600 Failed", createdDate: "2024-08-26 09:30 AM" },
+    { id: "SUPP-10021", customerName: "Alinor High", phone: "+1 234 567 8905", loanType: "Customer Inquiry", amount: "N/A", department: "Support", assignedAgent: "Adam", leadStatus: "Open Ticket", lastCallStatus: "Not Called", createdDate: "2024-08-27 10:00 AM" },
+    { id: "LEG-30012", customerName: "Allen Tusk", phone: "+1 234 567 8906", loanType: "Contract Review", amount: "N/A", department: "Legal", assignedAgent: "Adam", leadStatus: "Notice Sent", lastCallStatus: "Connected via DID", createdDate: "2024-08-25 02:00 PM" }
+  ]
+};
+
+class LMSApp {
+  constructor() {
+    this.currentUser = { ...INITIAL_DID_DATA.currentUser };
+    this.departments = [...INITIAL_DID_DATA.departments];
+    this.dids = JSON.parse(JSON.stringify(INITIAL_DID_DATA.dids));
+    this.leads = JSON.parse(JSON.stringify(INITIAL_DID_DATA.leads));
+    this.default1600Number = INITIAL_DID_DATA.default1600Number;
+    
+    this.currentTablePage = 1;
+    this.itemsPerPage = 10;
+    this.searchQuery = "";
+    this.selectedDeptFilter = "ALL";
+    this.selectedProviderFilter = "ALL";
+    this.selectedStatusFilter = "ALL";
+    this.sortField = null;
+    this.sortDirection = null;
+    
+    this.editingDid = null;
+    this.activeCallLead = this.leads[0];
+    this.callTimerInterval = null;
+    this.callDurationSeconds = 0;
+
+    this.init();
+  }
+
+  init() {
+    this.renderKPIs();
+    this.renderDidTable();
+    this.updateRoleUI();
+    this.populateCompanyNumberDropdown();
+
+    document.addEventListener("click", (e) => {
+      const profileBadge = document.querySelector(".user-profile-badge");
+      const profileDropdown = document.getElementById("userProfileDropdown");
+      if (profileDropdown && profileBadge && !profileBadge.contains(e.target) && !profileDropdown.contains(e.target)) {
+        profileDropdown.classList.remove("show");
+      }
+
+      const filterBtn = document.getElementById("btnOpenFilters");
+      const filterPopover = document.getElementById("filterPopover");
+      if (filterPopover && filterBtn && !filterBtn.contains(e.target) && !filterPopover.contains(e.target)) {
+        filterPopover.classList.remove("show");
+      }
+    });
+  }
+
+  handleSort(field) {
+    if (this.sortField === field) {
+      if (this.sortDirection === "asc") {
+        this.sortDirection = "desc";
+        this.showToast(`Sorted by ${field} (Descending).`, "info");
+      } else if (this.sortDirection === "desc") {
+        this.sortDirection = null;
+        this.sortField = null;
+        this.showToast(`Sorting reset to default order.`, "info");
+      }
+    } else {
+      this.sortField = field;
+      this.sortDirection = "asc";
+      this.showToast(`Sorted by ${field} (Ascending).`, "info");
+    }
+
+    this.updateSortIcons();
+    this.currentTablePage = 1;
+    this.renderDidTable();
+  }
+
+  updateSortIcons() {
+    const fields = ["number", "provider", "department", "status"];
+    fields.forEach(f => {
+      const iconEl = document.getElementById(`sortIcon-${f}`);
+      const thEl = iconEl?.closest(".sortable-th");
+      if (!iconEl) return;
+
+      if (this.sortField === f) {
+        if (this.sortDirection === "asc") {
+          iconEl.textContent = "▲";
+          thEl?.classList.add("active-sort");
+        } else if (this.sortDirection === "desc") {
+          iconEl.textContent = "▼";
+          thEl?.classList.add("active-sort");
+        }
+      } else {
+        iconEl.textContent = "↕";
+        thEl?.classList.remove("active-sort");
+      }
+    });
+  }
+
+  selectRole(roleKey) {
+    if (roleKey === "MANAGER") {
+      this.currentUser = { name: "Adam", role: "MANAGER", department: "Lead", avatar: "AD", id: "MGR-2041" };
+    } else if (roleKey === "AGENT_LEAD") {
+      this.currentUser = { name: "Alinor High", role: "AGENT_LEAD", department: "Lead", avatar: "AH", id: "AGT-101" };
+    } else if (roleKey === "AGENT_LENDING") {
+      this.currentUser = { name: "Alex Monk", role: "AGENT_LENDING", department: "Lending", avatar: "AM", id: "AGT-102" };
+    } else if (roleKey === "AGENT_COLLECTION") {
+      this.currentUser = { name: "Arwin White", role: "AGENT_COLLECTION", department: "Collection", avatar: "AW", id: "AGT-103" };
+    } else if (roleKey === "AGENT_SUPPORT") {
+      this.currentUser = { name: "Sarah Connor", role: "AGENT_SUPPORT", department: "Support", avatar: "SC", id: "AGT-104" };
+    } else if (roleKey === "AGENT_LEGAL") {
+      this.currentUser = { name: "Harvey Specter", role: "AGENT_LEGAL", department: "Legal", avatar: "HS", id: "AGT-105" };
+    }
+
+    this.updateRoleUI();
+    this.populateCompanyNumberDropdown();
+    this.showToast(`Switched view to ${this.currentUser.name} (${this.currentUser.department}).`, "info");
+    document.getElementById("userProfileDropdown")?.classList.remove("show");
+  }
+
+  updateRoleUI() {
+    const avatarEl = document.getElementById("userAvatarText");
+    const userNameEl = document.getElementById("dropdownUserName");
+    const userRoleEl = document.getElementById("dropdownUserRole");
+
+    if (avatarEl) avatarEl.textContent = this.currentUser.avatar;
+    if (userNameEl) userNameEl.textContent = this.currentUser.name;
+    if (userRoleEl) userRoleEl.textContent = this.currentUser.role.replace("AGENT_", "Agent - ");
+
+    document.querySelectorAll(".profile-dropdown-item").forEach(el => el.classList.remove("active"));
+    if (this.currentUser.role === "MANAGER") document.getElementById("roleItemManager")?.classList.add("active");
+    else if (this.currentUser.role === "AGENT_LEAD") document.getElementById("roleItemLead")?.classList.add("active");
+    else if (this.currentUser.role === "AGENT_LENDING") document.getElementById("roleItemLending")?.classList.add("active");
+    else if (this.currentUser.role === "AGENT_COLLECTION") document.getElementById("roleItemCollection")?.classList.add("active");
+    else if (this.currentUser.role === "AGENT_SUPPORT") document.getElementById("roleItemSupport")?.classList.add("active");
+    else if (this.currentUser.role === "AGENT_LEGAL") document.getElementById("roleItemLegal")?.classList.add("active");
+
+    const ctcAgentName = document.getElementById("ctcAgentNameDisplay");
+    if (ctcAgentName) ctcAgentName.textContent = this.currentUser.name.split(" ")[0] || "Agent";
+  }
+
+  renderKPIs() {
+    const total = this.dids.length;
+    const assigned = this.dids.filter(d => d.status === "Assigned").length;
+    const available = this.dids.filter(d => d.status === "Available").length;
+    const cooldown = this.dids.filter(d => d.status === "On Cooldown").length;
+    const utilization = total > 0 ? ((assigned / total) * 100).toFixed(1) : 0;
+
+    const elTotal = document.getElementById("kpiTotalDids");
+    const elAssigned = document.getElementById("kpiAssignedDids");
+    const elAvail = document.getElementById("kpiAvailableDids");
+    const elCooldown = document.getElementById("kpiCooldownDids");
+    const elUtil = document.getElementById("kpiUtilizationRate");
+    const elRatio = document.getElementById("kpiUtilizationRatio");
+
+    if (elTotal) elTotal.textContent = total;
+    if (elAssigned) elAssigned.textContent = assigned;
+    if (elAvail) elAvail.textContent = available;
+    if (elCooldown) elCooldown.textContent = cooldown;
+    if (elUtil) elUtil.textContent = `${utilization}%`;
+    if (elRatio) elRatio.textContent = `${assigned} / ${total} Used`;
+  }
+
+  getFilteredDids() {
+    let list = this.dids.filter(did => {
+      const matchesSearch = !this.searchQuery || 
+        did.number.includes(this.searchQuery) ||
+        (did.provider && did.provider.toLowerCase().includes(this.searchQuery.toLowerCase())) ||
+        (did.department && did.department.toLowerCase().includes(this.searchQuery.toLowerCase())) ||
+        (did.assignedBy && did.assignedBy.toLowerCase().includes(this.searchQuery.toLowerCase()));
+
+      let matchesDept = true;
+      if (this.selectedDeptFilter === "UNASSIGNED") {
+        matchesDept = did.department === null || did.status === "Available";
+      } else if (this.selectedDeptFilter !== "ALL") {
+        matchesDept = did.department === this.selectedDeptFilter;
+      }
+
+      let matchesProvider = true;
+      if (this.selectedProviderFilter && this.selectedProviderFilter !== "ALL") {
+        matchesProvider = did.provider === this.selectedProviderFilter;
+      }
+
+      let matchesStatus = true;
+      if (this.selectedStatusFilter !== "ALL") {
+        matchesStatus = did.status === this.selectedStatusFilter;
+      }
+
+      return matchesSearch && matchesDept && matchesProvider && matchesStatus;
+    });
+
+    if (this.sortField && this.sortDirection) {
+      list.sort((a, b) => {
+        let valA = "";
+        let valB = "";
+
+        if (this.sortField === "department") {
+          valA = a.department || "ZZZ_Unassigned";
+          valB = b.department || "ZZZ_Unassigned";
+        } else if (this.sortField === "provider") {
+          valA = a.provider || "";
+          valB = b.provider || "";
+        } else if (this.sortField === "status") {
+          valA = a.status || "";
+          valB = b.status || "";
+        } else if (this.sortField === "number") {
+          valA = a.number || "";
+          valB = b.number || "";
+        }
+
+        const comparison = valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' });
+        return this.sortDirection === "asc" ? comparison : -comparison;
+      });
+    }
+
+    return list;
+  }
+
+  renderDidTable() {
+    const tableBody = document.getElementById("didTableBody");
+    if (!tableBody) return;
+
+    const filtered = this.getFilteredDids();
+    const totalItems = filtered.length;
+    const totalPages = Math.ceil(totalItems / this.itemsPerPage) || 1;
+
+    if (this.currentTablePage > totalPages) this.currentTablePage = totalPages;
+
+    const startIndex = (this.currentTablePage - 1) * this.itemsPerPage;
+    const paginatedItems = filtered.slice(startIndex, startIndex + this.itemsPerPage);
+
+    if (paginatedItems.length === 0) {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="8" style="text-align: center; padding: 36px; color: #94A3B8;">
+            <i data-lucide="search-x" style="width: 28px; height: 28px; margin-bottom: 6px;"></i>
+            <p style="font-size: 13.5px; font-weight: 500;">No DID numbers found matching filter criteria.</p>
+          </td>
+        </tr>
+      `;
+      if (window.lucide) window.lucide.createIcons();
+      this.renderPagination(0, 0, 0);
+      return;
+    }
+
+    tableBody.innerHTML = paginatedItems.map(did => {
+      let statusBadge = `<span class="status-badge available">Available</span>`;
+      if (did.status === "Assigned") {
+        statusBadge = `<span class="status-badge assigned">Assigned</span>`;
+      } else if (did.status === "On Cooldown") {
+        statusBadge = `<span class="status-badge on-cooldown"><i data-lucide="clock" style="width: 12px; height: 12px;"></i> On Cooldown</span>`;
+      }
+
+      let providerPill = `<span class="provider-pill tata-tele">Tata Tele</span>`;
+      if (did.provider === "Airtel") {
+        providerPill = `<span class="provider-pill airtel">Airtel</span>`;
+      }
+
+      let deptPill = `<span class="dept-pill unassigned">— Unassigned —</span>`;
+      if (did.department === "Collection") {
+        deptPill = `<span class="dept-pill collection"><i data-lucide="shield-alert" style="width: 12px; height: 12px;"></i> Collection</span>`;
+      } else if (did.department === "Lead") {
+        deptPill = `<span class="dept-pill lead"><i data-lucide="user-plus" style="width: 12px; height: 12px;"></i> Lead</span>`;
+      } else if (did.department === "Lending") {
+        deptPill = `<span class="dept-pill lending"><i data-lucide="credit-card" style="width: 12px; height: 12px;"></i> Lending</span>`;
+      } else if (did.department === "Support") {
+        deptPill = `<span class="dept-pill support"><i data-lucide="headphones" style="width: 12px; height: 12px;"></i> Support</span>`;
+      } else if (did.department === "Legal") {
+        deptPill = `<span class="dept-pill legal"><i data-lucide="scale" style="width: 12px; height: 12px;"></i> Legal</span>`;
+      }
+
+      let lastDistributedText = "—";
+      if (did.status === "On Cooldown" && did.cooldownUntil) {
+        const remainingDays = this.calculateRemainingDays(did.cooldownUntil);
+        lastDistributedText = `<span style="color: #D97706; font-weight: 600;">Cooldown: ${remainingDays} days left</span>`;
+      } else if (did.assignedOn) {
+        lastDistributedText = this.formatDateDisplay(did.assignedOn);
+      }
+
+      return `
+        <tr>
+          <td>
+            <button class="table-action-edit-btn" title="Assign / Reallocate DID" onclick="openAssignModal('${did.id}')">
+              <i data-lucide="edit-3"></i>
+            </button>
+          </td>
+          <td>
+            <strong style="font-family: monospace; font-size: 13px; color: #0F172A;">${did.number}</strong>
+          </td>
+          <td>${providerPill}</td>
+          <td>${deptPill}</td>
+          <td>${statusBadge}</td>
+          <td>
+            <span style="color: #334155;">${did.assignedBy || "—"}</span>
+          </td>
+          <td>
+            <span style="color: #64748B;">${did.assignedOn ? this.formatDateDisplay(did.assignedOn) : "—"}</span>
+          </td>
+          <td>${lastDistributedText}</td>
+        </tr>
+      `;
+    }).join("");
+
+    if (window.lucide) window.lucide.createIcons();
+    this.renderPagination(totalItems, startIndex + 1, Math.min(startIndex + this.itemsPerPage, totalItems));
+  }
+
+  renderPagination(totalItems, fromIndex, toIndex) {
+    const summaryText = document.getElementById("paginationSummaryText");
+    const paginationContainer = document.getElementById("paginationButtons");
+
+    if (summaryText) {
+      if (totalItems === 0) {
+        summaryText.textContent = "Showing 0 items";
+      } else {
+        summaryText.textContent = `Showing ${fromIndex} to ${toIndex} of ${totalItems} items`;
+      }
+    }
+
+    if (!paginationContainer) return;
+
+    const totalPages = Math.ceil(totalItems / this.itemsPerPage) || 1;
+    let btnsHtml = `
+      <button class="page-btn" ${this.currentTablePage === 1 ? 'disabled' : ''} onclick="goToTablePage(${this.currentTablePage - 1})">‹</button>
+    `;
+
+    for (let p = 1; p <= totalPages; p++) {
+      btnsHtml += `
+        <button class="page-btn ${p === this.currentTablePage ? 'active' : ''}" onclick="goToTablePage(${p})">${p}</button>
+      `;
+    }
+
+    btnsHtml += `
+      <button class="page-btn" ${this.currentTablePage === totalPages ? 'disabled' : ''} onclick="goToTablePage(${this.currentTablePage + 1})">›</button>
+    `;
+
+    paginationContainer.innerHTML = btnsHtml;
+  }
+
+  goToTablePage(page) {
+    const filtered = this.getFilteredDids();
+    const totalPages = Math.ceil(filtered.length / this.itemsPerPage) || 1;
+    if (page < 1 || page > totalPages) return;
+    this.currentTablePage = page;
+    this.renderDidTable();
+  }
+
+  calculateRemainingDays(targetIsoDate) {
+    if (!targetIsoDate) return 0;
+    const target = new Date(targetIsoDate);
+    const now = new Date();
+    const diffMs = target - now;
+    const days = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    return days > 0 ? days : 0;
+  }
+
+  formatDateDisplay(isoDate) {
+    if (!isoDate) return "—";
+    const d = new Date(isoDate);
+    return d.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  }
+
+  openAssignModal(didId) {
+    const did = this.dids.find(d => d.id === didId);
+    if (!did) return;
+
+    this.editingDid = did;
+
+    document.getElementById("modalDidNumberDisplay").textContent = did.number;
+    
+    const badgeEl = document.getElementById("modalDidCurrentStatusBadge");
+    badgeEl.className = `status-badge ${did.status.toLowerCase().replace(" ", "-")}`;
+    badgeEl.textContent = did.status;
+
+    const deptSelect = document.getElementById("modalDeptSelect");
+    deptSelect.value = did.department || "";
+
+    const releaseBtn = document.getElementById("modalBtnReleaseDid");
+    if (did.status === "Assigned") {
+      releaseBtn.style.display = "inline-flex";
+    } else {
+      releaseBtn.style.display = "none";
+    }
+
+    document.getElementById("modalAssignRemarks").value = "";
+
+    this.updateModalConflictAndCooldownState();
+    this.openModal("modalAssignDid");
+  }
+
+  updateModalConflictAndCooldownState() {
+    if (!this.editingDid) return;
+
+    const did = this.editingDid;
+    const selectedDept = document.getElementById("modalDeptSelect").value;
+    const cooldownBox = document.getElementById("modalCooldownWarning");
+    const saveBtn = document.getElementById("modalBtnSaveAssign");
+
+    let isCooldownBlocked = false;
+    if (did.status === "On Cooldown" && did.releasedFromDept) {
+      if (selectedDept === did.releasedFromDept) {
+        const remainingDays = this.calculateRemainingDays(did.cooldownUntil);
+        cooldownBox.style.display = "flex";
+        document.getElementById("modalCooldownTitle").textContent = `90-Day Cooldown Active for ${did.releasedFromDept}`;
+        document.getElementById("modalCooldownMessage").textContent = 
+          `This DID was released on ${this.formatDateDisplay(did.lastReleasedOn)}. Policy requires a 90-day cooldown (${remainingDays} days remaining) before reassigning to ${did.releasedFromDept}. It CAN be assigned immediately to other departments.`;
+        isCooldownBlocked = true;
+      } else {
+        cooldownBox.style.display = "none";
+      }
+    } else {
+      cooldownBox.style.display = "none";
+    }
+
+    saveBtn.disabled = isCooldownBlocked && selectedDept !== "";
+
+    const conflictContainer = document.getElementById("modalDeptConflictStatus");
+    const allDepts = ["Collection", "Lead", "Lending", "Support", "Legal"];
+    
+    conflictContainer.innerHTML = allDepts.map(dept => {
+      let stateBadge = `<span style="color: #059669; font-weight: 600;">Available to Assign</span>`;
+
+      if (did.department === dept) {
+        stateBadge = `<span style="color: #2563EB; font-weight: 600;">Currently Assigned</span>`;
+      } else if (did.status === "On Cooldown" && did.releasedFromDept === dept) {
+        const remaining = this.calculateRemainingDays(did.cooldownUntil);
+        stateBadge = `<span style="color: #D97706; font-weight: 600;">Cooldown (${remaining}d remaining)</span>`;
+      } else if (did.status === "Assigned") {
+        stateBadge = `<span style="color: #64748B; font-size: 11.5px;">In use by ${did.department}</span>`;
+      }
+
+      return `
+        <div class="conflict-item">
+          <span><strong>${dept}</strong></span>
+          ${stateBadge}
+        </div>
+      `;
+    }).join("");
+  }
+
+  handleModalDeptChange() {
+    this.updateModalConflictAndCooldownState();
+  }
+
+  handleSaveAssignment() {
+    if (!this.editingDid) return;
+
+    const selectedDept = document.getElementById("modalDeptSelect").value;
+    if (!selectedDept) {
+      this.showToast("Please select a department to assign this DID.", "warning");
+      return;
+    }
+
+    if (this.editingDid.status === "On Cooldown" && this.editingDid.releasedFromDept === selectedDept) {
+      this.showToast(`Cannot assign to ${selectedDept}. 90-day cooldown policy strictly enforced!`, "error");
+      return;
+    }
+
+    const nowTimestamp = new Date().toISOString();
+
+    this.editingDid.department = selectedDept;
+    this.editingDid.status = "Assigned";
+    this.editingDid.assignedBy = `${this.currentUser.name}`;
+    this.editingDid.assignedOn = nowTimestamp;
+    this.editingDid.cooldownUntil = null;
+    this.editingDid.releasedFromDept = null;
+
+    this.showToast(`DID ${this.editingDid.number} assigned to ${selectedDept}. Agents can now select it in the Call pop-up.`, "success");
+
+    this.closeModal("modalAssignDid");
+    this.renderKPIs();
+    this.renderDidTable();
+    this.populateCompanyNumberDropdown();
+  }
+
+  handleReleaseDidAction() {
+    if (!this.editingDid) return;
+
+    const dept = this.editingDid.department;
+    const now = new Date();
+    const cooldownDate = new Date();
+    cooldownDate.setDate(now.getDate() + 90);
+
+    const nowISO = now.toISOString();
+    const cooldownISO = cooldownDate.toISOString();
+
+    this.editingDid.status = "On Cooldown";
+    this.editingDid.lastReleasedOn = nowISO;
+    this.editingDid.cooldownUntil = cooldownISO;
+    this.editingDid.releasedFromDept = dept;
+    this.editingDid.department = null;
+
+    this.showToast(`DID ${this.editingDid.number} released from ${dept}. 90-day cooldown initiated.`, "warning");
+
+    this.closeModal("modalAssignDid");
+    this.renderKPIs();
+    this.renderDidTable();
+    this.populateCompanyNumberDropdown();
+  }
+
+  handleAddDid(number, provider, dept) {
+    if (!number || number.length < 10) {
+      this.showToast("Please enter a valid 10-12 digit DID number.", "error");
+      return;
+    }
+
+    if (this.dids.some(d => d.number === number)) {
+      this.showToast(`DID ${number} already exists in inventory!`, "error");
+      return;
+    }
+
+    const nowISO = new Date().toISOString();
+    const newDid = {
+      id: `did-${Date.now()}`,
+      number: number,
+      provider: provider || "Tata Tele",
+      department: dept || null,
+      status: dept ? "Assigned" : "Available",
+      assignedBy: dept ? this.currentUser.name : null,
+      assignedOn: dept ? nowISO : null,
+      lastReleasedOn: null,
+      cooldownUntil: null,
+      releasedFromDept: null,
+      totalCallsCount: 0,
+      successRate: "100%"
+    };
+
+    this.dids.unshift(newDid);
+
+    this.showToast(`${newDid.provider} DID ${number} added successfully.`, "success");
+    this.closeModal("modalAddDid");
+    this.renderKPIs();
+    this.renderDidTable();
+    this.populateCompanyNumberDropdown();
+  }
+
+  exportDidTableCSV() {
+    const data = this.getFilteredDids();
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "DID Number,Provider,Department,Status,Assigned By,Assigned On\n";
+
+    data.forEach(d => {
+      const row = [
+        `"${d.number}"`,
+        `"${d.provider}"`,
+        `"${d.department || 'Unassigned'}"`,
+        `"${d.status}"`,
+        `"${d.assignedBy || '—'}"`,
+        `"${d.assignedOn || '—'}"`
+      ];
+      csvContent += row.join(",") + "\n";
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `LMS_DID_Numbers_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    this.showToast("DID Number list exported to CSV.", "success");
+  }
+
+  getAgentAuthorizedDids() {
+    const currentDept = this.currentUser.department || "Lead";
+    return this.dids.filter(d => d.status === "Assigned" && d.department === currentDept);
+  }
+
+  populateCompanyNumberDropdown() {
+    const selectEl = document.getElementById("ctcCompanyNumberSelect");
+    if (!selectEl) return;
+
+    const assignedDids = this.getAgentAuthorizedDids();
+    let optionsHtml = `<option value="1600...">1600...</option>`;
+    
+    if (assignedDids.length > 0) {
+      assignedDids.forEach((d, idx) => {
+        optionsHtml += `<option value="${d.number}">DID number ${idx + 1} (${d.number} - ${d.provider})</option>`;
+      });
+    } else {
+      optionsHtml += `<option value="" disabled>No DIDs assigned to ${this.currentUser.department}</option>`;
+    }
+
+    selectEl.innerHTML = optionsHtml;
+  }
+
+  openCTCDialerForLead(leadId) {
+    const lead = this.leads.find(l => l.id === leadId) || this.leads[0];
+    this.activeCallLead = lead;
+
+    const agentNameEl = document.getElementById("ctcAgentNameDisplay");
+    const custNameEl = document.getElementById("ctcCustomerNameDisplay");
+    const custPhoneEl = document.getElementById("ctcCustomerPhoneDisplay");
+
+    if (agentNameEl) agentNameEl.textContent = this.currentUser.name.split(" ")[0] || "Agent";
+    if (custNameEl) custNameEl.textContent = lead.customerName;
+    if (custPhoneEl) custPhoneEl.textContent = lead.phone;
+
+    this.populateCompanyNumberDropdown();
+
+    document.getElementById("ctcInCallStatusBox").style.display = "none";
+    document.getElementById("ctcControlsBar").style.display = "flex";
+
+    this.openModal("modalAgentCTC");
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  handleInitiateCallClick() {
+    const selectedNum = document.getElementById("ctcCompanyNumberSelect").value;
+    if (!selectedNum) {
+      this.showToast("Please select a valid Calling number.", "warning");
+      return;
+    }
+
+    this.startCallSimulation(selectedNum);
+  }
+
+  startCallSimulation(callingVia) {
+    const inCallBox = document.getElementById("ctcInCallStatusBox");
+    const controlsBar = document.getElementById("ctcControlsBar");
+    const numberText = document.getElementById("ctcInCallNumberText");
+    const timerText = document.getElementById("ctcInCallTimer");
+    const stateText = document.getElementById("ctcInCallStateText");
+
+    controlsBar.style.display = "none";
+    inCallBox.style.display = "flex";
+    numberText.textContent = callingVia;
+    stateText.textContent = "Connecting via Tata Tele...";
+    timerText.textContent = "00:00";
+
+    this.callDurationSeconds = 0;
+
+    setTimeout(() => {
+      stateText.textContent = "Connected (In Call)";
+      this.showToast(`Call connected with ${this.activeCallLead.customerName} via ${callingVia}`, "success");
+      
+      this.callTimerInterval = setInterval(() => {
+        this.callDurationSeconds++;
+        const mins = String(Math.floor(this.callDurationSeconds / 60)).padStart(2, '0');
+        const secs = String(this.callDurationSeconds % 60).padStart(2, '0');
+        timerText.textContent = `${mins}:${secs}`;
+      }, 1000);
+    }, 1200);
+  }
+
+  hangupCall() {
+    if (this.callTimerInterval) {
+      clearInterval(this.callTimerInterval);
+      this.callTimerInterval = null;
+    }
+
+    const mins = Math.floor(this.callDurationSeconds / 60);
+    const secs = this.callDurationSeconds % 60;
+    this.showToast(`Call ended. Duration: ${mins}m ${secs}s. Activity logged.`, "info");
+
+    document.getElementById("ctcInCallStatusBox").style.display = "none";
+    document.getElementById("ctcControlsBar").style.display = "flex";
+    this.closeModal("modalAgentCTC");
+  }
+
+  showToast(msg, type = "info") {
+    const container = document.getElementById("didToastContainer");
+    if (!container) return;
+
+    const toast = document.createElement("div");
+    toast.className = `toast-message ${type}`;
+    
+    let iconName = "info";
+    if (type === "success") iconName = "check-circle";
+    if (type === "error") iconName = "alert-circle";
+    if (type === "warning") iconName = "alert-triangle";
+
+    toast.innerHTML = `<i data-lucide="${iconName}" style="width: 16px; height: 16px;"></i> <span>${msg}</span>`;
+    container.appendChild(toast);
+    if (window.lucide) window.lucide.createIcons();
+
+    setTimeout(() => {
+      toast.style.opacity = "0";
+      toast.style.transform = "translateY(8px)";
+      toast.style.transition = "all 0.2s ease";
+      setTimeout(() => toast.remove(), 250);
+    }, 3200);
+  }
+
+  openModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) {
+      modal.classList.add("active");
+      modal.classList.add("show");
+    }
+  }
+
+  closeModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) {
+      modal.classList.remove("active");
+      modal.classList.remove("show");
+    }
+  }
+}
+
+/* Global Handlers for MISC & DID view */
+function showDIDManagementView() {
+  const railItemMisc = document.getElementById('railItemMisc');
+  switchRailItem(railItemMisc, 'misc');
+}
+
+function switchMiscTab(tabName) {
+  document.querySelectorAll('.misc-subnav-item').forEach(t => t.classList.remove('active'));
+  if (tabName === 'management') {
+    document.getElementById('tabDidManagement')?.classList.add('active');
+  } else if (tabName === 'cooldowns') {
+    document.getElementById('tabDidCooldowns')?.classList.add('active');
+    document.getElementById('filterStatusSelect').value = 'On Cooldown';
+    applyFilters();
+  }
+}
+
+function selectRole(role) {
+  if (window.didApp) window.didApp.selectRole(role);
+}
+
+function toggleUserDropdown() {
+  const el = document.getElementById('userProfileDropdown');
+  if (el) el.classList.toggle('show');
+}
+
+function toggleFilterPopover() {
+  const el = document.getElementById('filterPopover');
+  if (el) el.classList.toggle('show');
+}
+
+function applyFilters() {
+  if (window.didApp) {
+    window.didApp.selectedDeptFilter = document.getElementById('filterDeptSelect').value;
+    window.didApp.selectedProviderFilter = document.getElementById('filterProviderSelect').value;
+    window.didApp.selectedStatusFilter = document.getElementById('filterStatusSelect').value;
+    window.didApp.currentTablePage = 1;
+    window.didApp.renderDidTable();
+  }
+}
+
+function resetFilters() {
+  document.getElementById('filterDeptSelect').value = 'ALL';
+  document.getElementById('filterProviderSelect').value = 'ALL';
+  document.getElementById('filterStatusSelect').value = 'ALL';
+  document.getElementById('tableSearchInput').value = '';
+  if (window.didApp) {
+    window.didApp.searchQuery = '';
+    window.didApp.selectedDeptFilter = 'ALL';
+    window.didApp.selectedProviderFilter = 'ALL';
+    window.didApp.selectedStatusFilter = 'ALL';
+    window.didApp.currentTablePage = 1;
+    window.didApp.renderDidTable();
+  }
+}
+
+function handleTableSearch(val) {
+  if (window.didApp) {
+    window.didApp.searchQuery = val.trim();
+    window.didApp.currentTablePage = 1;
+    window.didApp.renderDidTable();
+  }
+}
+
+function handleSort(field) {
+  if (window.didApp) window.didApp.handleSort(field);
+}
+
+function refreshTable() {
+  if (window.didApp) {
+    window.didApp.renderKPIs();
+    window.didApp.renderDidTable();
+    window.didApp.showToast('DID inventory refreshed.', 'info');
+  }
+}
+
+function exportDidTableCSV() {
+  if (window.didApp) window.didApp.exportDidTableCSV();
+}
+
+function openAssignModal(didId) {
+  if (window.didApp) window.didApp.openAssignModal(didId);
+}
+
+function handleModalDeptChange() {
+  if (window.didApp) window.didApp.handleModalDeptChange();
+}
+
+function handleSaveAssignment() {
+  if (window.didApp) window.didApp.handleSaveAssignment();
+}
+
+function handleReleaseDidAction() {
+  if (window.didApp) window.didApp.handleReleaseDidAction();
+}
+
+function openAddDidModal() {
+  document.getElementById('newDidNumber').value = '';
+  document.getElementById('newDidProvider').value = 'Tata Tele';
+  document.getElementById('newDidDepartment').value = '';
+  if (window.didApp) window.didApp.openModal('modalAddDid');
+}
+
+function handleAddDidSubmit() {
+  const num = document.getElementById('newDidNumber').value.trim();
+  const prov = document.getElementById('newDidProvider').value;
+  const dept = document.getElementById('newDidDepartment').value;
+  if (window.didApp) window.didApp.handleAddDid(num, prov, dept);
+}
+
+function openCTCDialerForLead(leadId) {
+  if (window.didApp) window.didApp.openCTCDialerForLead(leadId);
+}
+
+function handleInitiateCallClick() {
+  if (window.didApp) window.didApp.handleInitiateCallClick();
+}
+
+function hangupCall() {
+  if (window.didApp) window.didApp.hangupCall();
+}
+
+function goToTablePage(page) {
+  if (window.didApp) window.didApp.goToTablePage(page);
 }
 
 /* =========================================================
@@ -4522,7 +5438,7 @@ function renderProps(t) {
         </thead>
         <tbody>${associatedTickets.map(item => `
           <tr class="other-tix-row" onclick="openTicket('${item.id}')">
-            <td><a href="?ticket=${item.id}" target="_blank" class="tix-link-btn" onclick="event.preventDefault(); openTicketInNewTab('${item.id}')">${item.id} ↗</a></td>
+            <td><a href="javascript:void(0)" class="tix-link-btn" onclick="openTicket('${item.id}')" title="Click to open ticket ${item.id} directly">${item.id} ↗</a></td>
             ${isOtherTicketsExpanded ? `<td style="font-weight:600; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${item.subject || '—'}</td>` : ''}
             <td>${item.loanStage || '—'}</td>
             <td><span class="dept-pill" style="font-size:9.5px; padding:1px 5px;">${item.department || item.queue || 'Support'}</span></td>
@@ -7150,3 +8066,9 @@ setInterval(() => {
   refreshHeaderStatus();
   if (document.getElementById('view-team').classList.contains('active')) renderTeamStatus();
 }, 30000);
+
+if (typeof lucide !== 'undefined') {
+  lucide.createIcons();
+}
+window.didApp = new LMSApp();
+
