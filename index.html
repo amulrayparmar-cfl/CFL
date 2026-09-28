@@ -92,7 +92,7 @@
     .header-left {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .brand-logo-btn {
@@ -104,29 +104,33 @@
     }
 
     .chevron-circle-btn {
-      width: 24px;
-      height: 24px;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
-      background: #F1F5F9;
-      border: 1px solid #E2E8F0;
+      background: #1E293B;
+      border: none;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #475569;
+      color: #FFFFFF;
       cursor: pointer;
       transition: all 0.15s;
+      flex-shrink: 0;
+      padding: 0;
     }
 
     .chevron-circle-btn:hover {
-      background: #E2E8F0;
-      color: #0F172A;
+      background: #0F172A;
+      color: #FFFFFF;
+      transform: scale(1.05);
     }
 
     .header-title {
-      font-weight: 700;
-      font-size: 15px;
+      font-weight: 600;
+      font-size: 14.5px;
       color: #0F172A;
       letter-spacing: -0.01em;
+      white-space: nowrap;
     }
 
     .header-right {
@@ -1977,6 +1981,113 @@
 
     .status-dropdown.show {
       display: block;
+    }
+
+    /* Top Header Role Selector List Box Styles */
+    .role-selector-pill-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 34px;
+      padding: 0 10px 0 8px;
+      border-radius: 20px;
+      border: 1px solid #CBD5E1;
+      background: #FFFFFF;
+      cursor: pointer;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .role-selector-pill-btn:hover {
+      background: #F8FAFC;
+      border-color: #94A3B8;
+    }
+
+    .role-pill-icon {
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .role-pill-text {
+      font-size: 11.8px;
+      font-weight: 700;
+      color: #0F172A;
+    }
+
+    .role-selector-pill-btn .chev {
+      color: #64748B;
+      font-size: 9px;
+      margin-left: 2px;
+    }
+
+    .role-dropdown-menu {
+      position: absolute;
+      top: 44px;
+      right: 0;
+      width: 270px;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 10px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+      z-index: 60;
+      display: none;
+      overflow: hidden;
+      padding: 6px;
+    }
+
+    .role-dropdown-menu.show {
+      display: block;
+    }
+
+    .role-dropdown-menu .rd-head {
+      padding: 6px 10px 4px;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #94A3B8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .role-dropdown-menu .rd-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+
+    .role-dropdown-menu .rd-item:hover {
+      background: #F1F5F9;
+    }
+
+    .role-dropdown-menu .rd-item.active {
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+    }
+
+    .role-dropdown-menu .rd-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .role-dropdown-menu .rd-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #0F172A;
+    }
+
+    .role-dropdown-menu .rd-item.active .rd-title {
+      color: #1D4ED8;
+    }
+
+    .role-dropdown-menu .rd-sub {
+      font-size: 10.5px;
+      color: #64748B;
     }
 
     .status-dropdown .sd-head {
@@ -6276,11 +6387,11 @@
 
     /* Compliance Body Container */
     .comp-body {
-      padding: 24px;
+      padding: 16px 20px;
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 14px;
       max-width: 1600px;
       width: 100%;
       margin: 0 auto;
@@ -6290,41 +6401,31 @@
     .ins-dash-header {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
-      gap: 16px;
+      align-items: center;
+      gap: 12px;
       flex-wrap: wrap;
     }
 
     .ins-title-group h2 {
       margin: 0;
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 700;
       color: #0F172A;
       display: flex;
       align-items: center;
-      gap: 10px;
-    }
-
-    .ins-role-tag {
-      font-size: 11.5px;
-      font-weight: 600;
-      padding: 2px 10px;
-      border-radius: 12px;
-      background: #EFF6FF;
-      color: #2563EB;
-      border: 1px solid #BFDBFE;
+      gap: 8px;
     }
 
     .ins-subtitle {
-      margin: 4px 0 0;
-      font-size: 13px;
+      margin: 2px 0 0;
+      font-size: 12px;
       color: #64748B;
     }
 
     .ins-actions-bar {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
     }
 
@@ -6332,24 +6433,27 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 8px 16px;
+      height: 32px;
+      padding: 0 12px;
       border-radius: 8px;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.15s;
       border: 1px solid transparent;
       font-family: inherit;
+      white-space: nowrap;
     }
 
     .ins-btn-primary {
-      background: #0F5C56;
+      background: #0F172A;
       color: #FFFFFF;
-      border-color: #0F5C56;
+      border-color: #0F172A;
     }
 
     .ins-btn-primary:hover {
-      background: #0A3E3A;
+      background: #1E293B;
+      border-color: #1E293B;
     }
 
     .ins-btn-indigo {
@@ -6364,13 +6468,13 @@
 
     .ins-btn-white {
       background: #FFFFFF;
-      border-color: #CBD5E1;
+      border-color: #E2E8F0;
       color: #334155;
     }
 
     .ins-btn-white:hover {
       background: #F8FAFC;
-      border-color: #94A3B8;
+      border-color: #CBD5E1;
       color: #0F172A;
     }
 
@@ -6394,170 +6498,86 @@
       background: #15803D;
     }
 
-    /* Role Persona Switcher Chips */
-    .ins-persona-box {
-      display: flex;
-      align-items: center;
-      background: #FFFFFF;
-      border: 1px solid #E2E8F0;
-      border-radius: 12px;
-      padding: 5px 8px;
-      gap: 10px;
-      font-size: 12px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    }
-
-    .ins-persona-box-title {
-      font-size: 11px;
-      font-weight: 700;
-      color: #64748B;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      padding-left: 4px;
-    }
-
-    .ins-persona-pills {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .ins-persona-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 5px 12px;
-      border-radius: 20px;
-      background: #F8FAFC;
-      color: #475569;
-      font-weight: 600;
-      font-size: 12px;
-      border: 1.5px solid #E2E8F0;
-      cursor: pointer;
-      transition: all 0.18s ease-in-out;
-      user-select: none;
-    }
-
-    .ins-persona-pill:hover {
-      background: #F1F5F9;
-      color: #0F172A;
-      border-color: #CBD5E1;
-      transform: translateY(-1px);
-    }
-
-    /* Highlighted Role: Legal */
-    .ins-persona-pill.ins-pill-legal:hover,
-    .ins-persona-pill.ins-pill-legal.active {
-      background: linear-gradient(135deg, #0F5C56 0%, #0D9488 100%);
-      color: #FFFFFF;
-      border-color: #0F5C56;
-      box-shadow: 0 2px 8px rgba(15, 92, 86, 0.28);
-    }
-
-    /* Highlighted Role: Manager */
-    .ins-persona-pill.ins-pill-mgr:hover,
-    .ins-persona-pill.ins-pill-mgr.active-mgr {
-      background: linear-gradient(135deg, #6D28D9 0%, #7C3AED 100%);
-      color: #FFFFFF;
-      border-color: #7C3AED;
-      box-shadow: 0 2px 8px rgba(124, 58, 237, 0.28);
-    }
-
-    /* Highlighted Role: Accounts */
-    .ins-persona-pill.ins-pill-acc:hover,
-    .ins-persona-pill.ins-pill-acc.active-acc {
-      background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 100%);
-      color: #FFFFFF;
-      border-color: #2563EB;
-      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.28);
-    }
-
-    /* Highlighted Role: All */
-    .ins-persona-pill.ins-pill-all:hover,
-    .ins-persona-pill.ins-pill-all.active-all,
-    .ins-persona-pill.ins-pill-all.active {
-      background: linear-gradient(135deg, #334155 0%, #475569 100%);
-      color: #FFFFFF;
-      border-color: #334155;
-      box-shadow: 0 2px 8px rgba(51, 65, 85, 0.25);
-    }
-
-    /* Role Badges in Header */
-    .ins-role-tag {
-      font-size: 11.5px;
-      font-weight: 700;
-      padding: 3px 10px;
-      border-radius: 20px;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      vertical-align: middle;
-      margin-left: 8px;
-    }
-    .ins-role-tag.ins-tag-legal {
-      background: #E6FFFA;
-      color: #0F5C56;
-      border: 1px solid #99F6E4;
-    }
-    .ins-role-tag.ins-tag-mgr {
-      background: #F5F3FF;
-      color: #7C3AED;
-      border: 1px solid #DDD6FE;
-    }
-    .ins-role-tag.ins-tag-acc {
-      background: #EFF6FF;
-      color: #1D4ED8;
-      border: 1px solid #BFDBFE;
-    }
-    .ins-role-tag.ins-tag-all {
-      background: #F1F5F9;
-      color: #475569;
-      border: 1px solid #CBD5E1;
-    }
-
-    /* KPI Summary Cards Grid */
+    /* KPI Summary Cards Grid (Refined Reference Style) */
     .ins-kpi-row {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 14px;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 1200px) {
+      .ins-kpi-row {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .ins-kpi-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     .ins-kpi-card {
       background: #FFFFFF;
       border: 1px solid #E2E8F0;
-      border-radius: 12px;
-      padding: 16px;
+      border-radius: 10px;
+      padding: 12px 14px;
       display: flex;
-      align-items: center;
-      gap: 14px;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 80px;
       cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      transition: all 0.15s ease-in-out;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
       position: relative;
       user-select: none;
     }
 
     .ins-kpi-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.08);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px -2px rgba(0, 0, 0, 0.05);
       border-color: #CBD5E1;
     }
 
     .ins-kpi-card.selected {
       border-color: #2563EB;
-      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2), 0 4px 6px -1px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 0 0 1.5px #2563EB;
       background: #F8FAFC;
     }
 
+    .ins-kpi-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      gap: 6px;
+    }
+
+    .ins-kpi-label {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: #64748B;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .ins-kpi-icon {
-      width: 42px;
-      height: 42px;
-      border-radius: 10px;
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
+      font-size: 12px;
       flex-shrink: 0;
+    }
+
+    .ins-kpi-icon svg {
+      width: 13px !important;
+      height: 13px !important;
+      stroke-width: 2.2;
     }
 
     .ins-kpi-icon.gray { background: #F1F5F9; color: #475569; }
@@ -6568,95 +6588,60 @@
     .ins-kpi-icon.orange { background: #FFEDD5; color: #EA580C; }
     .ins-kpi-icon.green { background: #DCFCE7; color: #16A34A; }
 
-    .ins-kpi-info {
+    .ins-kpi-bottom {
       display: flex;
-      flex-direction: column;
-    }
-
-    .ins-kpi-label {
-      font-size: 11.5px;
-      font-weight: 600;
-      color: #64748B;
-      text-transform: capitalize;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-top: 4px;
+      gap: 6px;
     }
 
     .ins-kpi-value {
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 700;
       color: #0F172A;
-      line-height: 1.2;
-      margin-top: 2px;
+      line-height: 1.1;
+    }
+
+    .ins-kpi-subtext {
+      font-size: 10.5px;
+      font-weight: 500;
+      color: #94A3B8;
+      white-space: nowrap;
     }
 
     /* Content Card & Table Container */
     .ins-content-card {
       background: #FFFFFF;
       border: 1px solid #E2E8F0;
-      border-radius: 12px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      border-radius: 10px;
+      box-shadow: none;
       display: flex;
       flex-direction: column;
       overflow: hidden;
     }
 
-    .ins-table-toolbar {
-      padding: 16px 20px;
-      border-bottom: 1px solid #E2E8F0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    .ins-filter-chips {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .ins-filter-chip {
-      padding: 4px 12px;
-      border-radius: 16px;
-      background: #F1F5F9;
-      color: #475569;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .ins-filter-chip:hover {
-      background: #E2E8F0;
-    }
-
-    .ins-filter-chip.active {
-      background: #0F5C56;
-      color: #FFFFFF;
-    }
-
     .ins-table-wrap {
       overflow-x: auto;
       width: 100%;
-      min-height: 320px;
+      min-height: 280px;
     }
 
     .ins-table {
       width: 100%;
       border-collapse: collapse;
       text-align: left;
-      font-size: 13px;
+      font-size: 12px;
     }
 
     .ins-table th {
       background: #F8FAFC;
       color: #475569;
       font-weight: 600;
-      font-size: 11.5px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      padding: 12px 16px;
+      font-size: 11px;
+      text-transform: capitalize;
+      letter-spacing: 0;
+      padding: 9px 12px;
       border-bottom: 1px solid #E2E8F0;
       white-space: nowrap;
       user-select: none;
@@ -6672,11 +6657,11 @@
     }
 
     .ins-table td {
-      padding: 14px 16px;
+      padding: 8px 12px;
       border-bottom: 1px solid #F1F5F9;
       color: #1E293B;
       vertical-align: middle;
-      font-size: 13px;
+      font-size: 12px;
     }
 
     .ins-table tbody tr {
@@ -7831,18 +7816,18 @@
     <!-- TOP HEADER -->
     <header class="top-header">
       <div class="header-left">
-        <a href="#" class="brand-logo-btn">
+        <a href="#" class="brand-logo-btn" onclick="returnToChatConsole(); return false;" title="Chinmay Finlease">
           <div class="brand"><img
-              src="https://static.wixstatic.com/media/8c15c6_7cf08434d39e4492a55322f12f3f7a4d~mv2.png" height="35"
+              src="https://static.wixstatic.com/media/8c15c6_7cf08434d39e4492a55322f12f3f7a4d~mv2.png" height="32"
               alt="logo"></div>
         </a>
-        <button class="chevron-circle-btn" title="Toggle Sidebar">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+        <button class="chevron-circle-btn" id="topHeaderNavBtn" title="Current View Section">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"
             stroke-linecap="round" stroke-linejoin="round">
             <path d="m9 18 6-6-6-6" />
           </svg>
         </button>
-        <span class="header-title">Chatbox</span>
+        <span class="header-title" id="topHeaderTitle">Chatbox</span>
       </div>
 
       <!-- SLA Breach Warning Center Banner -->
@@ -7861,6 +7846,46 @@
             oninput="handlePhoneSearch(this.value)">
         </div>
         <div style="position:relative; display: flex; align-items: center; gap: 8px;">
+          <!-- User Role Dropdown / List Box beside Available -->
+          <div style="position:relative;" id="topHeaderRoleContainer">
+            <button class="role-selector-pill-btn" id="topHeaderRoleBtn" onclick="toggleTopHeaderRoleDropdown(event)" title="Switch Active User Role">
+              <span class="role-pill-icon" id="topRolePillIcon">👔</span>
+              <span class="role-pill-text" id="topRolePillLabel">Manager (Satvinder Sir)</span>
+              <span class="chev">&#9662;</span>
+            </button>
+            <div class="role-dropdown-menu" id="topHeaderRoleMenu">
+              <div class="rd-head">Active User Role</div>
+              <div class="rd-item" id="topRoleItem-LEGAL" onclick="selectTopRole('LEGAL')">
+                <span class="rd-icon">⚖️</span>
+                <div class="rd-info">
+                  <div class="rd-title">Grievance Team</div>
+                  <div class="rd-sub">Harvey Specter · Intake &amp; Add Requests</div>
+                </div>
+              </div>
+              <div class="rd-item active" id="topRoleItem-MANAGEMENT" onclick="selectTopRole('MANAGEMENT')">
+                <span class="rd-icon">👔</span>
+                <div class="rd-info">
+                  <div class="rd-title">Manager Approval</div>
+                  <div class="rd-sub">Satvinder Sir · Approval Queue</div>
+                </div>
+              </div>
+              <div class="rd-item" id="topRoleItem-ACCOUNTS" onclick="selectTopRole('ACCOUNTS')">
+                <span class="rd-icon">💳</span>
+                <div class="rd-info">
+                  <div class="rd-title">Accounts Team</div>
+                  <div class="rd-sub">Anjali Divecha · Bank Payout Queue</div>
+                </div>
+              </div>
+              <div class="rd-item" id="topRoleItem-ALL" onclick="selectTopRole('ALL')">
+                <span class="rd-icon">🌐</span>
+                <div class="rd-info">
+                  <div class="rd-title">All Roles</div>
+                  <div class="rd-sub">Full Lifecycle Across All Stages</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div style="position:relative;">
             <button class="status-pill-btn" id="statusPillBtn" onclick="toggleStatusDropdown(event)">
               <div class="user-profile-avatar" id="headerAvatar" style="width:26px;height:26px;font-size:11px;">
@@ -9723,18 +9748,6 @@
       <!-- ============================================== -->
       <div id="compliance-view" class="compliance-view" style="display: none;">
 
-        <!-- Top Compliance Header Bar -->
-        <div class="comp-header">
-          <div class="comp-header-left">
-            <button class="comp-crumb-btn" title="Navigation" onclick="returnToChatConsole()">
-              <i data-lucide="chevron-left"></i>
-            </button>
-            <h2 class="comp-header-title">
-              <i data-lucide="shield" style="color: #2563EB;"></i> Compliance
-            </h2>
-          </div>
-        </div>
-
         <!-- Compliance Sub Navigation Tabs -->
         <div class="comp-subnav">
           <div class="comp-subnav-item" id="compTab-assets" onclick="switchCompTab('assets')">
@@ -9750,7 +9763,7 @@
             Invoice Tracker
           </div>
           <div class="comp-subnav-item active" id="compTab-insurance" onclick="switchCompTab('insurance')">
-            <i data-lucide="shield-check" style="width: 15px; height: 15px;"></i> Insurance
+            <i data-lucide="shield-check" style="width: 15px; height: 15px;"></i> Insurance Refund Tracker
           </div>
           <div class="comp-subnav-item" id="compTab-employees" onclick="switchCompTab('employees')">
             Employee Details
@@ -9772,35 +9785,12 @@
             <div class="ins-dash-header">
               <div class="ins-title-group">
                 <h2>
-                  Insurance Tracker
-                  <span class="ins-role-tag ins-tag-mgr" id="insCurrentPersonaBadge">👔 Manager (Satvinder Sir)</span>
+                  Insurance Refund Tracker
                 </h2>
-                <p class="ins-subtitle">
-                  Track customer insurance cancellation &amp; refund requests across Grievance, Management, and Accounts stages
-                </p>
               </div>
 
-              <!-- Persona Quick Switcher Chips: Highlighted User Roles -->
-              <div class="ins-persona-box">
-                <span class="ins-persona-box-title">User Roles:</span>
-                <div class="ins-persona-pills">
-                  <button class="ins-persona-pill ins-pill-legal" id="pillRoleLegal" onclick="setInsurancePersona('LEGAL')" title="Switch to Grievance Team Queue">
-                    ⚖️ Grievance
-                  </button>
-                  <button class="ins-persona-pill ins-pill-mgr active-mgr" id="pillRoleManagement" onclick="setInsurancePersona('MANAGEMENT')" title="Switch to Management (Satvinder Sir) Approval Queue">
-                    👔 Manager
-                  </button>
-                  <button class="ins-persona-pill ins-pill-acc" id="pillRoleAccounts" onclick="setInsurancePersona('ACCOUNTS')" title="Switch to Accounts Team Payout Queue">
-                    💳 Accounts
-                  </button>
-                  <button class="ins-persona-pill ins-pill-all" id="pillRoleAll" onclick="setInsurancePersona('ALL')" title="Show All Insurance Requests Across Stages">
-                    🌐 All
-                  </button>
-                </div>
-              </div>
-
-              <!-- Top Actions -->
-              <div class="ins-actions-bar" style="width: 100%;">
+              <!-- Top Actions (Right-aligned in header row) -->
+              <div class="ins-actions-bar">
                 <button class="tool-btn" title="Refresh Requests" onclick="refreshInsuranceTracker()">
                   <i data-lucide="rotate-cw"></i>
                 </button>
@@ -9869,11 +9859,10 @@
                   </div>
                 </div>
 
-                <!-- Quick Filter Options beside Download Button -->
-                <div class="ins-filter-chips" style="display: inline-flex; align-items: center; gap: 6px;">
-                  <div class="ins-filter-chip active" id="chipFilterAll" onclick="setQuickChipFilter('ALL')">All Requests (<span id="chipCountAll">8</span>)</div>
-                  <div class="ins-filter-chip" id="chipFilterPending" onclick="setQuickChipFilter('PENDING')">Action Required (<span id="chipCountPending">5</span>)</div>
-                </div>
+                <!-- + Add Refund Request Button right beside Filters -->
+                <button class="ins-btn ins-btn-primary" id="btnInsuranceAddRequest" onclick="openAddInsuranceRequestModal()">
+                  <i data-lucide="plus"></i> Add Refund Request
+                </button>
 
                 <button class="tool-btn" title="Export to CSV" onclick="exportInsuranceCSV()">
                   <i data-lucide="download"></i>
@@ -9882,154 +9871,122 @@
                 <button class="ins-btn ins-btn-white" onclick="openEmailTemplatePreviewModal()" style="display: inline-flex; align-items: center; gap: 5px;" title="Preview Internal Audit & Management Email Notification Template">
                   <i data-lucide="mail"></i> Email Template
                 </button>
-
-                <!-- + Add Request Button right-aligned under 'All' button -->
-                <button class="ins-btn ins-btn-primary" onclick="openAddInsuranceRequestModal()" style="margin-left: auto;">
-                  <i data-lucide="plus"></i> Add Request
-                </button>
               </div>
             </div>
 
-            <!-- KPI Summary Cards Grid (Story 5.2 & Image 4) -->
+            <!-- KPI Summary Cards Grid (Refined Reference Style) -->
             <div class="ins-kpi-row">
-              <!-- 1. Added -->
-              <div class="ins-kpi-card" id="insCard-Added" onclick="selectInsuranceStatusCard('Added')">
-                <div class="ins-kpi-icon gray">
-                  <i data-lucide="file-text"></i>
-                </div>
-                <div class="ins-kpi-info">
-                  <span class="ins-kpi-label">Added</span>
-                  <span class="ins-kpi-value" id="kpiCountAdded">0</span>
-                </div>
-              </div>
-
-              <!-- 2. Pending Approval -->
+              <!-- 1. Pending Approval -->
               <div class="ins-kpi-card" id="insCard-PendingApproval" onclick="selectInsuranceStatusCard('Pending Approval')">
-                <div class="ins-kpi-icon amber">
-                  <i data-lucide="clock"></i>
-                </div>
-                <div class="ins-kpi-info">
+                <div class="ins-kpi-top">
                   <span class="ins-kpi-label">Pending Approval</span>
+                  <div class="ins-kpi-icon amber">
+                    <i data-lucide="clock"></i>
+                  </div>
+                </div>
+                <div class="ins-kpi-bottom">
                   <span class="ins-kpi-value" id="kpiCountPendingApproval">3</span>
+                  <span class="ins-kpi-subtext">Manager queue</span>
                 </div>
               </div>
 
-              <!-- 3. Approved -->
+              <!-- 2. Approved -->
               <div class="ins-kpi-card" id="insCard-Approved" onclick="selectInsuranceStatusCard('Approved')">
-                <div class="ins-kpi-icon blue">
-                  <i data-lucide="check-circle-2"></i>
-                </div>
-                <div class="ins-kpi-info">
+                <div class="ins-kpi-top">
                   <span class="ins-kpi-label">Approved</span>
+                  <div class="ins-kpi-icon blue">
+                    <i data-lucide="check-circle-2"></i>
+                  </div>
+                </div>
+                <div class="ins-kpi-bottom">
                   <span class="ins-kpi-value" id="kpiCountApproved">4</span>
+                  <span class="ins-kpi-subtext">Awaiting payout</span>
                 </div>
               </div>
 
-              <!-- 4. Declined / Returned -->
+              <!-- 3. Declined / Returned -->
               <div class="ins-kpi-card" id="insCard-Declined" onclick="selectInsuranceStatusCard('Declined / Returned')">
-                <div class="ins-kpi-icon red">
-                  <i data-lucide="x-circle"></i>
-                </div>
-                <div class="ins-kpi-info">
+                <div class="ins-kpi-top">
                   <span class="ins-kpi-label">Declined / Returned</span>
+                  <div class="ins-kpi-icon red">
+                    <i data-lucide="x-circle"></i>
+                  </div>
+                </div>
+                <div class="ins-kpi-bottom">
                   <span class="ins-kpi-value" id="kpiCountDeclined">2</span>
+                  <span class="ins-kpi-subtext">Action required</span>
                 </div>
               </div>
 
-              <!-- 5. Pending Refund -->
+              <!-- 4. Pending Refund -->
               <div class="ins-kpi-card" id="insCard-PendingRefund" onclick="selectInsuranceStatusCard('Pending Refund')">
-                <div class="ins-kpi-icon purple">
-                  <i data-lucide="alert-triangle"></i>
-                </div>
-                <div class="ins-kpi-info">
+                <div class="ins-kpi-top">
                   <span class="ins-kpi-label">Pending Refund</span>
+                  <div class="ins-kpi-icon purple">
+                    <i data-lucide="alert-triangle"></i>
+                  </div>
+                </div>
+                <div class="ins-kpi-bottom">
                   <span class="ins-kpi-value" id="kpiCountPendingRefund">2</span>
+                  <span class="ins-kpi-subtext">Accounts queue</span>
                 </div>
               </div>
 
-              <!-- 6. Resubmitted -->
+              <!-- 5. Resubmitted -->
               <div class="ins-kpi-card" id="insCard-Resubmitted" onclick="selectInsuranceStatusCard('Resubmitted')">
-                <div class="ins-kpi-icon orange">
-                  <i data-lucide="rotate-ccw"></i>
-                </div>
-                <div class="ins-kpi-info">
+                <div class="ins-kpi-top">
                   <span class="ins-kpi-label">Resubmitted</span>
+                  <div class="ins-kpi-icon orange">
+                    <i data-lucide="rotate-ccw"></i>
+                  </div>
+                </div>
+                <div class="ins-kpi-bottom">
                   <span class="ins-kpi-value" id="kpiCountResubmitted">1</span>
+                  <span class="ins-kpi-subtext">Recalculated</span>
                 </div>
               </div>
 
-              <!-- 7. Refunded -->
+              <!-- 6. Refunded -->
               <div class="ins-kpi-card" id="insCard-Refunded" onclick="selectInsuranceStatusCard('Refunded')">
-                <div class="ins-kpi-icon green">
-                  <i data-lucide="indian-rupee"></i>
-                </div>
-                <div class="ins-kpi-info">
+                <div class="ins-kpi-top">
                   <span class="ins-kpi-label">Refunded</span>
+                  <div class="ins-kpi-icon green">
+                    <i data-lucide="indian-rupee"></i>
+                  </div>
+                </div>
+                <div class="ins-kpi-bottom">
                   <span class="ins-kpi-value" id="kpiCountRefunded">8</span>
+                  <span class="ins-kpi-subtext">Settled &amp; closed</span>
                 </div>
               </div>
             </div>
 
             <!-- Main Data Table Container -->
             <div class="ins-content-card">
-              <!-- Toolbar / Summary -->
-              <div class="ins-table-toolbar">
-                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                  <div style="font-size: 13px; font-weight: 600; color: #1E293B; display: flex; align-items: center; gap: 8px;">
-                    <i data-lucide="shield-check" style="width: 16px; height: 16px; color: #0F5C56;"></i>
-                    <span>Insurance Cancellation &amp; Refund Audit Table</span>
-                  </div>
-                  <button type="button" class="ins-btn-action" id="btnToggleAllSubRows" onclick="toggleAllInsuranceSubRows()" style="font-size: 11.5px; padding: 3px 10px; font-weight: 600; color: #1D4ED8; background: #EFF6FF; border-color: #BFDBFE; display: inline-flex; align-items: center; gap: 4px;" title="Expand or collapse individual policy sub-rows for multi-policy loans">
-                    <i data-lucide="chevrons-down-up" style="width: 13px; height: 13px;"></i> Toggle Policy Sub-rows
-                  </button>
-                </div>
-
-                <div style="font-size: 12px; color: #64748B; display: flex; align-items: center; gap: 14px;">
-                  <span>Total Refund Processed: <strong id="totalRefundSumDisplay" style="color: #16A34A; font-weight: 700;">₹42,850</strong></span>
-                </div>
-              </div>
 
               <!-- Responsive Table -->
               <div class="ins-table-wrap">
                 <table class="ins-table">
                   <thead>
                     <tr>
-                      <th style="width: 80px; text-align: center;">Actions</th>
-                      <th class="sortable" onclick="sortInsuranceTable('loanId')">
-                        Loan ID <span id="sortIconIns-loanId">↕</span>
-                      </th>
-                      <th class="sortable" onclick="sortInsuranceTable('customerName')">
-                        Customer Name <span id="sortIconIns-customerName">↕</span>
-                      </th>
-                      <th class="sortable" onclick="sortInsuranceTable('company')">
-                        Insurance Company <span id="sortIconIns-company">↕</span>
-                      </th>
-                      <th>Policy Number</th>
-                      <th>Insurance Type</th>
-                      <th class="sortable" onclick="sortInsuranceTable('amount')">
-                        Refund Amount <span id="sortIconIns-amount">↕</span>
-                      </th>
-                      <th class="sortable" onclick="sortInsuranceTable('raisedBy')">
-                        Created By <span id="sortIconIns-raisedBy">↕</span>
-                      </th>
-                      <th class="sortable" onclick="sortInsuranceTable('customerRequestDate')">
-                        Customer Request Date <span id="sortIconIns-customerRequestDate">↕</span>
-                      </th>
-                      <th class="sortable" onclick="sortInsuranceTable('requestDate')">
-                        Refund Process Initiated Date <span id="sortIconIns-requestDate">↕</span>
-                      </th>
-                      <th>Verified / Approved By</th>
-                      <th class="sortable" onclick="sortInsuranceTable('approvedDate')">
-                        Approved Date &amp; Time <span id="sortIconIns-approvedDate">↕</span>
-                      </th>
-                      <th>Manager's Remarks</th>
-                      <th class="sortable" onclick="sortInsuranceTable('status')">
-                        Status <span id="sortIconIns-status">↕</span>
-                      </th>
-                      <th class="sortable" onclick="sortInsuranceTable('refundDate')">
-                        Refund Date &amp; Time <span id="sortIconIns-refundDate">↕</span>
-                      </th>
-                      <th>Accounts Remarks</th>
+                      <th style="width: 75px; text-align: center;">Actions</th>
+                      <th style="min-width: 110px;">Loan Id</th>
+                      <th style="min-width: 105px;">Ticket ID</th>
+                      <th style="min-width: 140px;">Name</th>
+                      <th style="min-width: 110px;">Phone</th>
+                      <th style="min-width: 125px;">Insurance Company</th>
+                      <th style="min-width: 130px;">Policy Number</th>
+                      <th style="min-width: 140px;">Insurance Type</th>
+                      <th style="min-width: 105px;">Refund Amount</th>
+                      <th style="min-width: 130px;">Created By</th>
+                      <th style="min-width: 130px;">Customer Request Date</th>
+                      <th style="min-width: 130px;">Refund Process Initiated Date</th>
+                      <th style="min-width: 130px;">Verified / Approved By</th>
+                      <th style="min-width: 130px;">Approved Date &amp; Time</th>
+                      <th style="min-width: 140px;">Manager's Remarks</th>
+                      <th style="min-width: 110px;">Status</th>
+                      <th style="min-width: 120px;">Refund Date &amp; Time</th>
+                      <th style="min-width: 140px;">Accounts Remarks</th>
                     </tr>
                   </thead>
                   <tbody id="insTableBody">
@@ -10335,7 +10292,7 @@
       <div class="ins-modal-body">
         <form id="formAddInsurance" onsubmit="handleInsuranceFormSubmit(event)">
           
-          <!-- Top Row: Compact 4-Field Header (Ticket ID, 6-Digit Numeric Loan ID, Customer Name, Phone Number) -->
+          <!-- Top Row: Compact 4-Field Header (Ticket ID, 6 to 7 Digit Numeric Loan ID, Customer Name, Phone Number) -->
           <div class="ins-modal-top-bar">
             <!-- Field 1: Ticket ID Selector -->
             <div>
@@ -10357,11 +10314,11 @@
               </div>
             </div>
 
-            <!-- Field 2: 6-Digit Numeric Loan ID (Manually Entered / Auto-Fetched) -->
+            <!-- Field 2: 6 to 7 Digit Numeric Loan ID (Manually Entered / Auto-Fetched) -->
             <div>
               <label for="insFormLoanId" class="ins-top-field-label">Loan ID</label>
               <div>
-                <input type="text" id="insFormLoanId" class="ins-top-field-input" placeholder="e.g. 663412" maxlength="6" pattern="[0-9]{6}" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, ''); onManualLoanIdChange(this.value);" style="font-family: monospace; font-weight: 700; color: #047857;" value="663412" required title="Enter 6-digit numeric Loan ID">
+                <input type="text" id="insFormLoanId" class="ins-top-field-input" placeholder="e.g. 2372573" maxlength="7" pattern="[0-9]{6,7}" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, ''); onManualLoanIdChange(this.value);" style="font-family: monospace; font-weight: 700; color: #047857;" value="2372573" required title="Enter 6 or 7-digit numeric Loan ID">
               </div>
             </div>
 
@@ -10595,7 +10552,7 @@
             </div>
           </div>
 
-          <!-- Field 2: 6-Digit Numeric Loan ID -->
+          <!-- Field 2: 6 to 7 Digit Numeric Loan ID -->
           <div>
             <label class="ins-top-field-label">Loan ID</label>
             <div>
@@ -10853,11 +10810,11 @@
             </div>
           </div>
 
-          <!-- Field 2: 6-Digit Numeric Loan ID -->
+          <!-- Field 2: 6 to 7 Digit Numeric Loan ID -->
           <div>
             <label class="ins-top-field-label">Loan ID</label>
             <div>
-              <input type="text" id="accDetailLoanId" class="ins-top-field-input" readonly style="font-family: monospace; font-weight: 700; color: #047857; background: #F1F5F9;" value="LN-2026-2290">
+              <input type="text" id="accDetailLoanId" class="ins-top-field-input" readonly style="font-family: monospace; font-weight: 700; color: #047857; background: #F1F5F9;" value="229007">
             </div>
           </div>
 
@@ -11185,7 +11142,7 @@
       <div class="ins-modal-header">
         <div>
           <h3>Request Activity History &amp; Audit Trail</h3>
-          <p id="auditTrailSubtitle">Complete chronological audit logs for Loan ID LN-2026-8841</p>
+          <p id="auditTrailSubtitle">Complete chronological audit logs for Loan ID 2372573</p>
         </div>
         <button class="ins-modal-close" onclick="closeInsuranceModal('modalInsuranceAuditTrail')">✕</button>
       </div>
@@ -12973,6 +12930,30 @@
     </div>`).join('');
     }
 
+    let topRoleDropdownOpen = false;
+
+    function toggleTopHeaderRoleDropdown(e) {
+      if (e) e.stopPropagation();
+      topRoleDropdownOpen = !topRoleDropdownOpen;
+      const menu = document.getElementById('topHeaderRoleMenu');
+      if (menu) menu.classList.toggle('show', topRoleDropdownOpen);
+      if (topRoleDropdownOpen) {
+        statusDropdownOpen = false;
+        const sMenu = document.getElementById('statusDropdownMenu');
+        if (sMenu) sMenu.classList.remove('show');
+        channelDropdownOpen = false;
+        const cMenu = document.getElementById('channelDropdownMenu');
+        if (cMenu) cMenu.classList.remove('show');
+      }
+    }
+
+    function selectTopRole(role) {
+      setInsurancePersona(role);
+      topRoleDropdownOpen = false;
+      const menu = document.getElementById('topHeaderRoleMenu');
+      if (menu) menu.classList.remove('show');
+    }
+
     function toggleStatusDropdown(e) {
       if (e) e.stopPropagation();
       statusDropdownOpen = !statusDropdownOpen;
@@ -12981,6 +12962,9 @@
         channelDropdownOpen = false;
         const cMenu = document.getElementById('channelDropdownMenu');
         if (cMenu) cMenu.classList.remove('show');
+        topRoleDropdownOpen = false;
+        const rMenu = document.getElementById('topHeaderRoleMenu');
+        if (rMenu) rMenu.classList.remove('show');
       }
       document.getElementById('statusDropdownMenu').classList.toggle('show', statusDropdownOpen);
     }
@@ -12993,6 +12977,9 @@
         statusDropdownOpen = false;
         const sMenu = document.getElementById('statusDropdownMenu');
         if (sMenu) sMenu.classList.remove('show');
+        topRoleDropdownOpen = false;
+        const rMenu = document.getElementById('topHeaderRoleMenu');
+        if (rMenu) rMenu.classList.remove('show');
       }
       document.getElementById('channelDropdownMenu').classList.toggle('show', channelDropdownOpen);
     }
@@ -13047,6 +13034,13 @@
     }
 
     document.addEventListener('click', e => {
+      const rBtn = document.getElementById('topHeaderRoleBtn');
+      const rMenu = document.getElementById('topHeaderRoleMenu');
+      if (topRoleDropdownOpen && rBtn && rMenu && !rBtn.contains(e.target) && !rMenu.contains(e.target)) {
+        topRoleDropdownOpen = false;
+        rMenu.classList.remove('show');
+      }
+
       const btn = document.getElementById('statusPillBtn');
       const menu = document.getElementById('statusDropdownMenu');
       if (statusDropdownOpen && btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) {
@@ -15331,6 +15325,30 @@
     function switchRailItem(el, targetKey) {
       document.querySelectorAll('.left-rail .rail-item').forEach(item => item.classList.remove('active'));
       if (el) el.classList.add('active');
+
+      const railHeaderTitleMap = {
+        security: 'Compliance',
+        chat: 'Chatbox',
+        home: 'Dashboard',
+        tasks: 'My Tickets',
+        teams: 'Customer Directory',
+        analytics: 'KPI Analytics',
+        misc: 'MISC · DID Management',
+        financials: 'Financials & Currency Records',
+        broadcasts: 'Broadcasts & Campaigns',
+        accounts: 'Customer Profiles & Accounts',
+        branches: 'Banking Services & Branches',
+        reports: 'System Reports & Documents',
+        contacts: 'Agent Directory & Contacts',
+        settings: 'System Settings & Preferences',
+        legal: 'Legal & Risk Assessment',
+        activity: 'Activity Logs & 90-Day Cooldowns'
+      };
+
+      const topTitleEl = document.getElementById('topHeaderTitle') || document.querySelector('.top-header .header-title');
+      if (topTitleEl) {
+        topTitleEl.textContent = railHeaderTitleMap[targetKey] || 'Chatbox';
+      }
 
       const mainChat = document.getElementById('main-chat-console');
       const genericView = document.getElementById('generic-rail-view');
@@ -22583,7 +22601,7 @@
       /* --- COMPLETED / REFUNDED EXAMPLES --- */
       {
         id: 'INS-REQ-1001',
-        loanId: 'LN-2026-8841',
+        loanId: '2372573',
         ticketId: 'TCK-10221',
         customerName: 'Rohan Verma',
         customerPhone: '+91 98201 44512',
@@ -22617,7 +22635,7 @@
       },
       {
         id: 'INS-REQ-1007',
-        loanId: 'LN-2026-3309',
+        loanId: '1084921',
         ticketId: 'TCK-10226',
         customerName: 'Manish Malhotra',
         customerPhone: '+91 98210 99401',
@@ -22650,7 +22668,7 @@
       },
       {
         id: 'INS-REQ-1015',
-        loanId: 'LN-2026-9901',
+        loanId: '990118',
         ticketId: 'TCK-10234',
         customerName: 'Neha Dhupia',
         customerPhone: '+91 98333 44556',
@@ -22685,7 +22703,7 @@
       /* --- GRIEVANCE USER ROLE EXAMPLES --- */
       {
         id: 'INS-REQ-1009',
-        loanId: 'LN-2026-1144',
+        loanId: '114408',
         ticketId: 'TCK-10228',
         customerName: 'Aditya Verma',
         customerPhone: '+91 98190 33412',
@@ -22716,7 +22734,7 @@
       },
       {
         id: 'INS-REQ-1006',
-        loanId: 'LN-2026-4418',
+        loanId: '441805',
         ticketId: 'TCK-10225',
         customerName: 'Pooja Hegde',
         customerPhone: '+91 98450 66231',
@@ -22748,7 +22766,7 @@
       },
       {
         id: 'INS-REQ-1004',
-        loanId: 'LN-2026-6634',
+        loanId: '663419',
         ticketId: 'TCK-2026-9841',
         customerName: 'Kavita Iyer',
         customerPhone: '+91 98112 33490',
@@ -22779,7 +22797,7 @@
       },
       {
         id: 'INS-REQ-1010',
-        loanId: 'LN-2026-9933',
+        loanId: '993309',
         ticketId: 'TCK-10229',
         customerName: 'Vikram Sethi',
         customerPhone: '+91 98200 44881',
@@ -22797,23 +22815,24 @@
         approvedDate: '2026-09-22 16:00',
         refundDate: '2026-09-23 15:30',
         paymentRef: 'CFL-UTR-2026092305',
-        remarks: 'Care Health cancellation refund completed. Pending Grievance final customer email dispatch.',
+        remarks: 'Care Health cancellation refund completed.',
         managerRemarks: 'Approved for full refund (within Free-Look period)',
-        accountsRemarks: 'Bank payout credited via RTGS (UTR: CFL-UTR-2026092305). Forwarded to Grievance for confirmation.',
+        accountsRemarks: 'Bank payout credited via RTGS (UTR: CFL-UTR-2026092305).',
         proofDoc: 'care_health_proof_9933.pdf',
         refundProofDoc: 'cfl_bank_payout_9933.pdf',
-        finalConfirmationSent: false,
+        finalConfirmationSent: true,
         activityLog: [
           { time: '2026-09-22 10:00', actor: 'Priya (Grievance)', action: 'LMS Record Created', desc: 'Care health policy cancellation raised.' },
           { time: '2026-09-22 16:00', actor: 'Satvinder Sir (Management)', action: 'Management Approved', desc: 'Approved.' },
-          { time: '2026-09-23 15:30', actor: 'Anjali Divecha (Accounts)', action: 'Customer Refund Processed', desc: 'Payment settled via RTGS CFL-UTR-2026092305.' }
+          { time: '2026-09-23 15:30', actor: 'Anjali Divecha (Accounts)', action: 'Customer Refund Processed', desc: 'Payment settled via RTGS CFL-UTR-2026092305.' },
+          { time: '2026-09-23 16:00', actor: 'Priya (Grievance)', action: 'Refund Confirmation Dispatched', desc: 'Customer refund confirmation notice dispatched to vikram.sethi@gmail.com.' }
         ]
       },
 
       /* --- MANAGER USER ROLE EXAMPLES --- */
       {
         id: 'INS-REQ-1008',
-        loanId: 'LN-2026-2290',
+        loanId: '229007',
         ticketId: 'TCK-10227',
         customerName: 'Sneha Kulkarni',
         customerPhone: '+91 98700 12345',
@@ -22844,7 +22863,7 @@
       },
       {
         id: 'INS-REQ-1011',
-        loanId: 'LN-2026-7822',
+        loanId: '782210',
         ticketId: 'TCK-10230',
         customerName: 'Rajesh Khanna',
         customerPhone: '+91 98190 22341',
@@ -22875,7 +22894,7 @@
       },
       {
         id: 'INS-REQ-1012',
-        loanId: 'LN-2026-5544',
+        loanId: '554411',
         ticketId: 'TCK-10231',
         customerName: 'Sunita Rao',
         customerPhone: '+91 98330 99882',
@@ -22906,7 +22925,7 @@
       },
       {
         id: 'INS-REQ-1016',
-        loanId: 'LN-2026-8833',
+        loanId: '883315',
         ticketId: 'TCK-10235',
         customerName: 'Manish Gupta',
         customerPhone: '+91 97690 11456',
@@ -22939,7 +22958,7 @@
       /* --- ACCOUNTS USER ROLE EXAMPLES --- */
       {
         id: 'INS-REQ-1005',
-        loanId: 'LN-2026-5521',
+        loanId: '552140',
         ticketId: 'TCK-10224',
         customerName: 'Deepak Joshi',
         customerPhone: '+91 99200 77123',
@@ -22970,7 +22989,7 @@
       },
       {
         id: 'INS-REQ-1013',
-        loanId: 'LN-2026-6677',
+        loanId: '667712',
         ticketId: 'TCK-10232',
         customerName: 'Karan Singhania',
         customerPhone: '+91 98111 55678',
@@ -23001,7 +23020,7 @@
       },
       {
         id: 'INS-REQ-1014',
-        loanId: 'LN-2026-3388',
+        loanId: '338813',
         ticketId: 'TCK-10233',
         customerName: 'Priyanka Chopra',
         customerPhone: '+91 98222 77890',
@@ -23032,7 +23051,7 @@
       },
       {
         id: 'INS-REQ-1003',
-        loanId: 'LN-2026-7712',
+        loanId: '771288',
         ticketId: 'TCK-10223',
         customerName: 'Amit Deshmukh',
         customerPhone: '+91 97655 88321',
@@ -23064,7 +23083,7 @@
       },
       {
         id: 'INS-REQ-1002',
-        loanId: 'LN-2026-9923',
+        loanId: '992341',
         ticketId: 'TCK-10222',
         customerName: 'Sunita Patil',
         customerPhone: '+91 98334 11209',
@@ -23139,15 +23158,15 @@
       }
       if (!r.bankName || !r.ifscCode || !r.accountNumber) {
         const defaultBankMap = {
-          'LN-2026-3388': { bank: 'HDFC Bank', ifsc: 'HDFC0003388', acc: '50100492837482' },
-          'LN-2026-2290': { bank: 'ICICI Bank', ifsc: 'ICIC0002290', acc: '002301594832' },
-          'LN-2026-7822': { bank: 'Axis Bank', ifsc: 'UTIB0007822', acc: '91802004829103' },
-          'LN-2026-1021': { bank: 'State Bank of India', ifsc: 'SBIN0001021', acc: '38920194820' },
-          'LN-2026-5521': { bank: 'Kotak Mahindra Bank', ifsc: 'KKBK0005521', acc: '7482910482' },
-          'LN-2026-6677': { bank: 'ICICI Bank', ifsc: 'ICIC0006677', acc: '109283746501' },
-          'LN-2026-7712': { bank: 'HDFC Bank', ifsc: 'HDFC0007712', acc: '5010083920194' },
-          'LN-2026-9923': { bank: 'State Bank of India', ifsc: 'SBIN0009923', acc: '40928174920' },
-          'LN-2026-4491': { bank: 'Punjab National Bank', ifsc: 'PUNB0004491', acc: '0491002918374' }
+          '338813': { bank: 'HDFC Bank', ifsc: 'HDFC0003388', acc: '50100492837482' },
+          '229007': { bank: 'ICICI Bank', ifsc: 'ICIC0002290', acc: '002301594832' },
+          '782210': { bank: 'Axis Bank', ifsc: 'UTIB0007822', acc: '91802004829103' },
+          '1084921': { bank: 'State Bank of India', ifsc: 'SBIN0001021', acc: '38920194820' },
+          '552140': { bank: 'Kotak Mahindra Bank', ifsc: 'KKBK0005521', acc: '7482910482' },
+          '667712': { bank: 'ICICI Bank', ifsc: 'ICIC0006677', acc: '109283746501' },
+          '771288': { bank: 'HDFC Bank', ifsc: 'HDFC0007712', acc: '5010083920194' },
+          '992341': { bank: 'State Bank of India', ifsc: 'SBIN0009923', acc: '40928174920' },
+          '441805': { bank: 'Punjab National Bank', ifsc: 'PUNB0004491', acc: '0491002918374' }
         };
         const cId = r.loanId || '';
         const b = defaultBankMap[cId] || { 
@@ -23485,7 +23504,7 @@
         };
       }
 
-      // Field 2: 6-Digit Numeric Loan ID (editable)
+      // Field 2: 6 to 7 Digit Numeric Loan ID (editable)
       const loanInput = document.getElementById('insFormLoanId');
       if (loanInput) loanInput.value = loan.loanId;
 
@@ -23695,7 +23714,6 @@
       const localIso = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString();
       const nowStr = localIso.replace('T', ' ').substring(0, 16);
       const nowDtLocal = localIso.substring(0, 16);
-
       const custReqDateEl = document.getElementById('insFormCustomerRequestDate');
       if (custReqDateEl) custReqDateEl.value = nowDtLocal;
 
@@ -23733,8 +23751,8 @@
       const custName = document.getElementById('insFormCustomerName')?.value?.trim() || 'Customer';
       const custPhone = document.getElementById('insFormCustomerPhone')?.value?.trim() || '+91 98000 00000';
 
-      if (!loanId) {
-        showToast('Please enter a valid 6-digit numeric Loan ID.');
+      if (!loanId || !/^[0-9]{6,7}$/.test(loanId)) {
+        showToast('Please enter a valid 6 to 7 digit numeric Loan ID.');
         return;
       }
 
@@ -23856,7 +23874,6 @@
 
     function updateInsuranceKPIs() {
       const counts = {
-        Added: 0,
         'Pending Approval': 0,
         Approved: 0,
         'Declined / Returned': 0,
@@ -23880,7 +23897,6 @@
         }
       });
 
-      const elAdded = document.getElementById('kpiCountAdded');
       const elPendApp = document.getElementById('kpiCountPendingApproval');
       const elApp = document.getElementById('kpiCountApproved');
       const elDec = document.getElementById('kpiCountDeclined');
@@ -23888,7 +23904,6 @@
       const elResub = document.getElementById('kpiCountResubmitted');
       const elRef = document.getElementById('kpiCountRefunded');
 
-      if (elAdded) elAdded.textContent = counts.Added;
       if (elPendApp) elPendApp.textContent = counts['Pending Approval'];
       if (elApp) elApp.textContent = counts.Approved;
       if (elDec) elDec.textContent = counts['Declined / Returned'];
@@ -23916,7 +23931,6 @@
       document.querySelectorAll('.ins-kpi-card').forEach(card => card.classList.remove('selected'));
       if (insActiveStatusCard !== 'ALL') {
         const idMap = {
-          'Added': 'insCard-Added',
           'Pending Approval': 'insCard-PendingApproval',
           'Approved': 'insCard-Approved',
           'Declined / Returned': 'insCard-Declined',
@@ -23987,6 +24001,32 @@
       renderInsuranceTable();
     }
 
+    function getInsRelativeDaysAgo(dateStr) {
+      if (!dateStr || dateStr === '—') return 'Today';
+      try {
+        const parts = dateStr.trim().split(/[- :]/);
+        let d = null;
+        if (parts.length >= 3) {
+          if (parts[0].length === 4) {
+            d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+          } else {
+            d = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+          }
+        } else {
+          d = new Date(dateStr);
+        }
+        if (isNaN(d.getTime())) return 'Today';
+        const now = new Date();
+        const diffMs = now.getTime() - d.getTime();
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        if (diffDays <= 0) return 'Today';
+        if (diffDays === 1) return '1 day ago';
+        return `${diffDays} days ago`;
+      } catch (e) {
+        return '2 days ago';
+      }
+    }
+
     function sortInsuranceTable(col) {
       if (insSortCol === col) {
         insSortAsc = !insSortAsc;
@@ -24046,6 +24086,7 @@
       if (insSearchQuery) {
         list = list.filter(r =>
           r.loanId.toLowerCase().includes(insSearchQuery) ||
+          (r.ticketId && r.ticketId.toLowerCase().includes(insSearchQuery)) ||
           r.customerName.toLowerCase().includes(insSearchQuery) ||
           r.policyNumber.toLowerCase().includes(insSearchQuery) ||
           r.customerPhone.includes(insSearchQuery) ||
@@ -24078,7 +24119,7 @@
       if (pageItems.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="16" style="text-align: center; padding: 36px; color: #64748B;">
+            <td colspan="18" style="text-align: center; padding: 36px; color: #64748B;">
               <i data-lucide="inbox" style="width: 32px; height: 32px; margin-bottom: 8px; color: #94A3B8;"></i>
               <div style="font-size: 14px; font-weight: 600; color: #1E293B;">No matching insurance cancellation requests found</div>
               <div style="font-size: 12px; margin-top: 4px;">Try clearing filters or search criteria.</div>
@@ -24105,19 +24146,15 @@
           // Action button logic depending on active persona and request status
           let actionBtnHtml = '';
           if (r.status === 'Pending Approval') {
-            actionBtnHtml = `<button class="ins-btn-action" style="background:#FEF3C7; color:#B45309; border-color:#FDE68A;" onclick="openManagementReviewModal('${r.id}')">👔 Review</button>`;
+            actionBtnHtml = `<button class="ins-btn-action" style="background:#FEF3C7; color:#B45309; border-color:#FDE68A;" onclick="openManagementReviewModal('${r.id}')"><i data-lucide="eye" style="width: 12px; height: 12px;"></i> View</button>`;
           } else if (r.status === 'Approved' || r.status === 'Pending Refund') {
-            actionBtnHtml = `<button class="ins-btn-action" style="background:#EFF6FF; color:#1D4ED8; border-color:#BFDBFE;" onclick="openAccountsRefundModal('${r.id}')">💳 Refund</button>`;
+            actionBtnHtml = `<button class="ins-btn-action" style="background:#EFF6FF; color:#1D4ED8; border-color:#BFDBFE;" onclick="openAccountsRefundModal('${r.id}')"><i data-lucide="credit-card" style="width: 12px; height: 12px;"></i> Refund</button>`;
           } else if (r.status === 'Refunded') {
-            if (!r.finalConfirmationSent) {
-              actionBtnHtml = `<button class="ins-btn-action" style="background:#ECFDF5; color:#065F46; border-color:#A7F3D0;" onclick="openLegalConfirmationModal('${r.id}')">✉ Confirm</button>`;
-            } else {
-              actionBtnHtml = `<button class="ins-btn-action" onclick="openAuditTrailModal('${r.id}')">📜 Logs</button>`;
-            }
+            actionBtnHtml = `<button class="ins-btn-action" onclick="openAuditTrailModal('${r.id}')"><i data-lucide="file-text" style="width: 12px; height: 12px;"></i> Logs</button>`;
           } else if (r.status === 'Declined / Returned' || r.status === 'Resubmitted') {
-            actionBtnHtml = `<button class="ins-btn-action" style="background:#FFF1F2; color:#DC2626; border-color:#FECDD3;" onclick="openAuditTrailModal('${r.id}')">🔄 Grievance</button>`;
+            actionBtnHtml = `<button class="ins-btn-action" style="background:#FFF1F2; color:#DC2626; border-color:#FECDD3;" onclick="openAuditTrailModal('${r.id}')"><i data-lucide="rotate-ccw" style="width: 12px; height: 12px;"></i> Grievance</button>`;
           } else {
-            actionBtnHtml = `<button class="ins-btn-action" onclick="openAuditTrailModal('${r.id}')">👁️ View</button>`;
+            actionBtnHtml = `<button class="ins-btn-action" onclick="openAuditTrailModal('${r.id}')"><i data-lucide="eye" style="width: 12px; height: 12px;"></i> View</button>`;
           }
 
           const mgrRemarksDisplay = (r.managerRemarks && r.managerRemarks !== '—') 
@@ -24145,21 +24182,33 @@
                 </div>
               </td>
               <td>
-                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                  <span class="ins-loan-badge" onclick="openAuditTrailModal('${r.id}')">${r.loanId}</span>
-                  ${r.ticketId ? `<a href="javascript:void(0)" class="tix-link-btn" onclick="openTicketInNewTab('${r.ticketId}')" style="font-size: 10px; padding: 1px 6px; font-family: monospace; font-weight: 700; text-decoration: none; cursor: pointer;" title="Click to open ticket ${r.ticketId} in new tab">${r.ticketId} ↗</a>` : ''}
+                <div style="display: flex; flex-direction: column; gap: 2px;">
+                  <div style="font-size: 10px; color: #0284C7; font-weight: 600; display: inline-flex; align-items: center; gap: 3px; white-space: nowrap;">
+                    <span>🚩</span> <span>${getInsRelativeDaysAgo(r.customerRequestDate || r.requestDate)}</span>
+                  </div>
+                  <span class="ins-loan-badge" onclick="openAuditTrailModal('${r.id}')" style="font-weight: 700; color: #1D4ED8; font-family: monospace; font-size: 12.5px;">${r.loanId}</span>
+                  ${isMulti ? `
+                    <span class="ins-multi-policy-badge" onclick="toggleInsuranceSubRow('${r.id}')" title="Click to toggle ${policies.length} insurance sub-rows" style="font-size: 9.5px; margin-top: 1px;">
+                      ${isExpanded ? '▾' : '▸'} ${policies.length} Policies
+                    </span>
+                  ` : ''}
                 </div>
-                <div style="font-size: 10.5px; color: #64748B; margin-top: 2px;">${r.id}</div>
-                ${isMulti ? `
-                  <span class="ins-multi-policy-badge" onclick="toggleInsuranceSubRow('${r.id}')" title="Click to toggle ${policies.length} insurance sub-rows">
-                    ${isExpanded ? '▾' : '▸'} ${policies.length} Policies
-                  </span>
-                ` : ''}
               </td>
               <td>
-                <div class="ins-cx-cell">
-                  <span class="ins-cx-name">${r.customerName}</span>
-                  <span class="ins-cx-phone">${r.customerPhone}</span>
+                ${r.ticketId ? `
+                  <a href="javascript:void(0)" class="tix-link-btn" onclick="openTicketInNewTab('${r.ticketId}')" style="font-size: 11px; padding: 2px 6px; font-family: monospace; font-weight: 700; text-decoration: none; cursor: pointer; border: 1px solid #BFDBFE; background: #EFF6FF; border-radius: 4px; color: #1D4ED8; display: inline-flex; align-items: center; gap: 3px; white-space: nowrap;" title="Click to open ticket ${r.ticketId} in new tab">
+                    <span>${r.ticketId}</span> <span style="font-size: 9.5px;">↗</span>
+                  </a>
+                ` : '<span style="color: #94A3B8;">—</span>'}
+              </td>
+              <td>
+                <div style="font-weight: 600; color: #0F172A; font-size: 12px; white-space: nowrap;">
+                  ${r.customerName}
+                </div>
+              </td>
+              <td>
+                <div style="font-family: monospace; color: #334155; font-size: 11.5px; font-weight: 500; white-space: nowrap;">
+                  ${r.customerPhone || '—'}
                 </div>
               </td>
               <td>
@@ -24263,13 +24312,23 @@
                   </td>
                   <td>
                     <div style="padding-left: 6px; font-weight: 700; color: #1E40AF; font-size: 11px; display: flex; align-items: center; gap: 4px;">
-                      <span>↳ Policy Item #${pIdx + 1}</span>
+                      <span>↳ Item #${pIdx + 1}</span>
                     </div>
-                    <div style="padding-left: 6px; font-size: 10px; color: #64748B;">Line for ${r.loanId}</div>
+                    <div style="padding-left: 6px; font-size: 10px; color: #64748B;">${r.loanId}</div>
+                  </td>
+                  <td>
+                    ${r.ticketId ? `
+                      <span style="font-size: 10.5px; font-family: monospace; color: #2563EB; font-weight: 600;">${r.ticketId}</span>
+                    ` : '<span style="color: #94A3B8;">—</span>'}
                   </td>
                   <td>
                     <div style="font-size: 11px; color: #475569; font-weight: 500;">
                       ${r.customerName}
+                    </div>
+                  </td>
+                  <td>
+                    <div style="font-size: 11px; color: #64748B; font-family: monospace;">
+                      ${r.customerPhone || '—'}
                     </div>
                   </td>
                   <td>
@@ -24358,20 +24417,6 @@
         }).join('');
       }
 
-      // Update sort indicators
-      const sortCols = ['loanId', 'customerName', 'company', 'amount', 'raisedBy', 'customerRequestDate', 'requestDate', 'approvedDate', 'status', 'refundDate'];
-      sortCols.forEach(col => {
-        const iconEl = document.getElementById(`sortIconIns-${col}`);
-        if (iconEl) {
-          if (insSortCol === col) {
-            iconEl.textContent = insSortAsc ? '▲' : '▼';
-            iconEl.style.color = '#0F5C56';
-          } else {
-            iconEl.textContent = '↕';
-            iconEl.style.color = '#94A3B8';
-          }
-        }
-      });
 
       // Update Pagination Summary & Controls
       const sumEl = document.getElementById('insPaginationSummary');
@@ -24476,13 +24521,21 @@
         'ACCOUNTS': document.getElementById('userDropAcc'),
         'ALL': document.getElementById('userDropAll')
       };
+      const topRoleItems = {
+        'LEGAL': document.getElementById('topRoleItem-LEGAL'),
+        'MANAGEMENT': document.getElementById('topRoleItem-MANAGEMENT'),
+        'ACCOUNTS': document.getElementById('topRoleItem-ACCOUNTS'),
+        'ALL': document.getElementById('topRoleItem-ALL')
+      };
+      const topRoleIcon = document.getElementById('topRolePillIcon');
+      const topRoleLabel = document.getElementById('topRolePillLabel');
 
       const nameEl = document.getElementById('compCurrentUserName');
       const roleEl = document.getElementById('compCurrentUserRole');
       const avatarEl = document.getElementById('compUserAvatarText');
       const avatarWrap = document.querySelector('.user-profile-badge .avatar-circle');
 
-      // Reset pill styles
+      // Reset pill & dropdown styles
       if (pills.LEGAL) pills.LEGAL.className = 'ins-persona-pill ins-pill-legal';
       if (pills.MANAGEMENT) pills.MANAGEMENT.className = 'ins-persona-pill ins-pill-mgr';
       if (pills.ACCOUNTS) pills.ACCOUNTS.className = 'ins-persona-pill ins-pill-acc';
@@ -24491,12 +24544,21 @@
       Object.values(dropItems).forEach(item => {
         if (item) item.classList.remove('active');
       });
+      Object.values(topRoleItems).forEach(item => {
+        if (item) item.classList.remove('active');
+      });
+
+      if (topRoleItems[insActivePersona]) {
+        topRoleItems[insActivePersona].classList.add('active');
+      }
 
       if (insActivePersona === 'LEGAL') {
         if (badge) {
           badge.textContent = '⚖️ Grievance';
           badge.className = 'ins-role-tag ins-tag-legal';
         }
+        if (topRoleIcon) topRoleIcon.textContent = '⚖️';
+        if (topRoleLabel) topRoleLabel.textContent = 'Grievance (Harvey Specter)';
         if (pills.LEGAL) pills.LEGAL.className = 'ins-persona-pill ins-pill-legal active';
         if (dropItems.LEGAL) dropItems.LEGAL.classList.add('active');
         if (nameEl) nameEl.textContent = 'Harvey Specter';
@@ -24508,6 +24570,8 @@
           badge.textContent = '👔 Manager (Satvinder Sir)';
           badge.className = 'ins-role-tag ins-tag-mgr';
         }
+        if (topRoleIcon) topRoleIcon.textContent = '👔';
+        if (topRoleLabel) topRoleLabel.textContent = 'Manager (Satvinder Sir)';
         if (pills.MANAGEMENT) pills.MANAGEMENT.className = 'ins-persona-pill ins-pill-mgr active-mgr';
         if (dropItems.MANAGEMENT) dropItems.MANAGEMENT.classList.add('active');
         if (nameEl) nameEl.textContent = 'Satvinder Sir';
@@ -24519,6 +24583,8 @@
           badge.textContent = '💳 Accounts';
           badge.className = 'ins-role-tag ins-tag-acc';
         }
+        if (topRoleIcon) topRoleIcon.textContent = '💳';
+        if (topRoleLabel) topRoleLabel.textContent = 'Accounts (Anjali Divecha)';
         if (pills.ACCOUNTS) pills.ACCOUNTS.className = 'ins-persona-pill ins-pill-acc active-acc';
         if (dropItems.ACCOUNTS) dropItems.ACCOUNTS.classList.add('active');
         if (nameEl) nameEl.textContent = 'Anjali Divecha';
@@ -24530,6 +24596,8 @@
           badge.textContent = '🌐 All Roles';
           badge.className = 'ins-role-tag ins-tag-all';
         }
+        if (topRoleIcon) topRoleIcon.textContent = '🌐';
+        if (topRoleLabel) topRoleLabel.textContent = 'All Roles';
         if (pills.ALL) pills.ALL.className = 'ins-persona-pill ins-pill-all active-all';
         if (dropItems.ALL) dropItems.ALL.classList.add('active');
         if (nameEl) nameEl.textContent = 'Auditor / Lead';
@@ -24689,7 +24757,7 @@
       let isAcko = false;
       let isOpd = false;
 
-      if (req.id === 'INS-REQ-1008' || req.loanId === 'LN-2026-2290' || (req.customerName && req.customerName.includes('Sneha'))) {
+      if (req.id === 'INS-REQ-1008' || req.loanId === '229007' || (req.customerName && req.customerName.includes('Sneha'))) {
         // Sneha Kulkarni: Health & EMI (Care) + OPD & Wellness selected (₹2400 + ₹2400 = ₹4800)
         isCare = true;
         isOpd = true;
@@ -24919,7 +24987,7 @@
         return req.policies;
       }
       const list = [];
-      if (req.id === 'INS-REQ-1014' || req.loanId === 'LN-2026-3388' || (req.customerName && req.customerName.includes('Priyanka'))) {
+      if (req.id === 'INS-REQ-1014' || req.loanId === '338813' || (req.customerName && req.customerName.includes('Priyanka'))) {
         list.push({ 
           key: 'care',
           type: 'Health & Emi Insurance(Care)', 
@@ -24962,7 +25030,7 @@
             paidDate: req.refundDate || '2026-09-24 14:15'
           } : null
         });
-      } else if (req.id === 'INS-REQ-1008' || req.loanId === 'LN-2026-2290' || (req.customerName && req.customerName.includes('Sneha'))) {
+      } else if (req.id === 'INS-REQ-1008' || req.loanId === '229007' || (req.customerName && req.customerName.includes('Sneha'))) {
         list.push({ 
           key: 'care',
           type: 'Health & Emi Insurance(Care)', 
@@ -25005,7 +25073,7 @@
             paidDate: req.refundDate || '2026-09-24 14:15'
           } : null
         });
-      } else if (req.id === 'INS-REQ-1011' || req.loanId === 'LN-2026-7822' || (req.customerName && req.customerName.includes('Rajesh'))) {
+      } else if (req.id === 'INS-REQ-1011' || req.loanId === '782210' || (req.customerName && req.customerName.includes('Rajesh'))) {
         list.push({ 
           key: 'care',
           type: 'Health & Emi Insurance(Care)', 
@@ -25176,14 +25244,14 @@
       const accNoEl = document.getElementById('accDetailAccountNumber');
       
       const defaultBankMap = {
-        'LN-2026-3388': { bank: 'HDFC Bank', ifsc: 'HDFC0003388', acc: '50100492837482' },
-        'LN-2026-2290': { bank: 'ICICI Bank', ifsc: 'ICIC0002290', acc: '002301594832' },
-        'LN-2026-7822': { bank: 'Axis Bank', ifsc: 'UTIB0007822', acc: '91802004829103' },
+        '338813': { bank: 'HDFC Bank', ifsc: 'HDFC0003388', acc: '50100492837482' },
+        '229007': { bank: 'ICICI Bank', ifsc: 'ICIC0002290', acc: '002301594832' },
+        '782210': { bank: 'Axis Bank', ifsc: 'UTIB0007822', acc: '91802004829103' },
         'LN-2026-1021': { bank: 'State Bank of India', ifsc: 'SBIN0001021', acc: '38920194820' },
-        'LN-2026-5521': { bank: 'Kotak Mahindra Bank', ifsc: 'KKBK0005521', acc: '7482910482' },
-        'LN-2026-6677': { bank: 'ICICI Bank', ifsc: 'ICIC0006677', acc: '109283746501' },
-        'LN-2026-7712': { bank: 'HDFC Bank', ifsc: 'HDFC0007712', acc: '5010083920194' },
-        'LN-2026-9923': { bank: 'State Bank of India', ifsc: 'SBIN0009923', acc: '40928174920' },
+        '552140': { bank: 'Kotak Mahindra Bank', ifsc: 'KKBK0005521', acc: '7482910482' },
+        '667712': { bank: 'ICICI Bank', ifsc: 'ICIC0006677', acc: '109283746501' },
+        '771288': { bank: 'HDFC Bank', ifsc: 'HDFC0007712', acc: '5010083920194' },
+        '992341': { bank: 'State Bank of India', ifsc: 'SBIN0009923', acc: '40928174920' },
         'LN-2026-4491': { bank: 'Punjab National Bank', ifsc: 'PUNB0004491', acc: '0491002918374' }
       };
 
@@ -25328,14 +25396,14 @@
       // Update beneficiary bank wire pill
       const cleanLoanId = req.loanId || '';
       const defaultBankMap = {
-        'LN-2026-3388': { bank: 'HDFC Bank', ifsc: 'HDFC0003388', acc: '50100492837482' },
-        'LN-2026-2290': { bank: 'ICICI Bank', ifsc: 'ICIC0002290', acc: '002301594832' },
-        'LN-2026-7822': { bank: 'Axis Bank', ifsc: 'UTIB0007822', acc: '91802004829103' },
+        '338813': { bank: 'HDFC Bank', ifsc: 'HDFC0003388', acc: '50100492837482' },
+        '229007': { bank: 'ICICI Bank', ifsc: 'ICIC0002290', acc: '002301594832' },
+        '782210': { bank: 'Axis Bank', ifsc: 'UTIB0007822', acc: '91802004829103' },
         'LN-2026-1021': { bank: 'State Bank of India', ifsc: 'SBIN0001021', acc: '38920194820' },
-        'LN-2026-5521': { bank: 'Kotak Mahindra Bank', ifsc: 'KKBK0005521', acc: '7482910482' },
-        'LN-2026-6677': { bank: 'ICICI Bank', ifsc: 'ICIC0006677', acc: '109283746501' },
-        'LN-2026-7712': { bank: 'HDFC Bank', ifsc: 'HDFC0007712', acc: '5010083920194' },
-        'LN-2026-9923': { bank: 'State Bank of India', ifsc: 'SBIN0009923', acc: '40928174920' },
+        '552140': { bank: 'Kotak Mahindra Bank', ifsc: 'KKBK0005521', acc: '7482910482' },
+        '667712': { bank: 'ICICI Bank', ifsc: 'ICIC0006677', acc: '109283746501' },
+        '771288': { bank: 'HDFC Bank', ifsc: 'HDFC0007712', acc: '5010083920194' },
+        '992341': { bank: 'State Bank of India', ifsc: 'SBIN0009923', acc: '40928174920' },
         'LN-2026-4491': { bank: 'Punjab National Bank', ifsc: 'PUNB0004491', acc: '0491002918374' }
       };
       const bankInfo = (req.bankName && req.ifscCode && req.accountNumber) 
@@ -25788,12 +25856,12 @@
 
     /* Export CSV */
     function exportInsuranceCSV() {
-      let csv = 'Request ID,Loan ID,Customer Name,Phone,Insurance Company,Insurance Type,Policy Number,Refund Amount,Created By,Customer Request Date,Refund Process Initiated Date,Verified / Approved By,Approved Date & Time,Manager Remarks,Status,Refund Date & Time,Accounts Remarks,Payment Reference,Refund Proof Doc\n';
+      let csv = 'Request ID,Loan ID,Ticket ID,Customer Name,Phone,Insurance Company,Insurance Type,Policy Number,Refund Amount,Created By,Customer Request Date,Refund Process Initiated Date,Verified / Approved By,Approved Date & Time,Manager Remarks,Status,Refund Date & Time,Accounts Remarks,Payment Reference,Refund Proof Doc\n';
       INSURANCE_REQUESTS.forEach(r => {
         const approvedByDisplay = r.approvedBy !== '—' ? r.approvedBy : (r.verifiedBy !== '—' ? r.verifiedBy : '—');
         const mgrRem = (r.managerRemarks || r.remarks || '—').replace(/"/g, '""');
         const accRem = (r.accountsRemarks || '—').replace(/"/g, '""');
-        csv += `"${r.id}","${r.loanId}","${r.customerName}","${r.customerPhone}","${r.company}","${r.type}","${r.policyNumber}","${r.amount}","${r.raisedBy}","${r.customerRequestDate || r.requestDate}","${r.requestDate}","${approvedByDisplay}","${r.approvedDate || '—'}","${mgrRem}","${r.status}","${r.refundDate || '—'}","${accRem}","${r.paymentRef || '—'}","${r.refundProofDoc || '—'}"\n`;
+        csv += `"${r.id}","${r.loanId}","${r.ticketId || '—'}","${r.customerName}","${r.customerPhone}","${r.company}","${r.type}","${r.policyNumber}","${r.amount}","${r.raisedBy}","${r.customerRequestDate || r.requestDate}","${r.requestDate}","${approvedByDisplay}","${r.approvedDate || '—'}","${mgrRem}","${r.status}","${r.refundDate || '—'}","${accRem}","${r.paymentRef || '—'}","${r.refundProofDoc || '—'}"\n`;
       });
 
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -25809,7 +25877,7 @@
     function refreshInsuranceTracker() {
       updateInsuranceKPIs();
       renderInsuranceTable();
-      showToast('Insurance tracker refreshed.');
+      showToast('Insurance refund tracker refreshed.');
     }
 
     /* Insurance Creation Email Notification Template Generator (Matching Chinmay Brand & Spec) */

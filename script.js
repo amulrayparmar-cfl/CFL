@@ -1767,6 +1767,30 @@ function switchRailItem(el, targetKey) {
   document.querySelectorAll('.left-rail .rail-item').forEach(item => item.classList.remove('active'));
   if (el) el.classList.add('active');
 
+  const railHeaderTitleMap = {
+    security: 'Compliance',
+    chat: 'Chatbox',
+    home: 'Dashboard',
+    tasks: 'My Tickets',
+    teams: 'Customer Directory',
+    analytics: 'KPI Analytics',
+    misc: 'MISC · DID Management',
+    financials: 'Financials & Currency Records',
+    broadcasts: 'Broadcasts & Campaigns',
+    accounts: 'Customer Profiles & Accounts',
+    branches: 'Banking Services & Branches',
+    reports: 'System Reports & Documents',
+    contacts: 'Agent Directory & Contacts',
+    settings: 'System Settings & Preferences',
+    legal: 'Legal & Risk Assessment',
+    activity: 'Activity Logs & 90-Day Cooldowns'
+  };
+
+  const topTitleEl = document.getElementById('topHeaderTitle') || document.querySelector('.top-header .header-title');
+  if (topTitleEl) {
+    topTitleEl.textContent = railHeaderTitleMap[targetKey] || 'Chatbox';
+  }
+
   const mainChat = document.getElementById('main-chat-console');
   const genericView = document.getElementById('generic-rail-view');
   const miscView = document.getElementById('misc-did-view');
