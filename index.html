@@ -6691,6 +6691,42 @@
       text-decoration: underline;
     }
 
+    .ins-table-link {
+      color: #2563EB;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.15s ease;
+      cursor: pointer;
+    }
+
+    .ins-table-link:hover {
+      color: #1D4ED8;
+      text-decoration: underline;
+    }
+
+    .ins-table-link.ticket-link {
+      font-family: monospace;
+      font-size: 12px;
+      color: #2563EB;
+      font-weight: 600;
+    }
+
+    .ins-table-link.ticket-link:hover {
+      color: #1E40AF;
+      text-decoration: underline;
+    }
+
+    .ins-table-link.cust-link {
+      font-size: 12px;
+      color: #2563EB;
+      font-weight: 600;
+    }
+
+    .ins-table-link.cust-link:hover {
+      color: #1D4ED8;
+      text-decoration: underline;
+    }
+
     .ins-cx-cell {
       display: flex;
       flex-direction: column;
@@ -7200,6 +7236,104 @@
       box-shadow: 0 1px 3px rgba(15,92,86,0.3);
     }
 
+    /* Email Composer Module with Interactive Chips (Matching Image 1) */
+    .ins-email-chips-box {
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      background: #FFFFFF;
+      padding: 5px 10px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      min-height: 38px;
+      cursor: text;
+      transition: all 0.15s ease;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    }
+
+    .ins-email-chips-box:focus-within {
+      border-color: #2563EB;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .ins-recipient-chip {
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      border-radius: 20px;
+      padding: 3px 10px 3px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #1E40AF;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      user-select: none;
+      box-shadow: 0 1px 2px rgba(37, 99, 235, 0.04);
+      transition: all 0.15s ease;
+    }
+
+    .ins-recipient-chip:hover {
+      background: #DBEAFE;
+      border-color: #93C5FD;
+    }
+
+    .ins-recipient-chip .ins-chip-text {
+      max-width: 260px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .ins-recipient-chip .ins-chip-edit-btn {
+      color: #F97316;
+      cursor: pointer;
+      font-size: 11px;
+      transition: transform 0.12s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1px;
+    }
+
+    .ins-recipient-chip .ins-chip-edit-btn:hover {
+      transform: scale(1.2);
+    }
+
+    .ins-recipient-chip .ins-chip-remove-btn {
+      color: #64748B;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      margin-left: 1px;
+      transition: color 0.12s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1px;
+    }
+
+    .ins-recipient-chip .ins-chip-remove-btn:hover {
+      color: #DC2626;
+    }
+
+    .ins-email-inline-input {
+      border: none !important;
+      outline: none !important;
+      background: transparent !important;
+      font-size: 12px !important;
+      color: #0F172A !important;
+      flex: 1 !important;
+      min-width: 180px !important;
+      padding: 2px 0 !important;
+      box-shadow: none !important;
+    }
+
+    .ins-email-inline-input::placeholder {
+      color: #94A3B8;
+      font-weight: 400;
+    }
+
     /* =========================================================
        RECORD PAYMENT MODAL & INDIVIDUAL PAYOUT STYLES (Screenshot 2)
     ========================================================= */
@@ -7627,20 +7761,11 @@
     }
 
     .ins-row-file-badge {
-      display: inline-flex;
-      align-items: center;
+      display: flex;
+      flex-direction: column;
       gap: 4px;
-      padding: 4px 8px;
-      border-radius: 6px;
-      background: #EFF6FF;
-      border: 1px solid #BFDBFE;
       font-size: 11px;
-      color: #1E40AF;
-      font-weight: 600;
-      max-width: 140px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      width: 100%;
     }
 
     .ins-grid-summary-bar {
@@ -10126,16 +10251,17 @@
                       <th style="min-width: 110px;">Phone</th>
                       <th style="min-width: 125px;">Insurance Company</th>
                       <th style="min-width: 125px;">Policy Number</th>
-                      <th style="min-width: 145px;">Insurance refund proof</th>
+                      <th style="min-width: 220px;">Refund proof from Insurance Company</th>
                       <th style="min-width: 135px;">Insurance Type</th>
                       <th style="min-width: 105px;">Refund Amount</th>
                       <th style="min-width: 125px;">Created By</th>
                       <th style="min-width: 130px;">Customer Request Date</th>
                       <th style="min-width: 130px;">Refund Process Initiated Date</th>
-                      <th style="min-width: 130px;">Verified / Approved By</th>
+                      <th style="min-width: 130px;">Approved by</th>
                       <th style="min-width: 130px;">Approved Date &amp; Time</th>
                       <th style="min-width: 140px;">Manager's Remarks</th>
                       <th style="min-width: 110px;">Status</th>
+                      <th style="min-width: 175px;">Refund proof from CFL</th>
                       <th style="min-width: 125px;">Refund Date &amp; Time</th>
                       <th style="min-width: 140px;">Accounts Remarks</th>
                     </tr>
@@ -10280,9 +10406,9 @@
                       <td><span style="font-size: 12px; color: #475569; font-family: monospace;">INV-APX-2026-0891</span><br><span style="font-size:10px; color:#2563EB; font-weight:500;">CLOUD-INFRA</span></td>
                       <td><span style="font-size: 12px; color: #475569;">Apex Cloud Technologies India Pvt Ltd</span></td>
                       <td><button type="button" class="ins-btn-action" style="font-size: 11.5px; padding: 4px 10px; background: #FFFFFF; color: #475569; border: 1px solid #CBD5E1; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 500;"><i data-lucide="eye" style="width: 13px; height: 13px; color: #475569;"></i> inv_apex_0891.pdf</button></td>
-                      <td><span style="font-size: 12px; color: #475569;">₹3,45,600</span></td>
-                      <td><span style="font-size: 12px; color: #475569;">₹6,912</span></td>
-                      <td><span style="font-size: 12px; color: #475569;">₹3,38,688</span></td>
+                      <td><span style="font-size: 12px; color: #475569;">3,45,600</span></td>
+                      <td><span style="font-size: 12px; color: #475569;">6,912</span></td>
+                      <td><span style="font-size: 12px; color: #475569;">3,38,688</span></td>
                       <td><span style="font-size: 12px; color: #475569; font-family: monospace;">28/09/2026</span></td>
                       <td><span style="font-size: 12px; color: #475569;">Thor Odinson</span></td>
                       <td><span style="font-size: 12px; color: #475569;">Satvinder Sir</span></td>
@@ -10296,9 +10422,9 @@
                       <td><span style="font-size: 12px; color: #475569; font-family: monospace;">FINB-9842-2627</span><br><span style="font-size:10px; color:#2563EB; font-weight:500;">CORE-LMS</span></td>
                       <td><span style="font-size: 12px; color: #475569;">FinBridge Software Systems LLP</span></td>
                       <td><button type="button" class="ins-btn-action" style="font-size: 11.5px; padding: 4px 10px; background: #FFFFFF; color: #475569; border: 1px solid #CBD5E1; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 500;"><i data-lucide="eye" style="width: 13px; height: 13px; color: #475569;"></i> finb_core_slip.pdf</button></td>
-                      <td><span style="font-size: 12px; color: #475569;">₹5,80,000</span></td>
-                      <td><span style="font-size: 12px; color: #475569;">₹11,600</span></td>
-                      <td><span style="font-size: 12px; color: #475569;">₹5,68,400</span></td>
+                      <td><span style="font-size: 12px; color: #475569;">5,80,000</span></td>
+                      <td><span style="font-size: 12px; color: #475569;">11,600</span></td>
+                      <td><span style="font-size: 12px; color: #475569;">5,68,400</span></td>
                       <td><span style="font-size: 12px; color: #475569; font-family: monospace;">05/10/2026</span></td>
                       <td><span style="font-size: 12px; color: #475569;">Riya Shah</span></td>
                       <td><span style="font-size: 12px; color: #475569;">Satvinder Sir</span></td>
@@ -10312,9 +10438,9 @@
                       <td><span style="font-size: 12px; color: #475569; font-family: monospace;">TVID-IN-26-4412</span><br><span style="font-size:10px; color:#2563EB; font-weight:500;">KYC-API</span></td>
                       <td><span style="font-size: 12px; color: #475569;">TrustVerify ID Solutions India Ltd</span></td>
                       <td><button type="button" class="ins-btn-action" style="font-size: 11.5px; padding: 4px 10px; background: #FFFFFF; color: #475569; border: 1px solid #CBD5E1; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 500;"><i data-lucide="eye" style="width: 13px; height: 13px; color: #475569;"></i> tvid_api_bill.pdf</button></td>
-                      <td><span style="font-size: 12px; color: #475569;">₹88,500</span></td>
-                      <td><span style="font-size: 12px; color: #475569;">₹1,770</span></td>
-                      <td><span style="font-size: 12px; color: #475569;">₹86,730</span></td>
+                      <td><span style="font-size: 12px; color: #475569;">88,500</span></td>
+                      <td><span style="font-size: 12px; color: #475569;">1,770</span></td>
+                      <td><span style="font-size: 12px; color: #475569;">86,730</span></td>
                       <td><span style="font-size: 12px; color: #475569; font-family: monospace;">25/09/2026</span></td>
                       <td><span style="font-size: 12px; color: #475569;">Thor Odinson</span></td>
                       <td><span style="font-size: 12px; color: #475569;">Priya Patel</span></td>
@@ -10548,25 +10674,25 @@
               </div>
             </div>
 
-            <!-- Field 3: Customer Name (Auto-Fetched Separately) -->
+            <!-- Field 3: Customer Name (Auto-Fetched Separately / Editable) -->
             <div>
               <label for="insFormCustomerName" class="ins-top-field-label">Customer Name</label>
               <div>
-                <input type="text" id="insFormCustomerName" class="ins-top-field-input" placeholder="Customer Name" readonly style="font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" value="Kavita Iyer">
+                <input type="text" id="insFormCustomerName" class="ins-top-field-input" placeholder="Customer Name" style="font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" value="Kavita Iyer">
               </div>
             </div>
 
-            <!-- Field 4: Phone Number (Auto-Fetched Separately) -->
+            <!-- Field 4: Phone Number (Auto-Fetched Separately / Editable) -->
             <div>
               <label for="insFormCustomerPhone" class="ins-top-field-label">Phone Number</label>
               <div>
-                <input type="text" id="insFormCustomerPhone" class="ins-top-field-input" placeholder="Phone Number" readonly style="font-weight: 500; font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" value="9811233490">
+                <input type="text" id="insFormCustomerPhone" class="ins-top-field-input" placeholder="Phone Number" style="font-weight: 500; font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" value="9811233490">
               </div>
             </div>
           </div>
 
-          <!-- Request Meta Bar in Create Modal with Customer Request Date & 'To' Email Input -->
-          <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 7px 14px; margin-bottom: 14px; font-size: 12px; color: #475569; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 14px;">
+          <!-- Request Meta Bar in Create Modal with Created By & Customer Request Date -->
+          <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 7px 14px; margin-bottom: 12px; font-size: 12px; color: #475569; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 14px;">
             <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;">
               <span>Created By: <strong id="insFormRaisedByDisplay" style="color: #0F172A;">Harvey Specter (Grievance)</strong></span>
               <span style="color: #CBD5E1;">•</span>
@@ -10577,21 +10703,66 @@
                 <input type="datetime-local" id="insFormCustomerRequestDate" class="ins-grid-input" style="height: 28px; width: 165px; padding: 2px 6px; font-size: 11.5px; font-family: monospace; font-weight: 600; border-radius: 6px; border: 1px solid #CBD5E1; background: #FFFFFF; color: #0F172A; box-shadow: inset 0 1px 2px rgba(0,0,0,0.03);" title="Date and time when the customer requested insurance cancellation" required>
               </div>
             </div>
-            <!-- To: Email Address Input with Suggestions Dropdown underneath -->
-            <div style="position: relative; display: flex; align-items: center; gap: 6px; flex: 1; min-width: 280px; max-width: 480px;">
-              <span style="color: #CBD5E1;">•</span>
-              <label for="insFormNotifyEmails" style="font-weight: 700; color: #0F172A; font-size: 12px; white-space: nowrap; display: flex; align-items: center; gap: 4px; cursor: pointer;">
-                <i data-lucide="mail" style="width: 13px; height: 13px; color: #0F5C56;"></i> To:
-              </label>
-              <div style="position: relative; width: 100%; display: flex; align-items: center;">
-                <input type="text" id="insFormNotifyEmails" class="ins-grid-input" style="height: 28px; padding: 2px 24px 2px 8px; font-size: 11.5px; border-radius: 6px; border: 1px solid #CBD5E1; background: #FFFFFF; color: #0F172A; width: 100%; box-shadow: inset 0 1px 2px rgba(0,0,0,0.03);" placeholder="Type emails or select suggestions (comma separated)..." value="Accounts@chinmayfinlease.com" title="Emails to notify upon request creation (comma separated)" autocomplete="off" onfocus="showInsEmailSuggestions()" oninput="filterInsEmailSuggestions(this.value)">
-                <button type="button" onclick="toggleInsEmailSuggestions()" style="position: absolute; right: 4px; background: none; border: none; color: #64748B; cursor: pointer; display: flex; align-items: center; padding: 2px;" title="Show suggested recipient emails">
+            <div style="font-size: 11px; color: #64748B;">
+              Intake Channel: <strong style="color: #0F172A;">insurance@chinmayfinlease.in</strong>
+            </div>
+          </div>
+
+          <!-- Email Composer Module (Matching Image 1) -->
+          <div class="ins-email-composer-section" style="margin-bottom: 14px;">
+            <input type="hidden" id="insFormNotifyEmails" value="amul.roy@gmail.com, Accounts@chinmayfinlease.com">
+            
+            <!-- To (Recipients) Row -->
+            <div class="ins-email-composer-field" style="margin-bottom: 8px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
+                <label class="ins-email-composer-label" style="font-size: 12px; font-weight: 700; color: #1E293B; display: flex; align-items: center; gap: 4px;">
+                  <span>To</span>
+                  <span style="font-size: 11px; font-weight: 500; color: #64748B;">(Recipients)</span>
+                </label>
+                <button type="button" id="insBtnToggleCc" onclick="toggleInsCcRow()" style="background: none; border: none; font-size: 12px; font-weight: 700; color: #0F5C56; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; padding: 0;" title="Toggle CC recipients field">
+                  + Add Cc
+                </button>
+              </div>
+
+              <!-- Interactive Chip Input Container (Matching Image 1) -->
+              <div class="ins-email-chips-box" id="insToChipsBox" onclick="focusEmailInput('to')" style="position: relative;">
+                <div id="insToChipsContainer" style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
+                  <!-- Dynamic Chips Rendered Here via JS -->
+                </div>
+                <input type="text" id="insToEmailInput" class="ins-email-inline-input" placeholder="Type email and press Enter or comma..." autocomplete="off" onkeydown="handleEmailInputKeydown(event, 'to')" onfocus="showInsEmailSuggestions('to')" oninput="filterInsEmailSuggestions(this.value, 'to')">
+                <button type="button" onclick="event.stopPropagation(); toggleInsEmailSuggestions('to')" style="background: none; border: none; color: #94A3B8; cursor: pointer; display: flex; align-items: center; padding: 2px;" title="Show suggested recipient emails">
                   <i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i>
                 </button>
-                <!-- Suggested Emails Dropdown attached directly underneath To: input -->
-                <div id="insEmailSuggestionsList" class="ins-email-suggestions-dropdown" style="display: none;">
-                  <!-- Populated dynamically via JavaScript with quick chips and suggestion items -->
+
+                <!-- Suggestions Dropdown for To -->
+                <div id="insToSuggestionsList" class="ins-email-suggestions-dropdown" style="display: none;"></div>
+              </div>
+            </div>
+
+            <!-- Cc (Recipients) Row (Toggled via + Add Cc) -->
+            <div id="insCcComposerRow" class="ins-email-composer-field" style="display: none; margin-bottom: 8px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
+                <label class="ins-email-composer-label" style="font-size: 12px; font-weight: 700; color: #1E293B; display: flex; align-items: center; gap: 4px;">
+                  <span>Cc</span>
+                  <span style="font-size: 11px; font-weight: 500; color: #64748B;">(Carbon Copy)</span>
+                </label>
+                <button type="button" onclick="toggleInsCcRow()" style="background: none; border: none; font-size: 12px; font-weight: 700; color: #DC2626; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; padding: 0;" title="Remove CC field">
+                  ✕ Remove Cc
+                </button>
+              </div>
+
+              <!-- Interactive CC Chip Input Container -->
+              <div class="ins-email-chips-box" id="insCcChipsBox" onclick="focusEmailInput('cc')" style="position: relative;">
+                <div id="insCcChipsContainer" style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
+                  <!-- Dynamic CC Chips Rendered Here via JS -->
                 </div>
+                <input type="text" id="insCcEmailInput" class="ins-email-inline-input" placeholder="Type email and press Enter or comma..." autocomplete="off" onkeydown="handleEmailInputKeydown(event, 'cc')" onfocus="showInsEmailSuggestions('cc')" oninput="filterInsEmailSuggestions(this.value, 'cc')">
+                <button type="button" onclick="event.stopPropagation(); toggleInsEmailSuggestions('cc')" style="background: none; border: none; color: #94A3B8; cursor: pointer; display: flex; align-items: center; padding: 2px;" title="Show suggested recipient emails">
+                  <i data-lucide="chevron-down" style="width: 14px; height: 14px;"></i>
+                </button>
+
+                <!-- Suggestions Dropdown for CC -->
+                <div id="insCcSuggestionsList" class="ins-email-suggestions-dropdown" style="display: none;"></div>
               </div>
             </div>
           </div>
@@ -10603,12 +10774,13 @@
                 <tr>
                   <th style="width: 230px; min-width: 200px;">Insurance type</th>
                   <th style="width: 170px; min-width: 150px;">Policy no</th>
-                  <th style="width: 140px; min-width: 120px;">Refund Amount (₹)</th>
-                  <th style="width: 145px; min-width: 130px;">Proof of attachment</th>
-                  <th style="min-width: 240px;">Remarks</th>
+                  <th style="width: 140px; min-width: 120px;">Refund Amount</th>
+                  <th style="width: 210px; min-width: 180px;">Refund proof from Insurance Company</th>
+                  <th style="min-width: 220px;">Remarks</th>
+                  <th style="width: 40px; text-align: center;"></th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody id="insGridTableBody">
                 <!-- Row 1: Health & Emi Insurance(Care) -->
                 <tr id="insGridRow_care" class="row-active">
                   <td>
@@ -10622,7 +10794,7 @@
                   <td>
                     <div class="ins-policy-input-wrap">
                       <input type="text" id="insPolicy_care" class="ins-grid-input" placeholder="e.g. CARE-HL-6634-12">
-                      <button type="button" class="ins-policy-eye-btn" id="insPolicyEye_care" title="click to view unsrance pilcy document" onclick="viewPolicyDocByNumber(document.getElementById('insPolicy_care').value, 'Care Health &amp; EMI')">
+                      <button type="button" class="ins-policy-eye-btn" id="insPolicyEye_care" title="click to view insurance policy document" onclick="viewPolicyDocByNumber(document.getElementById('insPolicy_care').value, 'Care Health &amp; EMI')">
                         <i data-lucide="eye" style="width: 13px; height: 13px;"></i>
                       </button>
                     </div>
@@ -10631,20 +10803,35 @@
                     <input type="number" id="insRefund_care" class="ins-grid-input" placeholder="0" min="0" step="1" oninput="calculateGridTotalRefund()">
                   </td>
                   <td>
-                    <div class="ins-row-file-wrap">
-                      <input type="file" id="insFile_care" style="display:none;" accept=".pdf,.jpg,.jpeg,.png" onchange="handleGridRowFileUpload('care', event)">
-                      <button type="button" class="ins-row-upload-btn" id="insUploadBtn_care" onclick="document.getElementById('insFile_care').click()">
-                        <i data-lucide="upload" style="width: 12px; height: 12px;"></i> Upload
+                    <div class="ins-row-file-wrap" style="display: flex; flex-direction: column; gap: 4px; width: 100%;">
+                      <input type="file" id="insFile_care" style="display:none;" accept=".pdf,.jpg,.jpeg,.png,.webp" onchange="handleGridRowFileUpload('care', event)">
+                      <button type="button" class="ins-row-upload-btn" id="insUploadBtn_care" onclick="document.getElementById('insFile_care').click()" style="display: inline-flex; align-items: center; justify-content: center; gap: 5px; font-size: 11px; padding: 5px 8px; border-radius: 6px; border: 1px dashed #93C5FD; background: #F8FAFC; color: #1D4ED8; font-weight: 600; cursor: pointer; transition: all 0.15s;">
+                        <i data-lucide="upload" style="width: 12px; height: 12px;"></i> Upload Proof
                       </button>
-                      <div id="insFileBadge_care" class="ins-row-file-badge" style="display: none;">
-                        <span id="insFileName_care">slip.pdf</span>
-                        <span onclick="removeGridRowFile('care')" style="color:#DC2626; cursor:pointer; margin-left:2px;">✕</span>
+                      <div id="insFileBadge_care" style="display: none; flex-direction: column; gap: 4px; width: 100%;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 5px; background: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 6px; padding: 4px 6px;">
+                          <div style="display: flex; align-items: center; gap: 4px; min-width: 0; flex: 1;">
+                            <i data-lucide="file-text" style="width: 12px; height: 12px; color: #2563EB; flex-shrink: 0;"></i>
+                            <span id="insFileName_care" style="font-size: 11px; font-weight: 600; color: #1E293B; cursor: pointer; text-decoration: underline; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px;" onclick="previewCurrentRowProof('care')" title="Click to view file">slip.pdf</span>
+                          </div>
+                          <div style="display: flex; align-items: center; gap: 2px; flex-shrink: 0;">
+                            <button type="button" onclick="previewCurrentRowProof('care')" style="background: none; border: none; color: #475569; cursor: pointer; padding: 1px 3px;" title="Preview proof document">
+                              <i data-lucide="eye" style="width: 11px; height: 11px;"></i>
+                            </button>
+                            <span onclick="removeGridRowFile('care')" style="color:#DC2626; cursor:pointer; font-size: 11px; font-weight: bold; padding: 1px 3px;" title="Remove file">✕</span>
+                          </div>
+                        </div>
+                        <button type="button" onclick="document.getElementById('insFile_care').click()" style="display: inline-flex; align-items: center; justify-content: center; gap: 4px; font-size: 10px; background: #EFF6FF; border: 1px dashed #93C5FD; color: #2563EB; border-radius: 4px; padding: 2px 6px; cursor: pointer; font-weight: 600;" title="Upload revised or another proof document from company">
+                          <i data-lucide="upload" style="width: 10px; height: 10px;"></i> + Upload Another Proof
+                        </button>
                       </div>
+                      <div id="insPrevDocRef_care" style="display: none; font-size: 10px; line-height: 1.2;"></div>
                     </div>
                   </td>
                   <td>
                     <input type="text" id="insRemarks_care" class="ins-grid-input" placeholder="Enter remarks or reason...">
                   </td>
+                  <td></td>
                 </tr>
 
                 <!-- Row 2: Loss of job Insurance(Acko) -->
@@ -10660,7 +10847,7 @@
                   <td>
                     <div class="ins-policy-input-wrap">
                       <input type="text" id="insPolicy_acko" class="ins-grid-input" placeholder="e.g. ACK-LP-6634-11">
-                      <button type="button" class="ins-policy-eye-btn" id="insPolicyEye_acko" title="click to view unsrance pilcy document" onclick="viewPolicyDocByNumber(document.getElementById('insPolicy_acko').value, 'Loss of job (Acko)')">
+                      <button type="button" class="ins-policy-eye-btn" id="insPolicyEye_acko" title="click to view insurance policy document" onclick="viewPolicyDocByNumber(document.getElementById('insPolicy_acko').value, 'Loss of job (Acko)')">
                         <i data-lucide="eye" style="width: 13px; height: 13px;"></i>
                       </button>
                     </div>
@@ -10669,20 +10856,35 @@
                     <input type="number" id="insRefund_acko" class="ins-grid-input" placeholder="0" min="0" step="1" oninput="calculateGridTotalRefund()">
                   </td>
                   <td>
-                    <div class="ins-row-file-wrap">
-                      <input type="file" id="insFile_acko" style="display:none;" accept=".pdf,.jpg,.jpeg,.png" onchange="handleGridRowFileUpload('acko', event)">
-                      <button type="button" class="ins-row-upload-btn" id="insUploadBtn_acko" onclick="document.getElementById('insFile_acko').click()">
-                        <i data-lucide="upload" style="width: 12px; height: 12px;"></i> Upload
+                    <div class="ins-row-file-wrap" style="display: flex; flex-direction: column; gap: 4px; width: 100%;">
+                      <input type="file" id="insFile_acko" style="display:none;" accept=".pdf,.jpg,.jpeg,.png,.webp" onchange="handleGridRowFileUpload('acko', event)">
+                      <button type="button" class="ins-row-upload-btn" id="insUploadBtn_acko" onclick="document.getElementById('insFile_acko').click()" style="display: inline-flex; align-items: center; justify-content: center; gap: 5px; font-size: 11px; padding: 5px 8px; border-radius: 6px; border: 1px dashed #93C5FD; background: #F8FAFC; color: #1D4ED8; font-weight: 600; cursor: pointer; transition: all 0.15s;">
+                        <i data-lucide="upload" style="width: 12px; height: 12px;"></i> Upload Proof
                       </button>
-                      <div id="insFileBadge_acko" class="ins-row-file-badge" style="display: none;">
-                        <span id="insFileName_acko">slip.pdf</span>
-                        <span onclick="removeGridRowFile('acko')" style="color:#DC2626; cursor:pointer; margin-left:2px;">✕</span>
+                      <div id="insFileBadge_acko" style="display: none; flex-direction: column; gap: 4px; width: 100%;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 5px; background: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 6px; padding: 4px 6px;">
+                          <div style="display: flex; align-items: center; gap: 4px; min-width: 0; flex: 1;">
+                            <i data-lucide="file-text" style="width: 12px; height: 12px; color: #2563EB; flex-shrink: 0;"></i>
+                            <span id="insFileName_acko" style="font-size: 11px; font-weight: 600; color: #1E293B; cursor: pointer; text-decoration: underline; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px;" onclick="previewCurrentRowProof('acko')" title="Click to view file">slip.pdf</span>
+                          </div>
+                          <div style="display: flex; align-items: center; gap: 2px; flex-shrink: 0;">
+                            <button type="button" onclick="previewCurrentRowProof('acko')" style="background: none; border: none; color: #475569; cursor: pointer; padding: 1px 3px;" title="Preview proof document">
+                              <i data-lucide="eye" style="width: 11px; height: 11px;"></i>
+                            </button>
+                            <span onclick="removeGridRowFile('acko')" style="color:#DC2626; cursor:pointer; font-size: 11px; font-weight: bold; padding: 1px 3px;" title="Remove file">✕</span>
+                          </div>
+                        </div>
+                        <button type="button" onclick="document.getElementById('insFile_acko').click()" style="display: inline-flex; align-items: center; justify-content: center; gap: 4px; font-size: 10px; background: #EFF6FF; border: 1px dashed #93C5FD; color: #2563EB; border-radius: 4px; padding: 2px 6px; cursor: pointer; font-weight: 600;" title="Upload revised or another proof document from company">
+                          <i data-lucide="upload" style="width: 10px; height: 10px;"></i> + Upload Another Proof
+                        </button>
                       </div>
+                      <div id="insPrevDocRef_acko" style="display: none; font-size: 10px; line-height: 1.2;"></div>
                     </div>
                   </td>
                   <td>
                     <input type="text" id="insRemarks_acko" class="ins-grid-input" placeholder="Enter remarks or reason...">
                   </td>
+                  <td></td>
                 </tr>
 
                 <!-- Row 3: OPD & Wellness -->
@@ -10698,7 +10900,7 @@
                   <td>
                     <div class="ins-policy-input-wrap">
                       <input type="text" id="insPolicy_opd" class="ins-grid-input" placeholder="e.g. OPD-WEL-6634-03" disabled>
-                      <button type="button" class="ins-policy-eye-btn" id="insPolicyEye_opd" title="click to view unsrance pilcy document" onclick="viewPolicyDocByNumber(document.getElementById('insPolicy_opd').value, 'OPD &amp; Wellness')">
+                      <button type="button" class="ins-policy-eye-btn" id="insPolicyEye_opd" title="click to view insurance policy document" onclick="viewPolicyDocByNumber(document.getElementById('insPolicy_opd').value, 'OPD &amp; Wellness')">
                         <i data-lucide="eye" style="width: 13px; height: 13px;"></i>
                       </button>
                     </div>
@@ -10707,24 +10909,40 @@
                     <input type="number" id="insRefund_opd" class="ins-grid-input" placeholder="0" min="0" step="1" disabled oninput="calculateGridTotalRefund()">
                   </td>
                   <td>
-                    <div class="ins-row-file-wrap">
-                      <input type="file" id="insFile_opd" style="display:none;" accept=".pdf,.jpg,.jpeg,.png" onchange="handleGridRowFileUpload('opd', event)">
+                    <div class="ins-row-file-wrap" style="display: flex; flex-direction: column; gap: 4px; width: 100%;">
+                      <input type="file" id="insFile_opd" style="display:none;" accept=".pdf,.jpg,.jpeg,.png,.webp" onchange="handleGridRowFileUpload('opd', event)">
                       <button type="button" class="ins-row-upload-btn" id="insUploadBtn_opd" style="display:none;" onclick="document.getElementById('insFile_opd').click()">
-                        <i data-lucide="upload" style="width: 12px; height: 12px;"></i> Upload
+                        <i data-lucide="upload" style="width: 12px; height: 12px;"></i> Upload Proof
                       </button>
-                      <div id="insFileBadge_opd" class="ins-row-file-badge" style="display: none;">
-                        <span id="insFileName_opd">slip.pdf</span>
-                        <span onclick="removeGridRowFile('opd')" style="color:#DC2626; cursor:pointer; margin-left:2px;">✕</span>
+                      <div id="insFileBadge_opd" style="display: none; flex-direction: column; gap: 4px; width: 100%;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 5px; background: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 6px; padding: 4px 6px;">
+                          <div style="display: flex; align-items: center; gap: 4px; min-width: 0; flex: 1;">
+                            <i data-lucide="file-text" style="width: 12px; height: 12px; color: #2563EB; flex-shrink: 0;"></i>
+                            <span id="insFileName_opd" style="font-size: 11px; font-weight: 600; color: #1E293B; cursor: pointer; text-decoration: underline; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px;" onclick="previewCurrentRowProof('opd')" title="Click to view file">slip.pdf</span>
+                          </div>
+                          <div style="display: flex; align-items: center; gap: 2px; flex-shrink: 0;">
+                            <button type="button" onclick="previewCurrentRowProof('opd')" style="background: none; border: none; color: #475569; cursor: pointer; padding: 1px 3px;" title="Preview proof document">
+                              <i data-lucide="eye" style="width: 11px; height: 11px;"></i>
+                            </button>
+                            <span onclick="removeGridRowFile('opd')" style="color:#DC2626; cursor:pointer; font-size: 11px; font-weight: bold; padding: 1px 3px;" title="Remove file">✕</span>
+                          </div>
+                        </div>
+                        <button type="button" onclick="document.getElementById('insFile_opd').click()" style="display: inline-flex; align-items: center; justify-content: center; gap: 4px; font-size: 10px; background: #EFF6FF; border: 1px dashed #93C5FD; color: #2563EB; border-radius: 4px; padding: 2px 6px; cursor: pointer; font-weight: 600;" title="Upload revised or another proof document from company">
+                          <i data-lucide="upload" style="width: 10px; height: 10px;"></i> + Upload Another Proof
+                        </button>
                       </div>
+                      <div id="insPrevDocRef_opd" style="display: none; font-size: 10px; line-height: 1.2;"></div>
                     </div>
                   </td>
                   <td>
                     <input type="text" id="insRemarks_opd" class="ins-grid-input" placeholder="Enter remarks or reason..." disabled>
                   </td>
+                  <td></td>
                 </tr>
               </tbody>
             </table>
           </div>
+
 
           <!-- Bottom Summary Bar -->
           <div class="ins-grid-summary-bar">
@@ -10734,7 +10952,7 @@
             </div>
             <div style="display: flex; align-items: center; gap: 12px;">
               <span style="font-size: 13px; color: #475569;">Total Refund Payout:</span>
-              <strong id="insGridTotalRefundDisplay" style="font-size: 16px; color: #0F5C56;">₹0</strong>
+              <strong id="insGridTotalRefundDisplay" style="font-size: 16px; color: #0F5C56;">0</strong>
             </div>
           </div>
 
@@ -10810,8 +11028,8 @@
               <tr>
                 <th style="width: 210px; min-width: 180px;">Insurance type</th>
                 <th style="width: 160px; min-width: 140px;">Policy no</th>
-                <th style="width: 130px; min-width: 110px;">Refund Amount (₹)</th>
-                <th style="width: 135px; min-width: 120px;">Proof of attachment</th>
+                <th style="width: 130px; min-width: 110px;">Refund Amount</th>
+                <th style="width: 185px; min-width: 160px;">Refund proof from Insurance Company</th>
                 <th style="min-width: 190px;">Remarks</th>
                 <th style="width: 165px; min-width: 155px; text-align: center;">Decision Checkpoint</th>
               </tr>
@@ -10957,7 +11175,7 @@
           </div>
           <div style="display: flex; align-items: center; gap: 12px;">
             <span style="font-size: 13px; color: #475569;">Total Approved Refund:</span>
-            <strong id="mgrGridTotalRefundDisplay" style="font-size: 16px; color: #0F5C56;">₹0</strong>
+            <strong id="mgrGridTotalRefundDisplay" style="font-size: 16px; color: #0F5C56;">0</strong>
           </div>
         </div>
 
@@ -11116,8 +11334,8 @@
               <tr style="background: #F8FAFC; border-bottom: 1px solid #CBD5E1; font-size: 11px; color: #475569; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;">
                 <th style="padding: 9px 10px; width: 170px;">Insurance type</th>
                 <th style="padding: 9px 10px; width: 130px;">Policy no</th>
-                <th style="padding: 9px 10px; width: 100px;">Refund (₹)</th>
-                <th style="padding: 9px 10px; width: 105px;">Grievance Proof</th>
+                <th style="padding: 9px 10px; width: 100px;">Refund</th>
+                <th style="padding: 9px 10px; width: 185px;">Refund proof from Insurance Company</th>
                 <th style="padding: 9px 10px; min-width: 130px;">Grievance Remarks</th>
                 <th style="padding: 9px 10px; min-width: 140px;">Manager Remarks</th>
                 <th style="padding: 9px 10px; width: 230px;">Individual Bank Payout (UTR / Status)</th>
@@ -11132,7 +11350,7 @@
           <div style="background: #F8FAFC; border-top: 1px solid #E2E8F0; padding: 7px 12px; display: flex; justify-content: space-between; align-items: center; font-size: 12px;">
             <span style="font-weight: 600; color: #475569;" id="accGridSelectedCount">Active Cancellation Rows: 2 Selected</span>
             <div style="color: #0F172A; font-weight: 600;">
-              Total Approved Refund Payout: <strong id="accGridTotalRefundDisplay" style="font-size: 15px; color: #16A34A; font-weight: 800;">₹4,800</strong>
+              Total Approved Refund Payout: <strong id="accGridTotalRefundDisplay" style="font-size: 15px; color: #16A34A; font-weight: 800;">4,800</strong>
             </div>
           </div>
         </div>
@@ -11159,25 +11377,11 @@
         </div>
       </div>
 
-      <div class="ins-modal-footer" style="justify-content: space-between; padding: 12px 20px; background: #F8FAFC; border-top: 1px solid #E2E8F0; border-radius: 0 0 14px 14px; flex-wrap: wrap; gap: 10px;">
-        <!-- Department Routing Actions -->
-        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-          <span style="font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.3px;">Route / Send to Dept:</span>
-          <button type="button" class="ins-btn ins-btn-danger" style="background:#FFF1F2; color:#DC2626; border-color:#FECDD3; font-size: 11.5px; padding: 6px 12px;" onclick="submitAccountsResubmitToLegal()" title="Return request to Grievance Team for document/endorsement re-validation">
-            <i data-lucide="rotate-ccw" style="width: 13px; height: 13px;"></i> ⚖️ Send to Grievance
-          </button>
-          <button type="button" class="ins-btn" style="background:#F5F3FF; color:#7C3AED; border: 1px solid #DDD6FE; font-size: 11.5px; padding: 6px 12px; font-weight: 600;" onclick="submitAccountsReturnToManager()" title="Return request to Manager (Satvinder Sir) for recalculation/re-approval">
-            <i data-lucide="corner-up-left" style="width: 13px; height: 13px;"></i> 👔 Send to Manager
-          </button>
-        </div>
-
-        <!-- Payment Settlement Actions -->
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <button type="button" class="ins-btn ins-btn-white" style="font-size: 12px;" onclick="closeInsuranceModal('modalAccountsRefund')">Close</button>
-          <button type="button" class="ins-btn ins-btn-success" style="font-size: 12px; font-weight: 700;" onclick="submitAccountsRefundConfirmation()">
-            <i data-lucide="check-check" style="width: 14px; height: 14px;"></i> ✓ Settle Payout &amp; Confirm Refund
-          </button>
-        </div>
+      <div class="ins-modal-footer" style="padding: 12px 20px; background: #F8FAFC; border-top: 1px solid #E2E8F0; border-radius: 0 0 14px 14px; gap: 10px;">
+        <button type="button" class="ins-btn ins-btn-white" style="font-size: 12px;" onclick="closeInsuranceModal('modalAccountsRefund')">Close</button>
+        <button type="button" class="ins-btn ins-btn-success" style="font-size: 12px; font-weight: 700;" onclick="submitAccountsRefundConfirmation()">
+          <i data-lucide="check-check" style="width: 14px; height: 14px;"></i> ✓ Settle Payout &amp; Confirm Refund
+        </button>
       </div>
     </div>
   </div>
@@ -11204,7 +11408,7 @@
             </div>
             <div class="rec-pay-info">
               <strong id="recPayPolicyTitle" style="display: block; font-size: 15px; font-weight: 700; color: #0F172A;">Paisa247</strong>
-              <span id="recPayPolicySubtitle" style="display: block; font-size: 12.5px; color: #64748B; font-family: monospace; margin-top: 2px;">82/2026-27 • ₹90,400</span>
+              <span id="recPayPolicySubtitle" style="display: block; font-size: 12.5px; color: #64748B; font-family: monospace; margin-top: 2px;">82/2026-27 • 90,400</span>
             </div>
           </div>
           <div id="recPayBankPill" style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 6px; padding: 5px 10px; font-size: 11px; color: #065F46; display: flex; align-items: center; gap: 6px;">
@@ -11230,8 +11434,7 @@
               Gross amount<span class="req" style="color: #EF4444; margin-left: 2px;">*</span>
             </label>
             <div class="rec-pay-currency-wrap" style="position: relative; display: flex; align-items: center; width: 100%;">
-              <span class="rec-pay-currency-symbol" style="position: absolute; left: 12px; font-size: 13.5px; font-weight: 600; color: #64748B; pointer-events: none;">₹</span>
-              <input type="number" id="recPayGrossAmount" class="rec-pay-input" placeholder="0" oninput="calculateRecPayNet()" required style="width: 100%; height: 38px; border: 1px solid #CBD5E1; border-radius: 8px; padding-left: 28px; padding-right: 12px; font-size: 13px; font-weight: 600; color: #0F172A; box-sizing: border-box;">
+              <input type="number" id="recPayGrossAmount" class="rec-pay-input" placeholder="0" oninput="calculateRecPayNet()" required style="width: 100%; height: 38px; border: 1px solid #CBD5E1; border-radius: 8px; padding-left: 12px; padding-right: 12px; font-size: 13px; font-weight: 600; color: #0F172A; box-sizing: border-box;">
             </div>
           </div>
 
@@ -11241,8 +11444,7 @@
               Deductions
             </label>
             <div class="rec-pay-currency-wrap" style="position: relative; display: flex; align-items: center; width: 100%;">
-              <span class="rec-pay-currency-symbol" style="position: absolute; left: 12px; font-size: 13.5px; font-weight: 600; color: #64748B; pointer-events: none;">₹</span>
-              <input type="number" id="recPayDeductions" class="rec-pay-input" value="0" placeholder="0" oninput="calculateRecPayNet()" style="width: 100%; height: 38px; border: 1px solid #CBD5E1; border-radius: 8px; padding-left: 28px; padding-right: 12px; font-size: 13px; font-weight: 600; color: #0F172A; box-sizing: border-box;">
+              <input type="number" id="recPayDeductions" class="rec-pay-input" value="0" placeholder="0" oninput="calculateRecPayNet()" style="width: 100%; height: 38px; border: 1px solid #CBD5E1; border-radius: 8px; padding-left: 12px; padding-right: 12px; font-size: 13px; font-weight: 600; color: #0F172A; box-sizing: border-box;">
             </div>
           </div>
 
@@ -11252,8 +11454,7 @@
               Net payment<span class="req" style="color: #EF4444; margin-left: 2px;">*</span>
             </label>
             <div class="rec-pay-currency-wrap" style="position: relative; display: flex; align-items: center; width: 100%;">
-              <span class="rec-pay-currency-symbol" style="position: absolute; left: 12px; font-size: 13.5px; font-weight: 600; color: #64748B; pointer-events: none;">₹</span>
-              <input type="number" id="recPayNetAmount" class="rec-pay-input" readonly required style="width: 100%; height: 38px; border: 1px solid #CBD5E1; border-radius: 8px; padding-left: 28px; padding-right: 12px; font-size: 13px; font-weight: 700; color: #16A34A; background: #F8FAFC; box-sizing: border-box;">
+              <input type="number" id="recPayNetAmount" class="rec-pay-input" readonly required style="width: 100%; height: 38px; border: 1px solid #CBD5E1; border-radius: 8px; padding-left: 12px; padding-right: 12px; font-size: 13px; font-weight: 700; color: #16A34A; background: #F8FAFC; box-sizing: border-box;">
             </div>
           </div>
 
@@ -11274,7 +11475,7 @@
           <div>
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
               <label class="rec-pay-field-label" style="margin-bottom: 0;">
-                Receipt<span class="req" style="color: #EF4444; margin-left: 2px;">*</span>
+                Refund proof from CFL<span class="req" style="color: #EF4444; margin-left: 2px;">*</span>
               </label>
               <span id="recPayOcrSuccessBadge" class="ocr-badge-tag" style="display: none;">
                 <i data-lucide="sparkles" style="width: 11px; height: 11px; color: #059669;"></i> OCR Auto-Filled
@@ -11412,7 +11613,7 @@
     <div class="ins-modal-card" style="max-width: 780px;">
       <div class="ins-modal-header">
         <div>
-          <h3 id="proofViewerTitle">Insurance Refund Proof Document</h3>
+          <h3 id="proofViewerTitle">Refund proof from Insurance Company</h3>
           <p id="proofViewerSubtitle">Document verification preview</p>
         </div>
         <button class="ins-modal-close" onclick="closeInsuranceModal('modalInsuranceProofViewer')">✕</button>
@@ -17586,7 +17787,9 @@
       selectedTicketId = id;
       
       // Close all open modals so ticket detail is immediately unobstructed
-      ['modalManagementReview', 'modalAddInsuranceRequest', 'modalInsuranceAuditTrail', 'modalAccountsRefund', 'modalLegalConfirmation', 'modalInsuranceProofViewer'].forEach(m => closeInsuranceModal(m));
+      ['modalManagementReview', 'modalAddInsuranceRequest', 'modalInsuranceAuditTrail', 'modalAccountsRefund', 'modalLegalConfirmation', 'modalInsuranceProofViewer'].forEach(m => {
+        if (typeof closeInsuranceModal === 'function') closeInsuranceModal(m);
+      });
       
       ['modalOtherTickets', 'modalAddRule', 'modalNewLead', 'modalNewDeal', 'modalNewActivity', 'modalMerge'].forEach(m => {
         const el = document.getElementById(m);
@@ -17614,14 +17817,69 @@
       const detailView = document.getElementById('view-detail');
       if (detailView) detailView.classList.add('active');
 
-      const t = TICKETS.find(x => x.id === id);
+      let t = TICKETS.find(x => x.id === id);
+      if (!t) {
+        // Dynamically synthesize ticket from insurance requests or customer database
+        const insReq = (typeof INSURANCE_REQUESTS !== 'undefined') ? INSURANCE_REQUESTS.find(r => r.ticketId === id || r.id === id) : null;
+        const custName = insReq ? insReq.customerName : 'Customer';
+        const custPhone = insReq ? insReq.customerPhone : '+91 98765 43210';
+        const custEmail = insReq ? (insReq.customerEmail || `${custName.toLowerCase().replace(/\s+/g, '')}@gmail.com`) : 'customer@chinmayfinlease.in';
+        const loanId = insReq ? insReq.loanId : 'LN-1022';
+        const insType = insReq ? insReq.type : 'Insurance Policy';
+        const refundAmt = insReq ? (insReq.amount || 3500) : 3500;
+        const reqDate = insReq ? (insReq.customerRequestDate || insReq.requestDate) : 'Today';
+        const proofName = insReq ? (insReq.proofDoc || 'cancellation_request_letter.pdf') : 'cancellation_request_letter.pdf';
+        
+        t = {
+          id: id,
+          subject: `Insurance Cancellation & Refund Request - Loan #${loanId}`,
+          customer: custName,
+          phone: custPhone,
+          email: custEmail,
+          channel: 'Email',
+          priority: 'High',
+          status: insReq ? (insReq.status === 'Refunded' ? 'Resolved' : 'Assigned') : 'Assigned',
+          queue: 'Grievance',
+          department: 'Grievance',
+          intraDepartment: 'None',
+          category: 'Insurance Cancellation',
+          subCategory: 'Free-Look Period',
+          assignee: 'a5',
+          updated: 'Just now',
+          slaMins: 120,
+          createdAt: new Date().toISOString().replace('T', ' ').substring(0, 16),
+          thread: [
+            {
+              dir: 'in',
+              chan: 'Email',
+              time: reqDate,
+              text: `Dear Support & Grievance Team,\n\nI wish to exercise the Free-Look cancellation for the insurance policy (${insType}) attached to my Loan Account #${loanId}. Please process the complete refund amount of ${refundAmt.toLocaleString('en-IN')} to my bank account.\n\nSigned cancellation request document attached.\n\nRegards,\n${custName}`,
+              attachments: proofName ? [{ name: proofName, size: '420 KB', type: 'pdf' }] : []
+            },
+            {
+              dir: 'out',
+              chan: 'Email',
+              time: 'Shortly after',
+              text: `Dear ${custName},\n\nWe have received your insurance cancellation request for Loan #${loanId} (${insType}). Our Grievance & Compliance department has logged ticket ${id} and initiated the verification process with the insurance company.\n\nWe will update you within the standard turnaround time.\n\nWarm regards,\nHarvey Specter\nGrievance Officer\nChinmay Finlease Limited`
+            }
+          ],
+          activity: [
+            `Ticket ${id} initiated via Customer Support / Grievance`,
+            `Linked to Loan #${loanId} (${insType})`,
+            `Assigned to Harvey Specter (Grievance Team)`
+          ]
+        };
+        TICKETS.unshift(t);
+      }
+
       if (t) {
         const validChans = ['Chat', 'SMS', 'WhatsApp'];
         replyChannel = validChans.includes(t.channel) ? t.channel : 'Chat';
       }
       renderDetailList();
       renderDetail();
-      showToast(`Viewing Ticket ${id}`);
+      if (typeof switchTab === 'function') switchTab('thread');
+      if (typeof showToast === 'function') showToast(`Opened Ticket ${id} thread`);
     }
     function renderDetailList() {
       const container = document.getElementById('detailListItems') || document.getElementById('detailList');
@@ -23124,7 +23382,7 @@
         approvedDate: '—',
         refundDate: '—',
         paymentRef: '—',
-        remarks: 'Customer exercised free-look cancellation within 4 days of disbursal (Care Health ₹2,400 + OPD ₹1,200).',
+        remarks: 'Customer exercised free-look cancellation within 4 days of disbursal (Care Health 2,400 + OPD 1,200).',
         managerRemarks: '—',
         accountsRemarks: '—',
         proofDoc: 'care_health_sneha_slip.pdf',
@@ -23155,7 +23413,7 @@
         approvedDate: '—',
         refundDate: '—',
         paymentRef: '—',
-        remarks: 'Dual cancellation: Health & EMI (Care ₹2,400) + Loss of Job (Acko ₹3,500). Customer email attached.',
+        remarks: 'Dual cancellation: Health & EMI (Care 2,400) + Loss of Job (Acko 3,500). Customer email attached.',
         managerRemarks: '—',
         accountsRemarks: '—',
         proofDoc: 'dual_cancellation_proof_7822.pdf',
@@ -23219,13 +23477,13 @@
         paymentRef: '—',
         remarks: 'Returned from Accounts for deduction re-check. Awaiting Manager re-approval.',
         managerRemarks: 'Re-evaluating loan ledger pro-rata deduction with accounts team.',
-        accountsRemarks: 'Disbursal ledger shows ₹400 pro-rata processing charge. Returned to Manager (Satvinder Sir) for recalculation.',
+        accountsRemarks: 'Disbursal ledger shows 400 pro-rata processing charge. Returned to Manager (Satvinder Sir) for recalculation.',
         proofDoc: 'acko_endorsement_8833.pdf',
         refundProofDoc: null,
         finalConfirmationSent: false,
         activityLog: [
           { time: '2026-09-21 11:00', actor: 'Arwin (Grievance)', action: 'LMS Record Created', desc: 'Submitted for approval.' },
-          { time: '2026-09-22 14:00', actor: 'Anjali Divecha (Accounts)', action: 'Sent to Management (Satvinder Sir)', desc: 'Disbursal ledger shows ₹400 pro-rata processing charge. Please re-verify approved payout amount.' }
+          { time: '2026-09-22 14:00', actor: 'Anjali Divecha (Accounts)', action: 'Sent to Management (Satvinder Sir)', desc: 'Disbursal ledger shows 400 pro-rata processing charge. Please re-verify approved payout amount.' }
         ]
       },
 
@@ -23312,7 +23570,7 @@
         approvedDate: '2026-09-23 14:15',
         refundDate: '—',
         paymentRef: '—',
-        remarks: 'Approved multi-policy cancellation (Care Health ₹2,400 + Wellness ₹1,200).',
+        remarks: 'Approved multi-policy cancellation (Care Health 2,400 + Wellness 1,200).',
         managerRemarks: 'Approved for full refund (within Free-Look period)',
         accountsRemarks: 'Customer bank payout scheduled in evening disbursement batch.',
         proofDoc: 'care_cancellation_slip_3388.pdf',
@@ -23476,41 +23734,140 @@
       { email: 'kavisha@chinmayfinlease.com', name: 'Kavisha', role: 'Customer Experience' }
     ];
 
+    /* =========================================================
+       INTERACTIVE EMAIL COMPOSER & CHIP MANAGEMENT (Image 1)
+    ========================================================= */
+    let insToEmailsList = ['amul.roy@gmail.com'];
+    let insCcEmailsList = [];
+
     function getSelectedNotifyEmails() {
-      const val = document.getElementById('insFormNotifyEmails')?.value || '';
-      return val.split(/[,;]+/).map(s => s.trim()).filter(s => s.length > 0);
+      const all = [...insToEmailsList, ...insCcEmailsList];
+      return all.filter(Boolean);
     }
 
-    function renderInsEmailChips() {
-      // Retained for backward compatibility
-      const listEl = document.getElementById('insEmailSuggestionsList');
-      if (listEl && listEl.style.display === 'block') {
-        const input = document.getElementById('insFormNotifyEmails');
-        const val = input ? input.value : '';
-        const parts = val.split(/[,;]+/);
-        const lastPart = parts[parts.length - 1].trim();
-        renderInsEmailSuggestions(lastPart);
+    function syncNotifyEmailsInput() {
+      const all = [...insToEmailsList, ...insCcEmailsList];
+      const hiddenInput = document.getElementById('insFormNotifyEmails');
+      if (hiddenInput) {
+        hiddenInput.value = all.join(', ');
       }
     }
 
-    function renderInsEmailSuggestions(filterText = '') {
-      const listEl = document.getElementById('insEmailSuggestionsList');
+    function renderEmailChips(target = 'to') {
+      const container = document.getElementById(target === 'to' ? 'insToChipsContainer' : 'insCcChipsContainer');
+      if (!container) return;
+      const list = target === 'to' ? insToEmailsList : insCcEmailsList;
+
+      container.innerHTML = list.map(email => `
+        <div class="ins-recipient-chip" title="${email}">
+          <span class="ins-chip-text">${email}</span>
+          <span class="ins-chip-edit-btn" onclick="event.stopPropagation(); editEmailChip('${target}', '${email}')" title="Edit email address">✏️</span>
+          <span class="ins-chip-remove-btn" onclick="event.stopPropagation(); removeEmailChip('${target}', '${email}')" title="Remove email">✕</span>
+        </div>
+      `).join('');
+
+      syncNotifyEmailsInput();
+    }
+
+    function renderInsEmailChips() {
+      renderEmailChips('to');
+      renderEmailChips('cc');
+    }
+
+    function addEmailChip(target, email) {
+      if (!email) return;
+      const clean = email.trim().replace(/^[,;\s]+|[,;\s]+$/g, '');
+      if (!clean) return;
+
+      const list = target === 'to' ? insToEmailsList : insCcEmailsList;
+      if (!list.some(e => e.toLowerCase() === clean.toLowerCase())) {
+        list.push(clean);
+        renderEmailChips(target);
+      }
+    }
+
+    function removeEmailChip(target, email) {
+      if (target === 'to') {
+        insToEmailsList = insToEmailsList.filter(e => e.toLowerCase() !== email.toLowerCase());
+      } else {
+        insCcEmailsList = insCcEmailsList.filter(e => e.toLowerCase() !== email.toLowerCase());
+      }
+      renderEmailChips(target);
+      renderInsEmailSuggestions('', target);
+    }
+
+    function editEmailChip(target, email) {
+      removeEmailChip(target, email);
+      const input = document.getElementById(target === 'to' ? 'insToEmailInput' : 'insCcEmailInput');
+      if (input) {
+        input.value = email;
+        input.focus();
+        input.setSelectionRange(email.length, email.length);
+      }
+    }
+
+    function focusEmailInput(target = 'to') {
+      const input = document.getElementById(target === 'to' ? 'insToEmailInput' : 'insCcEmailInput');
+      if (input) input.focus();
+    }
+
+    function handleEmailInputKeydown(e, target = 'to') {
+      const input = e.target;
+      const val = input.value.trim();
+
+      if (e.key === 'Enter' || e.key === ',' || e.key === 'Tab' || (e.key === ' ' && val.includes('@'))) {
+        if (val) {
+          e.preventDefault();
+          const items = val.split(/[,;\s]+/).map(s => s.trim()).filter(Boolean);
+          items.forEach(item => addEmailChip(target, item));
+          input.value = '';
+          hideInsEmailSuggestions(target);
+        }
+      } else if (e.key === 'Backspace' && !val) {
+        const list = target === 'to' ? insToEmailsList : insCcEmailsList;
+        if (list.length > 0) {
+          const lastEmail = list[list.length - 1];
+          editEmailChip(target, lastEmail);
+        }
+      }
+    }
+
+    function toggleInsCcRow() {
+      const ccRow = document.getElementById('insCcComposerRow');
+      const btn = document.getElementById('insBtnToggleCc');
+      if (!ccRow) return;
+
+      if (ccRow.style.display === 'none' || !ccRow.style.display) {
+        ccRow.style.display = 'block';
+        if (btn) btn.textContent = '✕ Remove Cc';
+        if (insCcEmailsList.length === 0) {
+          addEmailChip('cc', 'Accounts@chinmayfinlease.com');
+        }
+        renderEmailChips('cc');
+        focusEmailInput('cc');
+      } else {
+        ccRow.style.display = 'none';
+        if (btn) btn.textContent = '+ Add Cc';
+      }
+    }
+
+    function renderInsEmailSuggestions(filterText = '', target = 'to') {
+      const listEl = document.getElementById(target === 'to' ? 'insToSuggestionsList' : 'insCcSuggestionsList');
       if (!listEl) return;
       const q = (filterText || '').toLowerCase().trim();
-      const currentSelected = getSelectedNotifyEmails().map(e => e.toLowerCase());
+      const currentSelected = (target === 'to' ? insToEmailsList : insCcEmailsList).map(e => e.toLowerCase());
 
-      // Quick Chips (Compact 1-click add chips inside the dropdown)
+      // Quick chips from suggested contact list
       const chipsHtml = INS_SUGGESTED_EMAILS.map(item => {
         const isSelected = currentSelected.includes(item.email.toLowerCase());
         const shortName = item.name.split(' ')[0];
         return `
-          <button type="button" class="ins-email-chip ${isSelected ? 'active' : ''}" onclick="toggleSuggestedEmail('${item.email}')" title="${item.email} (${item.name} · ${item.role})" style="padding: 2px 7px; font-size: 10.5px; border-radius: 12px; border: 1px solid ${isSelected ? '#0F5C56' : '#CBD5E1'}; background: ${isSelected ? '#0F5C56' : '#FFFFFF'}; color: ${isSelected ? '#FFFFFF' : '#334155'}; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; font-weight: 600; line-height: 1.2;">
+          <button type="button" class="ins-email-chip ${isSelected ? 'active' : ''}" onclick="event.stopPropagation(); toggleSuggestedEmailChip('${item.email}', '${target}')" title="${item.email} (${item.name} · ${item.role})" style="padding: 2px 7px; font-size: 10.5px; border-radius: 12px; border: 1px solid ${isSelected ? '#0F5C56' : '#CBD5E1'}; background: ${isSelected ? '#0F5C56' : '#FFFFFF'}; color: ${isSelected ? '#FFFFFF' : '#334155'}; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; font-weight: 600; line-height: 1.2;">
             <span>${isSelected ? '✓' : '+'}</span> <span>${shortName}</span>
           </button>
         `;
       }).join('');
 
-      // Filtered items for contact list view
       const matched = q ? INS_SUGGESTED_EMAILS.filter(item =>
         item.email.toLowerCase().includes(q) ||
         item.name.toLowerCase().includes(q) ||
@@ -23520,16 +23877,16 @@
       let listHtml = '';
       if (matched.length === 0) {
         listHtml = `
-          <div style="padding: 12px 10px; font-size: 11.5px; color: #64748B; text-align: center;">
+          <div style="padding: 10px; font-size: 11.5px; color: #64748B; text-align: center;">
             No presets matching "<strong>${filterText}</strong>"<br>
-            <span style="font-size: 10.5px; color: #94A3B8;">Type a comma (,) or press Enter to keep this manual email address.</span>
+            <span style="font-size: 10.5px; color: #94A3B8;">Press Enter or comma (,) to add this manual email.</span>
           </div>
         `;
       } else {
         listHtml = matched.map(item => {
           const isSelected = currentSelected.includes(item.email.toLowerCase());
           return `
-            <div class="ins-email-suggestion-item ${isSelected ? 'selected' : ''}" onclick="toggleSuggestedEmail('${item.email}')" style="padding: 7px 10px; border-bottom: 1px solid #F1F5F9; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 8px; transition: background 0.15s; background: ${isSelected ? '#ECFDF5' : 'transparent'};">
+            <div class="ins-email-suggestion-item ${isSelected ? 'selected' : ''}" onclick="event.stopPropagation(); toggleSuggestedEmailChip('${item.email}', '${target}')" style="padding: 6px 10px; border-bottom: 1px solid #F1F5F9; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 8px; transition: background 0.15s; background: ${isSelected ? '#ECFDF5' : 'transparent'};">
               <div>
                 <div style="font-weight: 700; font-size: 11.5px; color: ${isSelected ? '#0F5C56' : '#0F172A'}; display: flex; align-items: center; gap: 4px;">
                   <span>${item.name}</span>
@@ -23546,15 +23903,15 @@
       }
 
       listEl.innerHTML = `
-        <div style="padding: 7px 10px; background: #F8FAFC; border-bottom: 1px solid #E2E8F0;">
-          <div style="font-size: 10px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 5px; display: flex; align-items: center; gap: 4px;">
-            <i data-lucide="sparkles" style="width: 12px; height: 12px; color: #0F5C56;"></i> Suggested Recipients
+        <div style="padding: 6px 10px; background: #F8FAFC; border-bottom: 1px solid #E2E8F0;">
+          <div style="font-size: 10px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+            <i data-lucide="sparkles" style="width: 12px; height: 12px; color: #0F5C56;"></i> Quick Presets
           </div>
           <div style="display: flex; flex-wrap: wrap; gap: 4px;">
             ${chipsHtml}
           </div>
         </div>
-        <div style="max-height: 180px; overflow-y: auto;">
+        <div style="max-height: 160px; overflow-y: auto;">
           ${listHtml}
         </div>
       `;
@@ -23562,81 +23919,47 @@
       if (window.lucide) window.lucide.createIcons();
     }
 
-    function toggleInsEmailSuggestions() {
-      const listEl = document.getElementById('insEmailSuggestionsList');
+    function toggleInsEmailSuggestions(target = 'to') {
+      const listEl = document.getElementById(target === 'to' ? 'insToSuggestionsList' : 'insCcSuggestionsList');
       if (!listEl) return;
       if (listEl.style.display === 'block') {
         listEl.style.display = 'none';
       } else {
-        const input = document.getElementById('insFormNotifyEmails');
-        const val = input ? input.value : '';
-        const parts = val.split(/[,;]+/);
-        const lastPart = parts[parts.length - 1].trim();
-        renderInsEmailSuggestions(lastPart);
-        if (input) input.focus();
+        const input = document.getElementById(target === 'to' ? 'insToEmailInput' : 'insCcEmailInput');
+        renderInsEmailSuggestions(input ? input.value : '', target);
       }
     }
 
-    function showInsEmailSuggestions() {
-      const input = document.getElementById('insFormNotifyEmails');
-      const val = input ? input.value : '';
-      const parts = val.split(/[,;]+/);
-      const lastPart = parts[parts.length - 1].trim();
-      renderInsEmailSuggestions(lastPart);
+    function showInsEmailSuggestions(target = 'to') {
+      const input = document.getElementById(target === 'to' ? 'insToEmailInput' : 'insCcEmailInput');
+      renderInsEmailSuggestions(input ? input.value : '', target);
     }
 
-    function filterInsEmailSuggestions(val) {
-      const parts = (val || '').split(/[,;]+/);
-      const lastPart = parts[parts.length - 1].trim();
-      renderInsEmailSuggestions(lastPart);
+    function filterInsEmailSuggestions(val, target = 'to') {
+      renderInsEmailSuggestions(val, target);
     }
 
-    function toggleSuggestedEmail(email) {
-      const input = document.getElementById('insFormNotifyEmails');
-      if (!input) return;
-      
-      const rawVal = input.value || '';
-      let items = rawVal.split(/[,;]+/).map(s => s.trim()).filter(Boolean);
-      const lowerEmail = email.toLowerCase();
-      
-      // Check if the user was in the middle of typing a partial string at the end
-      const rawParts = rawVal.split(',');
-      const lastRawPart = rawParts[rawParts.length - 1].trim().toLowerCase();
-      
-      let isAdded = false;
-      const existingIdx = items.findIndex(e => e.toLowerCase() === lowerEmail);
+    function hideInsEmailSuggestions(target = 'to') {
+      const listEl = document.getElementById(target === 'to' ? 'insToSuggestionsList' : 'insCcSuggestionsList');
+      if (listEl) listEl.style.display = 'none';
+    }
 
-      if (existingIdx >= 0) {
-        // Remove if already in list
-        items.splice(existingIdx, 1);
-        isAdded = false;
+    function toggleSuggestedEmailChip(email, target = 'to') {
+      const list = target === 'to' ? insToEmailsList : insCcEmailsList;
+      const lower = email.toLowerCase();
+      const idx = list.findIndex(e => e.toLowerCase() === lower);
+
+      if (idx >= 0) {
+        list.splice(idx, 1);
+        showToast(`Removed ${email}`);
       } else {
-        // If last segment is a partial typed token that matches the chosen email or item name
-        if (rawParts.length > 0 && lastRawPart.length > 0 && lowerEmail.includes(lastRawPart)) {
-          const lastIdxInItems = items.findIndex(e => e.toLowerCase() === lastRawPart);
-          if (lastIdxInItems >= 0) {
-            items[lastIdxInItems] = email;
-          } else {
-            items.push(email);
-          }
-        } else {
-          items.push(email);
-        }
-        isAdded = true;
+        list.push(email);
+        showToast(`✓ Added ${email}`);
       }
 
-      // Format as clean comma-separated list
-      input.value = items.join(', ');
-      
-      // Re-render suggestions list
-      renderInsEmailSuggestions('');
-      
-      // Keep input focused
-      input.focus();
-      
-      if (typeof showToast === 'function') {
-        showToast(isAdded ? `✓ Added ${email} to To recipients` : `Removed ${email} from To recipients`);
-      }
+      renderEmailChips(target);
+      renderInsEmailSuggestions('', target);
+      focusEmailInput(target);
     }
 
     let insAccountsRefundFile = null;
@@ -23790,6 +24113,14 @@
       const phoneInput = document.getElementById('insFormCustomerPhone');
       if (phoneInput) phoneInput.value = formatInsPhone(loan.phone);
 
+      if (loan && loan.email) {
+        insToEmailsList = [loan.email];
+        renderEmailChips('to');
+      } else if (ticket && ticket.email) {
+        insToEmailsList = [ticket.email];
+        renderEmailChips('to');
+      }
+
       onInsuranceLoanIdChange(loan);
     }
 
@@ -23803,13 +24134,21 @@
       }
     });
 
-    // Auto-close email & ticket suggestions when clicking outside
+    // Auto-close email suggestions when clicking outside
     document.addEventListener('click', function(e) {
-      const emailListEl = document.getElementById('insEmailSuggestionsList');
-      const emailInput = document.getElementById('insFormNotifyEmails');
-      if (emailListEl && emailListEl.style.display === 'block') {
-        if (!emailListEl.contains(e.target) && e.target !== emailInput && !e.target.closest('button[onclick*="toggleInsEmailSuggestions"]')) {
-          emailListEl.style.display = 'none';
+      const toSugList = document.getElementById('insToSuggestionsList');
+      const toBox = document.getElementById('insToChipsBox');
+      if (toSugList && toSugList.style.display === 'block') {
+        if (!toSugList.contains(e.target) && !toBox.contains(e.target)) {
+          toSugList.style.display = 'none';
+        }
+      }
+
+      const ccSugList = document.getElementById('insCcSuggestionsList');
+      const ccBox = document.getElementById('insCcChipsBox');
+      if (ccSugList && ccSugList.style.display === 'block') {
+        if (!ccSugList.contains(e.target) && !ccBox.contains(e.target)) {
+          ccSugList.style.display = 'none';
         }
       }
     });
@@ -23819,7 +24158,8 @@
       updateInsuranceKPIs();
       renderInsuranceTable();
       updatePersonaUI();
-      renderInsEmailChips();
+      renderEmailChips('to');
+      renderEmailChips('cc');
       if (window.lucide) window.lucide.createIcons();
     }
 
@@ -23850,13 +24190,11 @@
         const phoneInput = document.getElementById('insFormCustomerPhone');
         if (phoneInput) phoneInput.value = formatInsPhone(loan.phone);
 
-        const emailInput = document.getElementById('insFormNotifyEmails');
-        if (emailInput) {
-          if (!emailInput.value || emailInput.value.includes('amul.roy@gmail.com') || emailInput.value.includes('customer@lenditt.com')) {
-            emailInput.value = 'Accounts@chinmayfinlease.com';
-          }
+        if (loan.email) {
+          insToEmailsList = [loan.email];
         }
-        renderInsEmailChips();
+        renderEmailChips('to');
+        renderEmailChips('cc');
 
         // Populate the 3 rows from Screenshot 1
         ['care', 'acko', 'opd'].forEach(k => {
@@ -23931,10 +24269,11 @@
       const uploadBtn = document.getElementById('insUploadBtn_' + key);
 
       if (nameSpan) nameSpan.textContent = file.name;
-      if (badge) badge.style.display = 'inline-flex';
+      if (badge) badge.style.display = 'flex';
       if (uploadBtn) uploadBtn.style.display = 'none';
 
       const typeLabel = key === 'care' ? 'Health & EMI (Care)' : key === 'acko' ? 'Loss of Job (Acko)' : 'OPD & Wellness';
+      if (window.lucide) window.lucide.createIcons();
 
       // Intelligent Policy OCR for Insurance Grid Rows
       try {
@@ -23993,6 +24332,24 @@
       if (fileInput) fileInput.value = '';
       if (badge) badge.style.display = 'none';
       if (uploadBtn && check && check.checked) uploadBtn.style.display = 'inline-flex';
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function previewCurrentRowProof(key) {
+      const fileObj = insGridRowFiles[key];
+      const nameSpan = document.getElementById('insFileName_' + key);
+      const fileName = (fileObj && fileObj.name) ? fileObj.name : (nameSpan ? nameSpan.textContent : 'insurance_cancellation_proof.pdf');
+      const typeLabel = key === 'care' ? 'Health & EMI Insurance(Care)' : key === 'acko' ? 'Loss of Job Insurance(Acko)' : 'OPD & Wellness';
+      
+      updateProofViewerUI(
+        fileName,
+        `Refund proof from Insurance Company (${typeLabel})`,
+        `Cancellation proof document for ${typeLabel}`,
+        `Official proof endorsement from insurance company uploaded by Grievance team.`,
+        `Policy Type: ${typeLabel} • File: ${fileName}`
+      );
+      document.getElementById('modalInsuranceProofViewer').classList.add('active');
+      if (window.lucide) window.lucide.createIcons();
     }
 
     function calculateGridTotalRefund() {
@@ -24011,7 +24368,7 @@
       const countEl = document.getElementById('insGridSelectedCount');
       const totalEl = document.getElementById('insGridTotalRefundDisplay');
       if (countEl) countEl.textContent = `${count} Selected`;
-      if (totalEl) totalEl.textContent = `₹${total.toLocaleString('en-IN')}`;
+      if (totalEl) totalEl.textContent = total.toLocaleString('en-IN');
     }
 
     function openAddInsuranceRequestModal() {
@@ -24053,12 +24410,15 @@
       const custReqDateEl = document.getElementById('insFormCustomerRequestDate');
       if (custReqDateEl) custReqDateEl.value = nowDtLocal;
 
-      const emailInput = document.getElementById('insFormNotifyEmails');
-      if (emailInput) {
-        if (!emailInput.value || emailInput.value.includes('amul.roy@gmail.com') || emailInput.value.includes('customer@lenditt.com')) {
-          emailInput.value = 'Accounts@chinmayfinlease.com';
-        }
-      }
+      // Initialize Email Composer Chips (Matching Image 1)
+      insToEmailsList = ['amul.roy@gmail.com'];
+      insCcEmailsList = [];
+      renderEmailChips('to');
+      renderEmailChips('cc');
+      const ccRow = document.getElementById('insCcComposerRow');
+      const ccBtn = document.getElementById('insBtnToggleCc');
+      if (ccRow) ccRow.style.display = 'none';
+      if (ccBtn) ccBtn.textContent = '+ Add Cc';
 
       // Default rows: Care & Acko active, OPD disabled
       toggleInsuranceGridRow('care', true);
@@ -24134,9 +24494,22 @@
         custReqDateEl.value = reqDt;
       }
 
-      // Notify Emails
-      const emailInput = document.getElementById('insFormNotifyEmails');
-      if (emailInput) emailInput.value = req.notifyEmails || 'Accounts@chinmayfinlease.com, sujoy.banerjee@chinmayfinlease.com';
+      // Initialize Email Composer Chips from Resubmit Request
+      const rawNotif = req.notifyEmails || 'Accounts@chinmayfinlease.com, sujoy.banerjee@chinmayfinlease.com';
+      const allEmailList = rawNotif.split(/[,;]+/).map(s => s.trim()).filter(Boolean);
+      insToEmailsList = allEmailList.slice(0, 1).length ? [allEmailList[0]] : [req.customerEmail || 'amul.roy@gmail.com'];
+      insCcEmailsList = allEmailList.slice(1);
+      renderEmailChips('to');
+      const ccRow = document.getElementById('insCcComposerRow');
+      const ccBtn = document.getElementById('insBtnToggleCc');
+      if (insCcEmailsList.length > 0) {
+        if (ccRow) ccRow.style.display = 'block';
+        if (ccBtn) ccBtn.textContent = '✕ Remove Cc';
+        renderEmailChips('cc');
+      } else {
+        if (ccRow) ccRow.style.display = 'none';
+        if (ccBtn) ccBtn.textContent = '+ Add Cc';
+      }
 
       // Reset grid files and rows first
       insGridRowFiles = { care: null, acko: null, opd: null };
@@ -24177,7 +24550,7 @@
             const fnameEl = document.getElementById('insFileName_' + k);
             if (fnameEl) fnameEl.textContent = doc;
             const badgeEl = document.getElementById('insFileBadge_' + k);
-            if (badgeEl) badgeEl.style.display = 'inline-flex';
+            if (badgeEl) badgeEl.style.display = 'flex';
             const uploadBtn = document.getElementById('insUploadBtn_' + k);
             if (uploadBtn) uploadBtn.style.display = 'none';
           }
@@ -24209,7 +24582,7 @@
           const fnameEl = document.getElementById('insFileName_' + k);
           if (fnameEl) fnameEl.textContent = req.proofDoc;
           const badgeEl = document.getElementById('insFileBadge_' + k);
-          if (badgeEl) badgeEl.style.display = 'inline-flex';
+          if (badgeEl) badgeEl.style.display = 'flex';
           const uploadBtn = document.getElementById('insUploadBtn_' + k);
           if (uploadBtn) uploadBtn.style.display = 'none';
         }
@@ -24288,10 +24661,71 @@
         opd: { company: 'Care/Wellness', type: 'OPD & Wellness', defaultProof: 'opd_wellness_refund_slip.pdf' }
       };
 
+      // UPDATE EXISTING REQUEST IN-PLACE (Prevents duplicate requests when modifying/resubmitting)
+      if (isResubmit && origReq) {
+        const k = activeKeys[0] || 'care';
+        const policyNo = document.getElementById('insPolicy_' + k)?.value?.trim() || origReq.policyNumber;
+        const refundAmt = parseFloat(document.getElementById('insRefund_' + k)?.value) || origReq.amount;
+        const remarks = document.getElementById('insRemarks_' + k)?.value?.trim() || 'Updated terms with additional proof';
+        const file = insGridRowFiles[k];
+        const proofDocName = file ? (file.name || file) : origReq.proofDoc;
+
+        origReq.policyNumber = policyNo;
+        origReq.amount = refundAmt;
+        origReq.customerRequestDate = custReqDate;
+        origReq.requestDate = initiatedDate;
+        origReq.notifyEmails = notifyEmailsStr;
+        origReq.status = 'Resubmitted';
+        origReq.isResubmission = true;
+        origReq.remarks = remarks;
+        origReq.managerRemarks = '— (Pending Re-Approval)';
+        origReq.approvedBy = '—';
+        origReq.approvedDate = '—';
+        if (origReq.proofDoc !== proofDocName) {
+          origReq.prevProofDoc = origReq.proofDoc;
+          origReq.proofDoc = proofDocName;
+        }
+
+        if (!origReq.activityLog) origReq.activityLog = [];
+        origReq.activityLog.push({
+          time: initiatedDate,
+          actor: 'Harvey Specter (Grievance)',
+          action: 'Request Modified & Resubmitted',
+          desc: `Grievance modified request ${origReq.id} with updated proof: "${proofDocName}". Amount: ₹${refundAmt.toLocaleString('en-IN')}, Policy: ${policyNo}, Remarks: "${remarks}". Status set to Resubmitted for Management Re-Approval.`
+        });
+        origReq.activityLog.push({
+          time: initiatedDate,
+          actor: 'System (Notification Engine)',
+          action: 'Resubmission Notice Dispatched',
+          desc: `Dispatched resubmission notice to [${notifyEmailsStr}]: "Modified insurance refund request ${origReq.id} updated for Loan ID ${loanId} (${metaMap[k].type}: ${policyNo}, Amount: ₹${refundAmt.toLocaleString('en-IN')}, Proof: ${proofDocName}). Status: Resubmitted for Management Review."`
+        });
+
+        // Append to linked ticket thread
+        const linkedTix = (typeof TICKETS !== 'undefined' && Array.isArray(TICKETS)) ? TICKETS.find(t => t.id === ticketId) : null;
+        if (linkedTix) {
+          if (!linkedTix.thread) linkedTix.thread = [];
+          linkedTix.thread.push({
+            dir: 'out',
+            chan: 'Email',
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            text: `[Insurance Request Modified & Resubmitted]\nDear ${custName},\n\nYour Insurance Cancellation & Refund Request (${origReq.id}) has been updated with revised refund proof and resubmitted to Management:\n• Loan ID: ${loanId}\n• Request ID: ${origReq.id}\n• Policy: ${metaMap[k].type} (${policyNo})\n• Refund Amount: ₹${refundAmt.toLocaleString('en-IN')}\n• Attached Proof: ${proofDocName}\n• Resubmitted Date: ${initiatedDate}\n• Notified: ${notifyEmailsStr}\n• Status: Resubmitted (Pending Management Re-Approval)\n\nRegards,\nGrievance & Compliance Department\nChinmay Finlease Limited`
+          });
+          if (!linkedTix.activity) linkedTix.activity = [];
+          linkedTix.activity.unshift(`Insurance cancellation request ${origReq.id} modified and resubmitted by Grievance — Amount: ₹${refundAmt.toLocaleString('en-IN')}, Proof: ${proofDocName}, Notified: ${notifyEmailsStr}`);
+        }
+
+        closeInsuranceModal('modalAddInsuranceRequest');
+        updateInsuranceKPIs();
+        renderInsuranceTable();
+        showToast(`✓ Request ${origReq.id} updated & resubmitted for Management approval! Notice emailed to: ${notifyEmailsStr}`);
+        return;
+      }
+
+      // CREATE NEW REQUEST(S)
       for (const k of activeKeys) {
         const policyNo = document.getElementById('insPolicy_' + k)?.value?.trim();
         const refundAmt = parseFloat(document.getElementById('insRefund_' + k)?.value) || 0;
-        const remarks = document.getElementById('insRemarks_' + k)?.value?.trim() || (isResubmit ? 'Resubmitted with modified terms' : 'Free-Look cancellation request');
+        const remarks = document.getElementById('insRemarks_' + k)?.value?.trim() || 'Free-Look cancellation request';
         const file = insGridRowFiles[k];
 
         if (!policyNo) {
@@ -24303,30 +24737,13 @@
           return;
         }
 
-        const proofDocName = file ? (file.name || file) : (origReq ? origReq.proofDoc : metaMap[k].defaultProof);
+        const proofDocName = file ? (file.name || file) : metaMap[k].defaultProof;
         const newId = `INS-REQ-${1000 + INSURANCE_REQUESTS.length + 1}`;
 
-        let actLog = [];
-        if (isResubmit && origReq && origReq.activityLog) {
-          actLog = JSON.parse(JSON.stringify(origReq.activityLog));
-          actLog.push({
-            time: initiatedDate,
-            actor: 'Harvey Specter (Grievance)',
-            action: 'Request Modified & Resubmitted',
-            desc: `Grievance modified details and resubmitted entry to Management. Amount: ₹${refundAmt.toLocaleString('en-IN')}, Policy: ${policyNo}, Remarks: "${remarks}". (Previous decision: "${origReq.managerRemarks || origReq.remarks || 'Not Approved'}"). Status: Resubmitted.`
-          });
-          actLog.push({
-            time: initiatedDate,
-            actor: 'System (Notification Engine)',
-            action: 'Resubmission Notice Dispatched',
-            desc: `Dispatched resubmission notice to [${notifyEmailsStr}]: "Modified insurance refund request resubmitted for Loan ID ${loanId} (${metaMap[k].type}: ${policyNo}, Amount: ₹${refundAmt.toLocaleString('en-IN')}). Status: Resubmitted for Management Review."`
-          });
-        } else {
-          actLog = [
-            { time: initiatedDate, actor: 'Harvey Specter (Grievance Team)', action: 'LMS Record Created', desc: `Customer requested on ${custReqDate}. Refund process initiated in LMS for Loan ID ${loanId} (${metaMap[k].type}: ${policyNo}, Ticket: ${ticketId}). Proof: ${proofDocName}. Status: Pending Approval.` },
-            { time: initiatedDate, actor: 'System (Notification Engine)', action: 'Confirmation Email Dispatched', desc: `Dispatched creation notice & confirmation to [${notifyEmailsStr}]: "Grievance team has created insurance refund request for Loan ID ${loanId} (${metaMap[k].type}: ${policyNo}, Amount: ₹${refundAmt.toLocaleString('en-IN')}). Customer Request Date: ${custReqDate}. Pending Management Approval."` }
-          ];
-        }
+        const actLog = [
+          { time: initiatedDate, actor: 'Harvey Specter (Grievance Team)', action: 'LMS Record Created', desc: `Customer requested on ${custReqDate}. Refund process initiated in LMS for Loan ID ${loanId} (${metaMap[k].type}: ${policyNo}, Ticket: ${ticketId}). Proof: ${proofDocName}. Status: Pending Approval.` },
+          { time: initiatedDate, actor: 'System (Notification Engine)', action: 'Confirmation Email Dispatched', desc: `Dispatched creation notice & confirmation to [${notifyEmailsStr}]: "Grievance team has created insurance refund request for Loan ID ${loanId} (${metaMap[k].type}: ${policyNo}, Amount: ₹${refundAmt.toLocaleString('en-IN')}). Customer Request Date: ${custReqDate}. Pending Management Approval."` }
+        ];
 
         const newReq = {
           id: newId,
@@ -24334,7 +24751,7 @@
           ticketId: ticketId,
           customerName: custName,
           customerPhone: custPhone,
-          customerEmail: (origReq && origReq.customerEmail) || loan.email || 'customer@lenditt.com',
+          customerEmail: loan.email || 'customer@lenditt.com',
           company: metaMap[k].company,
           type: metaMap[k].type,
           policyNumber: policyNo,
@@ -24344,39 +24761,26 @@
           approvedBy: '—',
           approvedDate: '—',
           refundedBy: '—',
-          status: isResubmit ? 'Resubmitted' : 'Pending Approval',
-          isResubmission: isResubmit,
-          resubmittedFromId: isResubmit ? origReqId : null,
+          status: 'Pending Approval',
+          isResubmission: false,
+          resubmittedFromId: null,
           customerRequestDate: custReqDate,
           requestDate: initiatedDate,
           refundDate: '—',
           paymentRef: '—',
           notifyEmails: notifyEmailsStr,
-          managerRemarks: isResubmit ? `— (Resubmitted; Prev: ${origReq ? (origReq.managerRemarks || origReq.remarks) : 'Declined'})` : '—',
+          managerRemarks: '—',
           accountsRemarks: '—',
           refundProofDoc: null,
-          remarks: isResubmit ? `[Edited & Resubmitted from ${origReqId}] ${remarks}` : `${ticketId ? `[Ticket: ${ticketId}] ` : ''}${remarks}`,
+          remarks: `${ticketId ? `[Ticket: ${ticketId}] ` : ''}${remarks}`,
           proofDoc: proofDocName,
-          bankName: (origReq && origReq.bankName) || loan.bankName || 'HDFC Bank',
-          ifscCode: (origReq && origReq.ifscCode) || loan.ifscCode || `HDFC000${loanId.replace(/[^0-9]/g, '').slice(-4) || '1234'}`,
-          accountNumber: (origReq && origReq.accountNumber) || loan.accountNumber || `50100${loanId.replace(/[^0-9]/g, '') || '9284719203'}`,
+          bankName: loan.bankName || 'HDFC Bank',
+          ifscCode: loan.ifscCode || `HDFC000${loanId.replace(/[^0-9]/g, '').slice(-4) || '1234'}`,
+          accountNumber: loan.accountNumber || `50100${loanId.replace(/[^0-9]/g) || '9284719203'}`,
           finalConfirmationSent: false,
           activityLog: actLog
         };
 
-        // If resubmitting, also log to the original request
-        if (isResubmit && origReq) {
-          if (!origReq.activityLog) origReq.activityLog = [];
-          origReq.activityLog.push({
-            time: initiatedDate,
-            actor: 'Harvey Specter (Grievance)',
-            action: 'Superseded by Resubmission',
-            desc: `Request details were modified and resubmitted as new entry ${newId}.`
-          });
-          origReq.supersededBy = newId;
-        }
-
-        // Append to linked ticket thread
         const linkedTix = (typeof TICKETS !== 'undefined' && Array.isArray(TICKETS)) ? TICKETS.find(t => t.id === ticketId) : null;
         if (linkedTix) {
           if (!linkedTix.thread) linkedTix.thread = [];
@@ -24384,15 +24788,10 @@
             dir: 'out',
             chan: 'Email',
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            text: isResubmit
-              ? `[Insurance Request Modified & Resubmitted]\nDear ${custName},\n\nYour Insurance Cancellation & Refund Request has been updated and resubmitted to Management:\n• Loan ID: ${loanId}\n• Request ID: ${newId} (Prev: ${origReqId})\n• Policy: ${metaMap[k].type} (${policyNo})\n• Modified Refund Amount: ₹${refundAmt.toLocaleString('en-IN')}\n• Resubmitted Date: ${initiatedDate}\n• Notified: ${notifyEmailsStr}\n• Status: Resubmitted (Pending Management Re-Approval)\n\nRegards,\nGrievance & Compliance Department\nChinmay Finlease Limited`
-              : `[Insurance Cancellation Request Created]\nDear ${custName},\n\nThis is to confirm that the Grievance Team has initiated an Insurance Cancellation & Refund Request for your account:\n• Loan ID: ${loanId}\n• Policy: ${metaMap[k].type} (${policyNo})\n• Refund Amount: ₹${refundAmt.toLocaleString('en-IN')}\n• Customer Request Date: ${custReqDate}\n• Process Initiated Date: ${initiatedDate}\n• Notified Parties: ${notifyEmailsStr}\n• Status: Pending Management Approval\n\nRegards,\nGrievance & Compliance Department\nChinmay Finlease Limited`
+            text: `[Insurance Cancellation Request Created]\nDear ${custName},\n\nThis is to confirm that the Grievance Team has initiated an Insurance Cancellation & Refund Request for your account:\n• Loan ID: ${loanId}\n• Policy: ${metaMap[k].type} (${policyNo})\n• Refund Amount: ₹${refundAmt.toLocaleString('en-IN')}\n• Customer Request Date: ${custReqDate}\n• Process Initiated Date: ${initiatedDate}\n• Notified Parties: ${notifyEmailsStr}\n• Status: Pending Management Approval\n\nRegards,\nGrievance & Compliance Department\nChinmay Finlease Limited`
           });
           if (!linkedTix.activity) linkedTix.activity = [];
-          linkedTix.activity.unshift(isResubmit
-            ? `Insurance cancellation request modified and resubmitted by Grievance (${newId}) — Amount: ₹${refundAmt.toLocaleString('en-IN')}, Notified: ${notifyEmailsStr}`
-            : `Insurance cancellation request created by Grievance (${metaMap[k].type}) — Customer requested: ${custReqDate}, Initiated: ${initiatedDate}, Notified: ${notifyEmailsStr}`
-          );
+          linkedTix.activity.unshift(`Insurance cancellation request created by Grievance (${metaMap[k].type}) — Customer requested: ${custReqDate}, Initiated: ${initiatedDate}, Notified: ${notifyEmailsStr}`);
         }
 
         INSURANCE_REQUESTS.unshift(newReq);
@@ -24402,12 +24801,7 @@
       closeInsuranceModal('modalAddInsuranceRequest');
       updateInsuranceKPIs();
       renderInsuranceTable();
-
-      if (isResubmit) {
-        showToast(`✓ Resubmitted modified request as new entry with status "Resubmitted"! Notice emailed to: ${notifyEmailsStr}`);
-      } else {
-        showToast(`✓ Submitted ${createdCount} cancellation request(s) for Loan ID ${loanId}! Confirmation email sent to: ${notifyEmailsStr}`);
-      }
+      showToast(`✓ Submitted ${createdCount} cancellation request(s) for Loan ID ${loanId}! Confirmation email sent to: ${notifyEmailsStr}`);
     }
 
     function updateInsuranceKPIs() {
@@ -24454,7 +24848,7 @@
       if (elRef) elRef.textContent = counts.Refunded;
 
       const sumDisplay = document.getElementById('totalRefundSumDisplay');
-      if (sumDisplay) sumDisplay.textContent = `₹${totalRefundedSum.toLocaleString('en-IN')}`;
+      if (sumDisplay) sumDisplay.textContent = totalRefundedSum.toLocaleString('en-IN');
 
       const chipAll = document.getElementById('chipCountAll');
       const chipPending = document.getElementById('chipCountPending');
@@ -24871,13 +25265,13 @@
               </td>
               <td>
                 ${r.ticketId ? `
-                  <a href="javascript:void(0)" onclick="openTicketInNewTab('${r.ticketId}')" style="font-size: 12px; font-family: monospace; color: #2563EB; text-decoration: none; cursor: pointer;" title="Open ticket ${r.ticketId}">
+                  <a href="javascript:void(0)" onclick="openTicketInNewTab('${r.ticketId}')" class="ins-table-link ticket-link" title="Open Ticket ${r.ticketId} in new tab">
                     ${r.ticketId}
                   </a>
                 ` : '<span style="color: #94A3B8; font-size: 12px;">—</span>'}
               </td>
               <td>
-                <a href="javascript:void(0)" onclick="openCustomerProfile('${r.customerName}')" style="font-size: 12px; color: #2563EB; text-decoration: none; cursor: pointer;" title="Open customer profile for ${r.customerName}">
+                <a href="javascript:void(0)" onclick="openCustomerProfile('${r.customerName}')" class="ins-table-link cust-link" title="Open Customer Profile for ${r.customerName}">
                   ${r.customerName}
                 </a>
               </td>
@@ -24907,7 +25301,7 @@
                 </span>
               </td>
               <td>
-                <span style="font-size: 12px; color: #475569;">₹${r.amount.toLocaleString('en-IN')}</span>
+                <span style="font-size: 12px; color: #475569;">${r.amount.toLocaleString('en-IN')}</span>
               </td>
               <td>
                 <span style="font-size: 12px; color: #475569;">${r.raisedBy}</span>
@@ -24936,6 +25330,17 @@
                 </span>
               </td>
               <td>
+                ${(r.refundProofDoc && r.refundProofDoc !== '—') ? `
+                  <button type="button" class="ins-btn-action" style="font-size: 11.5px; padding: 4px 10px; background: #F0FDF4; color: #166534; border: 1px solid #BBF7D0; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 500;" onclick="previewAccountsRefundProof('${r.id}')" title="View attached CFL refund payout proof: ${r.refundProofDoc}">
+                    <i data-lucide="eye" style="width: 13px; height: 13px; color: #166534;"></i> ${r.refundProofDoc}
+                  </button>
+                ` : (r.status === 'Refunded' ? `
+                  <button type="button" class="ins-btn-action" style="font-size: 11.5px; padding: 4px 10px; background: #F0FDF4; color: #166534; border: 1px solid #BBF7D0; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 500;" onclick="previewAccountsRefundProof('${r.id}')" title="View CFL refund payout proof">
+                    <i data-lucide="eye" style="width: 13px; height: 13px; color: #166534;"></i> ${r.refundProofDoc || `cfl_refund_utr_${r.loanId}.pdf`}
+                  </button>
+                ` : `<span style="color: #94A3B8; font-size: 12px;">—</span>`)}
+              </td>
+              <td>
                 <span style="font-size: 12px; color: #475569; font-family: monospace;">${r.refundDate || '—'}</span>
               </td>
               <td>
@@ -24946,7 +25351,7 @@
             </tr>
           `;
 
-          // Child sub-rows for multi-policy cancellations when expanded (20 columns)
+          // Child sub-rows for multi-policy cancellations when expanded (21 columns)
           let childRowsHtml = '';
           if (isMulti && isExpanded) {
             childRowsHtml = policies.map((p, pIdx) => {
@@ -24965,13 +25370,13 @@
                   </td>
                   <td>
                     ${r.ticketId ? `
-                      <a href="javascript:void(0)" onclick="openTicketInNewTab('${r.ticketId}')" style="font-size: 12px; font-family: monospace; color: #2563EB; text-decoration: none; cursor: pointer;">
+                      <a href="javascript:void(0)" onclick="openTicketInNewTab('${r.ticketId}')" class="ins-table-link ticket-link" title="Open Ticket ${r.ticketId} in new tab">
                         ${r.ticketId}
                       </a>
                     ` : '<span style="color: #94A3B8; font-size: 12px;">—</span>'}
                   </td>
                   <td>
-                    <a href="javascript:void(0)" onclick="openCustomerProfile('${r.customerName}')" style="font-size: 12px; color: #2563EB; text-decoration: none; cursor: pointer;" title="Open customer profile for ${r.customerName}">
+                    <a href="javascript:void(0)" onclick="openCustomerProfile('${r.customerName}')" class="ins-table-link cust-link" title="Open Customer Profile for ${r.customerName}">
                       ${r.customerName}
                     </a>
                   </td>
@@ -24993,7 +25398,7 @@
                     <span style="font-size: 12px; color: #475569;">${p.type}</span>
                   </td>
                   <td>
-                    <span style="font-size: 12px; color: #475569;">₹${(p.amount || p.prem || 0).toLocaleString('en-IN')}</span>
+                    <span style="font-size: 12px; color: #475569;">${(p.amount || p.prem || 0).toLocaleString('en-IN')}</span>
                   </td>
                   <td>
                     <span style="font-size: 12px; color: #475569;">${r.raisedBy}</span>
@@ -25005,7 +25410,7 @@
                     <span style="font-size: 12px; color: #475569; font-family: monospace;">${r.requestDate}</span>
                   </td>
                   <td>
-                    <span style="font-size: 12px; color: #475569;">${r.approvedBy !== '—' ? r.approvedBy : '—'}</span>
+                    <span style="font-size: 12px; color: #475569;">${r.approvedBy !== '—' ? r.approvedBy : (r.verifiedBy !== '—' ? r.verifiedBy : '—')}</span>
                   </td>
                   <td>
                     <span style="font-size: 12px; color: #475569; font-family: monospace;">${r.approvedDate || '—'}</span>
@@ -25020,6 +25425,17 @@
                       <span class="dot"></span>
                       ${r.status}
                     </span>
+                  </td>
+                  <td>
+                    ${pPay && pPay.receiptDoc ? `
+                      <button type="button" class="ins-btn-action" style="font-size: 11px; padding: 3px 8px; background: #F0FDF4; color: #166534; border: 1px solid #BBF7D0; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; font-weight: 500;" onclick="previewPolicyReceiptSlip('${r.id}', '${p.key || p.policyNumber}')" title="View CFL payout receipt: ${pPay.receiptDoc}">
+                        <i data-lucide="eye" style="width: 12px; height: 12px; color: #166534;"></i> ${pPay.receiptDoc}
+                      </button>
+                    ` : (r.status === 'Refunded' ? `
+                      <button type="button" class="ins-btn-action" style="font-size: 11px; padding: 3px 8px; background: #F0FDF4; color: #166534; border: 1px solid #BBF7D0; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; font-weight: 500;" onclick="previewAccountsRefundProof('${r.id}')" title="View CFL payout receipt">
+                        <i data-lucide="eye" style="width: 12px; height: 12px; color: #166534;"></i> ${r.refundProofDoc || `cfl_payout_${p.company ? p.company.split(' ')[0].toLowerCase() : 'slip'}.pdf`}
+                      </button>
+                    ` : `<span style="color: #94A3B8; font-size: 12px;">—</span>`)}
                   </td>
                   <td>
                     <span style="font-size: 12px; color: #475569; font-family: monospace;">${r.refundDate || '—'}</span>
@@ -25353,7 +25769,7 @@
 
       const totalEl = document.getElementById('mgrGridTotalRefundDisplay');
       if (totalEl) {
-        totalEl.textContent = `₹${totalApprovedRefund.toLocaleString('en-IN')}`;
+        totalEl.textContent = totalApprovedRefund.toLocaleString('en-IN');
       }
     }
 
@@ -25579,15 +25995,15 @@
         req.verifiedBy = 'Satvinder Sir (Partial Approval)';
         req.approvedBy = 'Satvinder Sir';
         req.approvedDate = nowStr;
-        req.remarks = remarks || `Partial Approval: ${approvedKeys.map(k => mgrTypeLabels[k]).join(', ')} approved (₹${totalApprovedAmt.toLocaleString('en-IN')}). Rejected: ${rejectedKeys.map(k => mgrTypeLabels[k]).join(', ')}.`;
+        req.remarks = remarks || `Partial Approval: ${approvedKeys.map(k => mgrTypeLabels[k]).join(', ')} approved (${totalApprovedAmt.toLocaleString('en-IN')}). Rejected: ${rejectedKeys.map(k => mgrTypeLabels[k]).join(', ')}.`;
         req.managerRemarks = req.remarks;
         req.activityLog.push({
           time: nowStr,
           actor: 'Satvinder Sir (Management)',
           action: 'Management Partial Approval',
-          desc: `Approved ₹${totalApprovedAmt.toLocaleString('en-IN')} for [${approvedKeys.map(k => mgrTypeLabels[k]).join(', ')}]. Rejected [${rejectedKeys.map(k => mgrTypeLabels[k]).join(', ')}]. Remarks: ${req.remarks}. Forwarded to Accounts.`
+          desc: `Approved ${totalApprovedAmt.toLocaleString('en-IN')} for [${approvedKeys.map(k => mgrTypeLabels[k]).join(', ')}]. Rejected [${rejectedKeys.map(k => mgrTypeLabels[k]).join(', ')}]. Remarks: ${req.remarks}. Forwarded to Accounts.`
         });
-        showToast(`✓ Partial Approval granted (₹${totalApprovedAmt.toLocaleString('en-IN')})! Forwarded to Accounts.`);
+        showToast(`✓ Partial Approval granted (${totalApprovedAmt.toLocaleString('en-IN')})! Forwarded to Accounts.`);
       } else {
         // Full Approval: all active rows approved
         const totalApprovedAmt = approvedKeys.reduce((sum, k) => sum + (mgrRowAmounts[k] || 0), 0);
@@ -25602,9 +26018,9 @@
           time: nowStr,
           actor: 'Satvinder Sir (Management)',
           action: 'Management Approval Granted',
-          desc: `Approved refund of ₹${req.amount.toLocaleString('en-IN')} across ${activeKeys.length} policy line(s) [${activeKeys.map(k => `${mgrTypeLabels[k]}: ₹${mgrRowAmounts[k]}`).join(', ')}]. Remarks: ${remarks || 'Approved'}. Forwarded to Accounts.`
+          desc: `Approved refund of ${req.amount.toLocaleString('en-IN')} across ${activeKeys.length} policy line(s) [${activeKeys.map(k => `${mgrTypeLabels[k]}: ${mgrRowAmounts[k]}`).join(', ')}]. Remarks: ${remarks || 'Approved'}. Forwarded to Accounts.`
         });
-        showToast(`✓ Request ${id} APPROVED by Satvinder Sir (₹${req.amount.toLocaleString('en-IN')})! Forwarded to Accounts.`);
+        showToast(`✓ Request ${id} APPROVED by Satvinder Sir (${req.amount.toLocaleString('en-IN')})! Forwarded to Accounts.`);
       }
 
       closeInsuranceModal('modalManagementReview');
@@ -25628,7 +26044,7 @@
           amount: 2400, 
           prem: 2400, 
           legalRemarks: 'Free-Look cancellation requested within 3 days of loan disbursal', 
-          mgrRemarks: 'Approved for full refund (Care Health ₹2,400)', 
+          mgrRemarks: 'Approved for full refund (Care Health 2,400)', 
           proof: req.proofDoc || 'care_cancellation_slip_3388.pdf',
           payment: req.status === 'Refunded' ? {
             utr: req.paymentRef || 'IMPSI626509486325',
@@ -25649,7 +26065,7 @@
           amount: 1200, 
           prem: 1200, 
           legalRemarks: 'Free-Look cancellation requested within 3 days of loan disbursal', 
-          mgrRemarks: 'Approved for full refund (Wellness ₹1,200)', 
+          mgrRemarks: 'Approved for full refund (Wellness 1,200)', 
           proof: req.proofDoc || 'care_cancellation_slip_3388.pdf',
           payment: req.status === 'Refunded' ? {
             utr: req.paymentRef ? (req.paymentRef + '-02') : 'IMPSI626509486326',
@@ -25714,7 +26130,7 @@
           amount: 2400, 
           prem: 2400, 
           legalRemarks: 'Free-Look cancellation requested within 5 days of disbursal', 
-          mgrRemarks: 'Approved for full refund (Care Health ₹2,400)', 
+          mgrRemarks: 'Approved for full refund (Care Health 2,400)', 
           proof: req.proofDoc || 'care_health_slip_7822.pdf',
           payment: req.status === 'Refunded' ? {
             utr: req.paymentRef || 'IMPSI626509486325',
@@ -25735,7 +26151,7 @@
           amount: 3500, 
           prem: 3500, 
           legalRemarks: 'Free-Look cancellation requested within 5 days of disbursal', 
-          mgrRemarks: 'Approved for full refund (Acko Protection ₹3,500)', 
+          mgrRemarks: 'Approved for full refund (Acko Protection 3,500)', 
           proof: req.proofDoc || 'acko_slip_7822.pdf',
           payment: req.status === 'Refunded' ? {
             utr: req.paymentRef ? (req.paymentRef + '-02') : 'IMPSI626509486326',
@@ -25914,7 +26330,7 @@
                     <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #16A34A;"></span>
                     PAID (${p.payment.mode})
                   </span>
-                  <span style="font-size: 11px; font-weight: 800; color: #15803D;">₹${p.payment.net.toLocaleString('en-IN')}</span>
+                  <span style="font-size: 11px; font-weight: 800; color: #15803D;">${p.payment.net.toLocaleString('en-IN')}</span>
                 </div>
                 <div style="font-size: 11px; color: #1E293B; font-family: monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="UTR: ${p.payment.utr}">
                   UTR: <strong>${p.payment.utr}</strong>
@@ -25951,7 +26367,7 @@
                 <span style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 4px; padding: 2px 6px;">${p.policyNumber || p.policy}</span>
               </td>
               <td style="padding: 9px 10px; font-weight: 700; color: #16A34A; font-size: 12.5px; white-space: nowrap;">
-                ₹${p.amount.toLocaleString('en-IN')}
+                ${p.amount.toLocaleString('en-IN')}
               </td>
               <td style="padding: 9px 10px; white-space: nowrap;">
                 <button type="button" class="ins-btn ins-btn-white" style="font-size: 11px; padding: 4px 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; border: 1px solid #CBD5E1; border-radius: 6px;" onclick="previewPolicyProof('${req.id}', '${p.key || p.policyNumber}')" title="View attached legal proof: ${p.proof || 'proof.pdf'}">
@@ -25978,7 +26394,7 @@
 
         const totalAmt = activePolicies.reduce((sum, p) => sum + p.amount, 0);
         const totalDisplay = document.getElementById('accGridTotalRefundDisplay');
-        if (totalDisplay) totalDisplay.textContent = `₹${(totalAmt || req.amount).toLocaleString('en-IN')}`;
+        if (totalDisplay) totalDisplay.textContent = (totalAmt || req.amount).toLocaleString('en-IN');
         const countDisplay = document.getElementById('accGridSelectedCount');
         if (countDisplay) countDisplay.textContent = `Active Cancellation Rows: ${activePolicies.length} Selected`;
       }
@@ -26022,7 +26438,7 @@
       const titleEl = document.getElementById('recPayPolicyTitle');
       const subEl = document.getElementById('recPayPolicySubtitle');
       if (titleEl) titleEl.textContent = policy.company ? `${policy.company} - ${policy.type}` : policy.type;
-      if (subEl) subEl.textContent = `${policy.policyNumber || policy.policy} • ₹${(policy.amount || req.amount).toLocaleString('en-IN')}`;
+      if (subEl) subEl.textContent = `${policy.policyNumber || policy.policy} • ${(policy.amount || req.amount).toLocaleString('en-IN')}`;
 
       // Update beneficiary bank wire pill
       const cleanLoanId = req.loanId || '';
@@ -26246,7 +26662,7 @@
 
       if (window.lucide) window.lucide.createIcons();
 
-      showToast(`⚡ OCR Extracted: UTR ${parsed.utr} • ₹${parsed.net.toLocaleString('en-IN')} (${parsed.mode}) auto-filled!`);
+      showToast(`⚡ OCR Extracted: UTR ${parsed.utr} • ${parsed.net.toLocaleString('en-IN')} (${parsed.mode}) auto-filled!`);
     }
 
     function triggerFieldOcrPulse(el) {
@@ -26474,13 +26890,13 @@
         time: nowStr,
         actor: 'Anjali Divecha (Accounts)',
         action: 'Individual Payout Recorded',
-        desc: `Recorded bank payout for [${policy.type} (${policy.policyNumber || policy.policy})]. Mode: ${mode}, UTR: ${utr}, Gross: ₹${gross.toLocaleString('en-IN')}, Deductions: ₹${deductions.toLocaleString('en-IN')}, Net: ₹${net.toLocaleString('en-IN')}, Receipt: ${receiptDocName}.`
+        desc: `Recorded bank payout for [${policy.type} (${policy.policyNumber || policy.policy})]. Mode: ${mode}, UTR: ${utr}, Gross: ${gross.toLocaleString('en-IN')}, Deductions: ${deductions.toLocaleString('en-IN')}, Net: ${net.toLocaleString('en-IN')}, Receipt: ${receiptDocName}.`
       });
 
       closeInsuranceModal('modalRecordPayment');
       openAccountsRefundModal(req.id);
       renderInsuranceTable();
-      showToast(`✓ Payment recorded for ${policy.type}! Net: ₹${net.toLocaleString('en-IN')} (UTR: ${utr})`);
+      showToast(`✓ Payment recorded for ${policy.type}! Net: ${net.toLocaleString('en-IN')} (UTR: ${utr})`);
     }
 
     function previewPolicyReceipt(reqId, policyKey) {
@@ -26496,7 +26912,7 @@
       if (titleEl) titleEl.textContent = 'Bank Payout / UTR Receipt';
       if (subEl) subEl.textContent = `Individual Insurance Refund Receipt for ${policy ? policy.type : 'Policy'}`;
       if (docNameEl) docNameEl.textContent = (policy && policy.payment && policy.payment.receiptDoc) ? policy.payment.receiptDoc : 'bank_refund_utr_receipt.pdf';
-      if (descEl) descEl.textContent = `Bank transaction reference (UTR): ${policy && policy.payment ? policy.payment.utr : 'IMPSI626509486325'} | Mode: ${policy && policy.payment ? policy.payment.mode : 'IMPS'} | Credited Net Amount: ₹${policy && policy.payment ? policy.payment.net.toLocaleString('en-IN') : '0'}. Processed by Accounts Department.`;
+      if (descEl) descEl.textContent = `Bank transaction reference (UTR): ${policy && policy.payment ? policy.payment.utr : 'IMPSI626509486325'} | Mode: ${policy && policy.payment ? policy.payment.mode : 'IMPS'} | Credited Net Amount: ${policy && policy.payment ? policy.payment.net.toLocaleString('en-IN') : '0'}. Processed by Accounts Department.`;
       
       document.getElementById('modalInsuranceProofViewer').classList.add('active');
       if (window.lucide) window.lucide.createIcons();
@@ -26555,20 +26971,20 @@
       req.refundedBy = 'Anjali Divecha (Accounts)';
       req.verifiedBy = 'Priya Khalas';
       req.approvedBy = req.approvedBy && req.approvedBy !== '—' ? req.approvedBy : 'Satvinder Sir';
-      req.accountsRemarks = accRemarks || `All individual refund payouts credited (Total: ₹${totalNet.toLocaleString('en-IN')}) via UTR: ${req.paymentRef}.`;
+      req.accountsRemarks = accRemarks || `All individual refund payouts credited (Total: ${totalNet.toLocaleString('en-IN')}) via UTR: ${req.paymentRef}.`;
       req.refundProofDoc = policies[0]?.payment?.receiptDoc || 'cfl_bank_refund_utr_receipt.pdf';
 
       req.activityLog.push({
         time: nowStr,
         actor: 'Anjali Divecha (Accounts)',
         action: 'All Payouts Settled & Confirmed',
-        desc: `Completed settlement for all ${policies.length} insurance line(s). Total Net Payout: ₹${totalNet.toLocaleString('en-IN')}. UTRs: ${req.paymentRef}. Accounts Remarks: ${req.accountsRemarks}. Legal notified to send final confirmation.`
+        desc: `Completed settlement for all ${policies.length} insurance line(s). Total Net Payout: ${totalNet.toLocaleString('en-IN')}. UTRs: ${req.paymentRef}. Accounts Remarks: ${req.accountsRemarks}. Legal notified to send final confirmation.`
       });
 
       closeInsuranceModal('modalAccountsRefund');
       updateInsuranceKPIs();
       renderInsuranceTable();
-      showToast(`✓ Payment confirmed for Loan ${req.loanId}! All ${policies.length} policy payouts settled (Total: ₹${totalNet.toLocaleString('en-IN')}).`);
+      showToast(`✓ Payment confirmed for Loan ${req.loanId}! All ${policies.length} policy payouts settled (Total: ${totalNet.toLocaleString('en-IN')}).`);
     }
 
     function submitAccountsResubmitToLegal() {
@@ -26700,7 +27116,7 @@
       const badge = document.getElementById('proofViewerTypeBadge');
       const previewContent = document.getElementById('proofViewerPreviewContent');
 
-      if (titleEl) titleEl.textContent = title || 'Insurance Refund Proof Document';
+      if (titleEl) titleEl.textContent = title || 'Refund proof from Insurance Company';
       if (subEl) subEl.textContent = subtitle || 'Document verification preview';
       if (docNameEl) docNameEl.textContent = fileName || 'insurance_proof.pdf';
       if (descEl) descEl.textContent = desc || 'Official insurance document / customer cancellation proof attached.';
@@ -26750,7 +27166,7 @@
       if (reqId) {
         previewInsuranceProof(reqId);
       } else {
-        updateProofViewerUI('insurance_cancellation_proof.pdf', 'Insurance Refund Proof Document', 'Document verification preview', 'Attached proof verified by Grievance team.');
+        updateProofViewerUI('insurance_cancellation_proof.pdf', 'Refund proof from Insurance Company', 'Document verification preview', 'Attached proof verified by Grievance team.');
         document.getElementById('modalInsuranceProofViewer').classList.add('active');
       }
     }
@@ -26758,7 +27174,7 @@
     function previewInsuranceProof(id) {
       const req = INSURANCE_REQUESTS.find(r => r.id === id);
       const fileName = req ? (req.proofDoc || 'insurance_refund_receipt.pdf') : 'insurance_refund_receipt.pdf';
-      const title = 'Insurance Refund Proof Document';
+      const title = 'Refund proof from Insurance Company';
       const subtitle = req ? `Proof of Insurance Refund Settlement for Loan ID ${req.loanId}` : 'Document verification preview';
       const desc = req ? `Official insurance company confirmation endorsement verifying policy cancellation and free-look period refund settlement for Policy ${req.policyNumber}.` : 'Official proof document.';
       const meta = req ? `Loan ID: ${req.loanId} • Ticket: ${req.ticketId || '—'} • Customer: ${req.customerName} • Raised by: ${req.raisedBy}` : '';
@@ -26771,9 +27187,9 @@
     function previewAccountsRefundProof(id) {
       const req = INSURANCE_REQUESTS.find(r => r.id === id);
       const fileName = req ? (req.refundProofDoc || 'cfl_bank_refund_utr_receipt.pdf') : 'cfl_bank_refund_utr_receipt.pdf';
-      const title = 'Accounts Bank Payment & UTR Receipt';
-      const subtitle = req ? `Bank Transfer Settlement Receipt for Loan ID ${req.loanId} (${req.id})` : 'Payment Settlement Proof';
-      const desc = req ? `Official bank disbursement advice & IMPS/NEFT payment confirmation slip verifying refund transfer to customer account. UTR: ${req.paymentRef || 'IMPSI626509486325'}.` : 'Payment receipt.';
+      const title = 'Refund proof from CFL';
+      const subtitle = req ? `Chinmay Finlease Bank Transfer Settlement Receipt for Loan ID ${req.loanId} (${req.id})` : 'CFL Payment Settlement Proof';
+      const desc = req ? `Official Chinmay Finlease Limited (CFL) disbursement advice & IMPS/NEFT payment confirmation slip verifying refund transfer to customer account. UTR: ${req.paymentRef || 'IMPSI626509486325'}.` : 'Payment receipt.';
       const meta = req ? `Loan ID: ${req.loanId} • UTR: ${req.paymentRef || 'IMPSI626509486325'} • Refund Date: ${req.refundDate || '—'} • Verified by Accounts` : '';
 
       updateProofViewerUI(fileName, title, subtitle, desc, meta);
@@ -26786,10 +27202,10 @@
       const policies = req ? getRequestApprovedPolicies(req) : [];
       const pol = policies.find(p => p.key === policyKey || p.policyNumber === policyKey) || policies[0] || {};
       const fileName = pol.proof || (req ? req.proofDoc : 'insurance_cancellation_proof.pdf');
-      const title = `Grievance Cancellation Proof (${pol.type || 'Policy'})`;
-      const subtitle = `Grievance cancellation proof for Policy No. ${pol.policyNumber || pol.policy || 'N/A'} (Loan ID: ${req ? req.loanId : ''})`;
+      const title = `Refund proof from Insurance Company (${pol.type || 'Policy'})`;
+      const subtitle = `Insurance cancellation proof for Policy No. ${pol.policyNumber || pol.policy || 'N/A'} (Loan ID: ${req ? req.loanId : ''})`;
       const desc = pol.legalRemarks ? `Grievance Notes: ${pol.legalRemarks}` : `Insurer cancellation acknowledgment and Free-Look verification document.`;
-      const meta = `Policy: ${pol.policyNumber || pol.policy || 'N/A'} • Insurer: ${pol.company || req?.company || 'N/A'} • Premium: ₹${(pol.amount || pol.prem || 0).toLocaleString('en-IN')}`;
+      const meta = `Policy: ${pol.policyNumber || pol.policy || 'N/A'} • Insurer: ${pol.company || req?.company || 'N/A'} • Premium: ${(pol.amount || pol.prem || 0).toLocaleString('en-IN')}`;
 
       updateProofViewerUI(fileName, title, subtitle, desc, meta);
       document.getElementById('modalInsuranceProofViewer').classList.add('active');
@@ -26802,9 +27218,9 @@
       const pol = policies.find(p => p.key === policyKey || p.policyNumber === policyKey) || policies[0] || {};
       const pay = pol.payment || {};
       const fileName = pay.receiptDoc || (req ? req.refundProofDoc : 'cfl_bank_payout_receipt.pdf');
-      const title = `Bank Payment Payout Receipt (${pol.type || 'Policy'})`;
+      const title = `Refund proof from CFL (${pol.type || 'Policy'})`;
       const subtitle = `Bank Transfer Receipt for Policy ${pol.policyNumber || pol.policy} • UTR: ${pay.utr || (req ? req.paymentRef : 'IMPSI626509486325')}`;
-      const desc = `Net Payout of ₹${(pay.net || pol.amount || 0).toLocaleString('en-IN')} disbursed via ${pay.mode || 'IMPS'} on ${pay.paidDate || (req ? req.refundDate : 'today')}.`;
+      const desc = `Net Payout of ${(pay.net || pol.amount || 0).toLocaleString('en-IN')} disbursed via ${pay.mode || 'IMPS'} on ${pay.paidDate || (req ? req.refundDate : 'today')}.`;
       const meta = `Payment Mode: ${pay.mode || 'IMPS'} • UTR: ${pay.utr || 'N/A'} • Paid Date: ${pay.paidDate || (req ? req.refundDate : 'Today')}`;
 
       updateProofViewerUI(fileName, title, subtitle, desc, meta);
@@ -26831,12 +27247,12 @@
 
     /* Export CSV */
     function exportInsuranceCSV() {
-      let csv = 'Request ID,Loan ID,Ticket ID,Customer Name,Phone,Insurance Company,Insurance Type,Policy Number,Refund Amount,Created By,Customer Request Date,Refund Process Initiated Date,Verified / Approved By,Approved Date & Time,Manager Remarks,Status,Refund Date & Time,Accounts Remarks,Payment Reference,Refund Proof Doc\n';
+      let csv = 'Request ID,Loan ID,Ticket ID,Customer Name,Phone,Insurance Company,Insurance Type,Policy Number,Refund Amount,Created By,Customer Request Date,Refund Process Initiated Date,Approved by,Approved Date & Time,Manager Remarks,Status,Refund proof from CFL,Refund Date & Time,Accounts Remarks,Payment Reference,Refund proof from Insurance Company\n';
       INSURANCE_REQUESTS.forEach(r => {
         const approvedByDisplay = r.approvedBy !== '—' ? r.approvedBy : (r.verifiedBy !== '—' ? r.verifiedBy : '—');
         const mgrRem = (r.managerRemarks || r.remarks || '—').replace(/"/g, '""');
         const accRem = (r.accountsRemarks || '—').replace(/"/g, '""');
-        csv += `"${r.id}","${r.loanId}","${r.ticketId || '—'}","${r.customerName}","${r.customerPhone}","${r.company}","${r.type}","${r.policyNumber}","${r.amount}","${r.raisedBy}","${r.customerRequestDate || r.requestDate}","${r.requestDate}","${approvedByDisplay}","${r.approvedDate || '—'}","${mgrRem}","${r.status}","${r.refundDate || '—'}","${accRem}","${r.paymentRef || '—'}","${r.refundProofDoc || '—'}"\n`;
+        csv += `"${r.id}","${r.loanId}","${r.ticketId || '—'}","${r.customerName}","${r.customerPhone}","${r.company}","${r.type}","${r.policyNumber}","${r.amount}","${r.raisedBy}","${r.customerRequestDate || r.requestDate}","${r.requestDate}","${approvedByDisplay}","${r.approvedDate || '—'}","${mgrRem}","${r.status}","${r.refundProofDoc || '—'}","${r.refundDate || '—'}","${accRem}","${r.paymentRef || '—'}","${r.proofDoc || '—'}"\n`;
       });
 
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -26861,12 +27277,11 @@
     }
 
     function openTicketInNewTab(ticketId) {
-      if (!ticketId || ticketId === '—') return;
-      if (typeof selectTicketById === 'function') {
-        selectTicketById(ticketId);
-      } else {
-        window.open(`customer_profile.html?ticket=${encodeURIComponent(ticketId)}`, '_blank');
-      }
+      const id = ticketId || (typeof selectedTicketId !== 'undefined' && selectedTicketId ? selectedTicketId : 'TCK-10221');
+      if (!id || id === '—') return;
+      const baseUrl = window.location.href.split('?')[0].split('#')[0];
+      const targetUrl = `${baseUrl}?ticket=${encodeURIComponent(id.trim())}`;
+      window.open(targetUrl, '_blank');
     }
 
     /* Insurance Creation Email Notification Template Generator (Matching Chinmay Brand & Spec) */
@@ -26950,7 +27365,7 @@
                         REFUND PAYOUT
                       </div>
                       <div style="font-size:16px; font-weight:900; color:#047857; margin-top:3px;">
-                        ₹${totalAmount.toLocaleString('en-IN')}
+                        ${totalAmount.toLocaleString('en-IN')}
                       </div>
                     </div>
                   </td>
@@ -27001,7 +27416,7 @@
                   <tr style="background-color:#0F172A; color:#CBD5E1; font-weight:700;">
                     <th style="border:1px solid #475569; padding:8px 10px;">Insurance Type</th>
                     <th style="border:1px solid #475569; padding:8px 10px;">Policy No</th>
-                    <th style="border:1px solid #475569; padding:8px 10px;">Refund (₹)</th>
+                    <th style="border:1px solid #475569; padding:8px 10px;">Refund</th>
                     <th style="border:1px solid #475569; padding:8px 10px;">Proof Doc</th>
                   </tr>
                 </thead>
@@ -27010,13 +27425,13 @@
                     <tr style="color:#F1F5F9;">
                       <td style="border:1px solid #475569; font-weight:600;">${it.type}</td>
                       <td style="border:1px solid #475569; font-family:monospace; color:#93C5FD;">${it.policy}</td>
-                      <td style="border:1px solid #475569; font-weight:700; color:#34D399;">₹${Number(it.refund).toLocaleString('en-IN')}</td>
+                      <td style="border:1px solid #475569; font-weight:700; color:#34D399;">${Number(it.refund).toLocaleString('en-IN')}</td>
                       <td style="border:1px solid #475569; font-size:11px; color:#94A3B8;">📎 ${it.proof || 'proof.pdf'}</td>
                     </tr>
                   `).join('')}
                   <tr style="background-color:#0F172A; color:#FFFFFF; font-weight:800;">
                     <td colspan="2" style="border:1px solid #475569; text-align:right; padding:9px 12px;">Total Refund Payout:</td>
-                    <td colspan="2" style="border:1px solid #475569; color:#34D399; font-size:13.5px; padding:9px 12px;">₹${totalAmount.toLocaleString('en-IN')}</td>
+                    <td colspan="2" style="border:1px solid #475569; color:#34D399; font-size:13.5px; padding:9px 12px;">${totalAmount.toLocaleString('en-IN')}</td>
                   </tr>
                 </tbody>
               </table>
@@ -27149,7 +27564,7 @@
                         REFUND CREDITED
                       </div>
                       <div style="font-size:18px; font-weight:900; color:#16A34A; margin-top:3px;">
-                        ₹${totalAmount.toLocaleString('en-IN')}
+                        ${totalAmount.toLocaleString('en-IN')}
                       </div>
                     </div>
                   </td>
@@ -27169,7 +27584,7 @@
               
               <!-- Intro text -->
               <p style="margin:0 0 18px 0; color:#CBD5E1; font-size:13px; line-height:1.55;">
-                We are pleased to inform you that your insurance cancellation and refund request for Loan Account <strong style="color:#FFFFFF;">#${loanId}</strong> has been successfully processed and the refund amount of <strong style="color:#4ADE80; font-size:14px;">₹${totalAmount.toLocaleString('en-IN')}</strong> has been credited to your verified bank account.
+                We are pleased to inform you that your insurance cancellation and refund request for Loan Account <strong style="color:#FFFFFF;">#${loanId}</strong> has been successfully processed and the refund amount of <strong style="color:#4ADE80; font-size:14px;">${totalAmount.toLocaleString('en-IN')}</strong> has been credited to your verified bank account.
               </p>
 
               <!-- Bank Transfer & Settlement Summary Box -->
@@ -27207,7 +27622,7 @@
                     <th style="border:1px solid #475569; padding:8px 10px;">Insurance Type</th>
                     <th style="border:1px solid #475569; padding:8px 10px;">Policy No</th>
                     <th style="border:1px solid #475569; padding:8px 10px;">Insurer</th>
-                    <th style="border:1px solid #475569; padding:8px 10px;">Refund Amount (₹)</th>
+                    <th style="border:1px solid #475569; padding:8px 10px;">Refund Amount</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -27216,12 +27631,12 @@
                       <td style="border:1px solid #475569; font-weight:600;">${it.type}</td>
                       <td style="border:1px solid #475569; font-family:monospace; color:#93C5FD;">${it.policy}</td>
                       <td style="border:1px solid #475569; color:#E2E8F0;">${it.company}</td>
-                      <td style="border:1px solid #475569; font-weight:700; color:#4ADE80;">₹${Number(it.refund).toLocaleString('en-IN')}</td>
+                      <td style="border:1px solid #475569; font-weight:700; color:#4ADE80;">${Number(it.refund).toLocaleString('en-IN')}</td>
                     </tr>
                   `).join('')}
                   <tr style="background-color:#0F172A; color:#FFFFFF; font-weight:800;">
                     <td colspan="3" style="border:1px solid #475569; text-align:right; padding:9px 12px;">Total Refund Disbursed:</td>
-                    <td style="border:1px solid #475569; color:#4ADE80; font-size:14px; padding:9px 12px;">₹${totalAmount.toLocaleString('en-IN')}</td>
+                    <td style="border:1px solid #475569; color:#4ADE80; font-size:14px; padding:9px 12px;">${totalAmount.toLocaleString('en-IN')}</td>
                   </tr>
                 </tbody>
               </table>
