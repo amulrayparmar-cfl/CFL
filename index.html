@@ -11387,83 +11387,64 @@
   </div>
 
   <!-- ============================================== -->
+  <!-- ============================================== -->
   <!-- MODAL 8: RECORD INDIVIDUAL PAYMENT (Screenshot 2) -->
   <!-- ============================================== -->
   <div class="ins-modal-overlay" id="modalRecordPayment" style="z-index: 1250;">
-    <div class="ins-modal-card" style="max-width: 580px; padding: 0; border-radius: 12px; overflow: hidden; background: #FFFFFF; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);">
-      <div class="ins-modal-header" style="align-items: center; padding: 18px 22px 14px; border-bottom: 1px solid #F1F5F9;">
-        <h3 style="margin: 0; font-size: 17px; font-weight: 700; color: #0F172A;">Record Payment</h3>
+    <div class="ins-modal-card" style="max-width: 520px; padding: 0; border-radius: 12px; overflow: hidden; background: #FFFFFF; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);">
+      <div class="ins-modal-header" style="align-items: center; padding: 14px 18px 12px; border-bottom: 1px solid #F1F5F9;">
+        <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: #0F172A;">Record Payment</h3>
         <button class="ins-modal-close" onclick="closeInsuranceModal('modalRecordPayment')">✕</button>
       </div>
 
-      <div class="ins-modal-body" style="padding: 20px 22px;">
+      <div class="ins-modal-body" style="padding: 14px 18px 10px;">
         <input type="hidden" id="recPayPolicyKey">
         <input type="hidden" id="recPayRequestId">
 
-        <!-- Top Policy Header Card (Matching Screenshot 2) -->
-        <div class="rec-pay-card" style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 16px; flex-wrap: wrap;">
-          <div style="display: flex; align-items: center; gap: 14px;">
-            <div class="rec-pay-icon-box" style="width: 44px; height: 44px; border-radius: 10px; background: #EEF2FF; border: 1px solid #E0E7FF; color: #4F46E5; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
+        <!-- Top Policy Header Card -->
+        <div class="rec-pay-card" style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="rec-pay-icon-box" style="width: 36px; height: 36px; border-radius: 8px; background: #EEF2FF; border: 1px solid #E0E7FF; color: #4F46E5; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
               🏢
             </div>
             <div class="rec-pay-info">
-              <strong id="recPayPolicyTitle" style="display: block; font-size: 15px; font-weight: 700; color: #0F172A;">Paisa247</strong>
-              <span id="recPayPolicySubtitle" style="display: block; font-size: 12.5px; color: #64748B; font-family: monospace; margin-top: 2px;">82/2026-27 • 90,400</span>
+              <strong id="recPayPolicyTitle" style="display: block; font-size: 13.5px; font-weight: 700; color: #0F172A;">Paisa247</strong>
+              <span id="recPayPolicySubtitle" style="display: block; font-size: 11.5px; color: #64748B; font-family: monospace; margin-top: 1px;">82/2026-27 • 90,400</span>
             </div>
           </div>
-          <div id="recPayBankPill" style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 6px; padding: 5px 10px; font-size: 11px; color: #065F46; display: flex; align-items: center; gap: 6px;">
-            <i data-lucide="landmark" style="width: 13px; height: 13px; color: #059669;"></i>
+          <div id="recPayBankPill" style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 6px; padding: 4px 8px; font-size: 10.5px; color: #065F46; display: flex; align-items: center; gap: 5px;">
+            <i data-lucide="landmark" style="width: 12px; height: 12px; color: #059669;"></i>
             <span id="recPayBankText"><strong>HDFC Bank</strong> • A/c: 50100492837482 • IFSC: HDFC0003388</span>
-            <button type="button" onclick="copyFieldToClipboard('recPayBankText', 'Beneficiary Bank Details')" style="background: #FFFFFF; border: 1px solid #86EFAC; border-radius: 4px; padding: 2px 6px; font-size: 10px; font-weight: 700; color: #15803D; cursor: pointer;" title="Copy Bank Wire details">Copy</button>
+            <button type="button" onclick="copyFieldToClipboard('recPayBankText', 'Beneficiary Bank Details')" style="background: #FFFFFF; border: 1px solid #86EFAC; border-radius: 4px; padding: 1px 5px; font-size: 9.5px; font-weight: 700; color: #15803D; cursor: pointer;" title="Copy Bank Wire details">Copy</button>
           </div>
         </div>
 
-        <!-- 2-Column Form Grid (Matching Screenshot 2) -->
-        <div class="rec-pay-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px 18px; margin-bottom: 18px;">
+        <!-- 2-Column Form Grid -->
+        <div class="rec-pay-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; margin-bottom: 12px;">
           <!-- Row 1 Left: UTR number* -->
           <div>
-            <label class="rec-pay-field-label" style="display: block; font-size: 12px; font-weight: 700; color: #1E293B; margin-bottom: 6px;">
+            <label class="rec-pay-field-label" style="display: block; font-size: 11.5px; font-weight: 700; color: #1E293B; margin-bottom: 4px;">
               UTR number<span class="req" style="color: #EF4444; margin-left: 2px;">*</span>
             </label>
-            <input type="text" id="recPayUtrNumber" class="rec-pay-input" placeholder="e.g. IMPSI626509486325" required style="width: 100%; height: 38px; border: 1px solid #CBD5E1; border-radius: 8px; padding: 0 12px; font-size: 13px; font-family: monospace; font-weight: 600; color: #0F172A; box-sizing: border-box;">
+            <input type="text" id="recPayUtrNumber" class="rec-pay-input" placeholder="e.g. IMPSI626509486325" required style="width: 100%; height: 36px; border: 1px solid #CBD5E1; border-radius: 6px; padding: 0 10px; font-size: 12.5px; font-family: monospace; font-weight: 600; color: #0F172A; box-sizing: border-box;">
           </div>
 
-          <!-- Row 1 Right: Gross amount* -->
+          <!-- Row 1 Right: Net payment* -->
           <div>
-            <label class="rec-pay-field-label" style="display: block; font-size: 12px; font-weight: 700; color: #1E293B; margin-bottom: 6px;">
-              Gross amount<span class="req" style="color: #EF4444; margin-left: 2px;">*</span>
-            </label>
-            <div class="rec-pay-currency-wrap" style="position: relative; display: flex; align-items: center; width: 100%;">
-              <input type="number" id="recPayGrossAmount" class="rec-pay-input" placeholder="0" oninput="calculateRecPayNet()" required style="width: 100%; height: 38px; border: 1px solid #CBD5E1; border-radius: 8px; padding-left: 12px; padding-right: 12px; font-size: 13px; font-weight: 600; color: #0F172A; box-sizing: border-box;">
-            </div>
-          </div>
-
-          <!-- Row 2 Left: Deductions -->
-          <div>
-            <label class="rec-pay-field-label" style="display: block; font-size: 12px; font-weight: 700; color: #1E293B; margin-bottom: 6px;">
-              Deductions
-            </label>
-            <div class="rec-pay-currency-wrap" style="position: relative; display: flex; align-items: center; width: 100%;">
-              <input type="number" id="recPayDeductions" class="rec-pay-input" value="0" placeholder="0" oninput="calculateRecPayNet()" style="width: 100%; height: 38px; border: 1px solid #CBD5E1; border-radius: 8px; padding-left: 12px; padding-right: 12px; font-size: 13px; font-weight: 600; color: #0F172A; box-sizing: border-box;">
-            </div>
-          </div>
-
-          <!-- Row 2 Right: Net payment* -->
-          <div>
-            <label class="rec-pay-field-label" style="display: block; font-size: 12px; font-weight: 700; color: #1E293B; margin-bottom: 6px;">
+            <label class="rec-pay-field-label" style="display: block; font-size: 11.5px; font-weight: 700; color: #1E293B; margin-bottom: 4px;">
               Net payment<span class="req" style="color: #EF4444; margin-left: 2px;">*</span>
             </label>
             <div class="rec-pay-currency-wrap" style="position: relative; display: flex; align-items: center; width: 100%;">
-              <input type="number" id="recPayNetAmount" class="rec-pay-input" readonly required style="width: 100%; height: 38px; border: 1px solid #CBD5E1; border-radius: 8px; padding-left: 12px; padding-right: 12px; font-size: 13px; font-weight: 700; color: #16A34A; background: #F8FAFC; box-sizing: border-box;">
+              <input type="number" id="recPayNetAmount" class="rec-pay-input" placeholder="0" required style="width: 100%; height: 36px; border: 1px solid #CBD5E1; border-radius: 6px; padding-left: 10px; padding-right: 10px; font-size: 12.5px; font-weight: 600; color: #0F172A; background: #FFFFFF; box-sizing: border-box;">
             </div>
           </div>
 
-          <!-- Row 3 Left: MODE * -->
+          <!-- Row 2 Left: MODE * -->
           <div>
-            <label class="rec-pay-field-label" style="display: block; font-size: 12px; font-weight: 700; color: #1E293B; margin-bottom: 6px;">
+            <label class="rec-pay-field-label" style="display: block; font-size: 11.5px; font-weight: 700; color: #1E293B; margin-bottom: 4px;">
               MODE <span class="req" style="color: #EF4444; margin-left: 2px;">*</span>
             </label>
-            <select id="recPayMode" class="rec-pay-select" style="width: 100%; height: 38px; border: 1px solid #CBD5E1; border-radius: 8px; padding: 0 12px; font-size: 13px; font-weight: 600; color: #0F172A; background: #FFFFFF; outline: none; cursor: pointer; box-sizing: border-box;">
+            <select id="recPayMode" class="rec-pay-select" style="width: 100%; height: 36px; border: 1px solid #CBD5E1; border-radius: 6px; padding: 0 10px; font-size: 12.5px; font-weight: 600; color: #0F172A; background: #FFFFFF; outline: none; cursor: pointer; box-sizing: border-box;">
               <option value="IMPS">IMPS</option>
               <option value="NEFT">NEFT</option>
               <option value="RTGS">RTGS</option>
@@ -11471,57 +11452,55 @@
             </select>
           </div>
 
-          <!-- Row 3 Right: Receipt* Dropzone with OCR Auto-Fetch -->
+          <!-- Row 2 Right: Receipt* Dropzone with OCR Auto-Fetch -->
           <div>
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
-              <label class="rec-pay-field-label" style="margin-bottom: 0;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+              <label class="rec-pay-field-label" style="margin-bottom: 0; font-size: 11.5px; font-weight: 700; color: #1E293B;">
                 Refund proof from CFL<span class="req" style="color: #EF4444; margin-left: 2px;">*</span>
               </label>
-              <span id="recPayOcrSuccessBadge" class="ocr-badge-tag" style="display: none;">
-                <i data-lucide="sparkles" style="width: 11px; height: 11px; color: #059669;"></i> OCR Auto-Filled
+              <span id="recPayOcrSuccessBadge" class="ocr-badge-tag" style="display: none; font-size: 9.5px; padding: 1px 5px;">
+                <i data-lucide="sparkles" style="width: 10px; height: 10px; color: #059669;"></i> Auto-Filled
               </span>
             </div>
             <input type="file" id="recPayReceiptFileInput" style="display: none;" accept=".pdf,.png,.jpg,.jpeg,.webp" onchange="handleRecPayReceiptFileChange(event)">
             
-            <div class="rec-pay-upload-dropzone" id="recPayDropzone" onclick="document.getElementById('recPayReceiptFileInput').click()" ondragover="handleRecPayDragOver(event)" ondragleave="handleRecPayDragLeave(event)" ondrop="handleRecPayDrop(event)" style="border: 1.5px dashed #93C5FD; background: #F8FAFC; border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; min-height: 88px; box-sizing: border-box; transition: all 0.18s ease; position: relative; overflow: hidden;">
+            <div class="rec-pay-upload-dropzone" id="recPayDropzone" onclick="document.getElementById('recPayReceiptFileInput').click()" ondragover="handleRecPayDragOver(event)" ondragleave="handleRecPayDragLeave(event)" ondrop="handleRecPayDrop(event)" style="border: 1.5px dashed #93C5FD; background: #F8FAFC; border-radius: 6px; height: 36px; min-height: 36px; padding: 0 10px; display: flex; align-items: center; justify-content: center; text-align: center; cursor: pointer; box-sizing: border-box; transition: all 0.18s ease; position: relative; overflow: hidden;">
               <!-- Scanning Laser Beam (Visible only during OCR scanning) -->
               <div id="recPayScanBeam" class="ocr-scan-bar" style="display: none;"></div>
 
               <!-- Default Idle Content -->
-              <div id="recPayDropzoneIdle" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                <div style="display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 6px; background: #EFF6FF; color: #2563EB; margin-bottom: 4px;">
-                  <i data-lucide="file-plus" style="width: 16px; height: 16px;"></i>
-                </div>
-                <strong style="font-size: 12px; color: #1E293B; display: block;">Upload Receipt / Screenshot</strong>
-                <span style="font-size: 10.5px; color: #64748B; margin-top: 1px;">Drag &amp; drop PDF/Image to <strong>Auto-Fill via OCR</strong></span>
+              <div id="recPayDropzoneIdle" style="display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%;">
+                <i data-lucide="file-plus" style="width: 14px; height: 14px; color: #2563EB; flex-shrink: 0;"></i>
+                <strong style="font-size: 11.5px; font-weight: 600; color: #1E293B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Upload Receipt</strong>
+                <span style="font-size: 10px; color: #2563EB; background: #EFF6FF; border: 1px solid #DBEAFE; border-radius: 4px; padding: 1px 4px; font-weight: 600; white-space: nowrap;">Auto-Fill</span>
               </div>
 
               <!-- Scanning & OCR Processing State -->
-              <div id="recPayDropzoneScanning" style="display: none; flex-direction: column; align-items: center; justify-content: center;">
-                <div style="width: 22px; height: 22px; border: 2.5px solid #BAE6FD; border-top-color: #0284C7; border-radius: 50%; animation: ocrSpin 0.75s linear infinite; margin-bottom: 5px;"></div>
-                <strong style="font-size: 11.5px; color: #0284C7; display: flex; align-items: center; gap: 4px;">
-                  <i data-lucide="sparkles" style="width: 12px; height: 12px;"></i> Scanning via OCR...
+              <div id="recPayDropzoneScanning" style="display: none; align-items: center; justify-content: center; gap: 5px; width: 100%;">
+                <div style="width: 13px; height: 13px; border: 2px solid #BAE6FD; border-top-color: #0284C7; border-radius: 50%; animation: ocrSpin 0.75s linear infinite; flex-shrink: 0;"></div>
+                <strong style="font-size: 11px; color: #0284C7; display: flex; align-items: center; gap: 3px; white-space: nowrap;">
+                  <i data-lucide="sparkles" style="width: 10px; height: 10px;"></i> Scanning OCR...
                 </strong>
-                <span id="recPayOcrStepText" style="font-size: 10px; color: #64748B; margin-top: 2px;">Extracting UTR, Amount &amp; Payment Mode</span>
+                <span id="recPayOcrStepText" style="display: none;">Extracting data</span>
               </div>
             </div>
 
             <!-- Uploaded File Badge in Record Payment -->
-            <div id="recPayFileBadge" style="display: none; margin-top: 6px; background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 6px; padding: 4px 8px; align-items: center; justify-content: space-between; font-size: 11px; color: #065F46;">
-              <div style="display: flex; align-items: center; gap: 5px; overflow: hidden;">
-                <i data-lucide="check" style="width: 12px; height: 12px; color: #059669;"></i>
-                <strong id="recPayFileName" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">receipt.pdf</strong>
-                <span id="recPayFileSize" style="color: #047857; font-size: 10px;">(120 KB)</span>
+            <div id="recPayFileBadge" style="display: none; margin-top: 4px; background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 6px; padding: 2px 6px; align-items: center; justify-content: space-between; font-size: 10.5px; color: #065F46; height: 24px; box-sizing: border-box;">
+              <div style="display: flex; align-items: center; gap: 4px; overflow: hidden;">
+                <i data-lucide="check" style="width: 11px; height: 11px; color: #059669; flex-shrink: 0;"></i>
+                <strong id="recPayFileName" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px;">receipt.pdf</strong>
+                <span id="recPayFileSize" style="color: #047857; font-size: 9.5px; flex-shrink: 0;">(120 KB)</span>
               </div>
-              <button type="button" onclick="removeRecPayReceiptFile(event)" style="background: none; border: none; color: #DC2626; cursor: pointer; font-size: 12px; padding: 0 4px;" title="Remove receipt">✕</button>
+              <button type="button" onclick="removeRecPayReceiptFile(event)" style="background: none; border: none; color: #DC2626; cursor: pointer; font-size: 11px; padding: 0 3px;" title="Remove receipt">✕</button>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="ins-modal-footer" style="padding: 14px 22px; background: #F8FAFC; border-top: 1px solid #E2E8F0; display: flex; justify-content: flex-end; gap: 10px;">
-        <button type="button" class="ins-btn ins-btn-white" onclick="closeInsuranceModal('modalRecordPayment')" style="font-size: 13px; padding: 7px 16px;">Cancel</button>
-        <button type="button" class="ins-btn ins-btn-primary" id="btnSaveRecordPayment" onclick="savePolicyPaymentRecord()" style="background: #2563EB; color: #FFFFFF; font-size: 13px; font-weight: 700; padding: 7px 22px; border-radius: 8px;">
+      <div class="ins-modal-footer" style="padding: 10px 18px; background: #F8FAFC; border-top: 1px solid #E2E8F0; display: flex; justify-content: flex-end; gap: 8px;">
+        <button type="button" class="ins-btn ins-btn-white" onclick="closeInsuranceModal('modalRecordPayment')" style="font-size: 12px; padding: 5px 14px;">Cancel</button>
+        <button type="button" class="ins-btn ins-btn-primary" id="btnSaveRecordPayment" onclick="savePolicyPaymentRecord()" style="background: #2563EB; color: #FFFFFF; font-size: 12px; font-weight: 700; padding: 5px 18px; border-radius: 6px;">
           Save
         </button>
       </div>
@@ -26485,9 +26464,7 @@
       if (policy.payment) {
         // Preload existing payment record
         document.getElementById('recPayUtrNumber').value = policy.payment.utr || '';
-        document.getElementById('recPayGrossAmount').value = policy.payment.gross || policy.amount;
-        document.getElementById('recPayDeductions').value = policy.payment.deductions || 0;
-        document.getElementById('recPayNetAmount').value = policy.payment.net || policy.amount;
+        document.getElementById('recPayNetAmount').value = policy.payment.net || policy.payment.gross || policy.amount;
         document.getElementById('recPayMode').value = policy.payment.mode || 'IMPS';
 
         if (policy.payment.receiptDoc) {
@@ -26504,9 +26481,7 @@
       } else {
         // Ready for clean OCR extraction or manual entry
         document.getElementById('recPayUtrNumber').value = '';
-        document.getElementById('recPayGrossAmount').value = policy.amount || req.amount;
-        document.getElementById('recPayDeductions').value = 0;
-        document.getElementById('recPayNetAmount').value = policy.amount || req.amount;
+        document.getElementById('recPayNetAmount').value = policy.amount || req.amount || 0;
         document.getElementById('recPayMode').value = 'IMPS';
         if (badge) badge.style.display = 'none';
         if (successBadge) successBadge.style.display = 'none';
@@ -26518,11 +26493,8 @@
     }
 
     function calculateRecPayNet() {
-      const gross = parseFloat(document.getElementById('recPayGrossAmount')?.value) || 0;
-      const deductions = parseFloat(document.getElementById('recPayDeductions')?.value) || 0;
-      const net = Math.max(0, gross - deductions);
       const netInput = document.getElementById('recPayNetAmount');
-      if (netInput) netInput.value = net;
+      return netInput ? parseFloat(netInput.value) || 0 : 0;
     }
 
     /* Drag & Drop Handlers for OCR Dropzone */
@@ -26623,8 +26595,6 @@
 
       // Auto-input extracted data into form fields
       const utrInput = document.getElementById('recPayUtrNumber');
-      const grossInput = document.getElementById('recPayGrossAmount');
-      const dedInput = document.getElementById('recPayDeductions');
       const netInput = document.getElementById('recPayNetAmount');
       const modeSelect = document.getElementById('recPayMode');
 
@@ -26632,16 +26602,8 @@
         utrInput.value = parsed.utr;
         triggerFieldOcrPulse(utrInput);
       }
-      if (grossInput) {
-        grossInput.value = parsed.gross;
-        triggerFieldOcrPulse(grossInput);
-      }
-      if (dedInput) {
-        dedInput.value = parsed.deductions;
-        triggerFieldOcrPulse(dedInput);
-      }
       if (netInput) {
-        netInput.value = parsed.net;
+        netInput.value = parsed.net || parsed.gross || targetAmount;
         triggerFieldOcrPulse(netInput);
       }
       if (modeSelect) {
@@ -26853,17 +26815,17 @@
       const reqId = document.getElementById('recPayRequestId')?.value;
       const policyKey = document.getElementById('recPayPolicyKey')?.value;
       const utr = document.getElementById('recPayUtrNumber')?.value?.trim();
-      const gross = parseFloat(document.getElementById('recPayGrossAmount')?.value) || 0;
-      const deductions = parseFloat(document.getElementById('recPayDeductions')?.value) || 0;
       const net = parseFloat(document.getElementById('recPayNetAmount')?.value) || 0;
+      const gross = net;
+      const deductions = 0;
       const mode = document.getElementById('recPayMode')?.value || 'IMPS';
 
       if (!utr) {
         showToast('⚠️ Please enter the UTR number.');
         return;
       }
-      if (gross <= 0 || net <= 0) {
-        showToast('⚠️ Please enter a valid gross / net amount.');
+      if (net <= 0) {
+        showToast('⚠️ Please enter a valid payment amount.');
         return;
       }
 
@@ -26890,7 +26852,7 @@
         time: nowStr,
         actor: 'Anjali Divecha (Accounts)',
         action: 'Individual Payout Recorded',
-        desc: `Recorded bank payout for [${policy.type} (${policy.policyNumber || policy.policy})]. Mode: ${mode}, UTR: ${utr}, Gross: ${gross.toLocaleString('en-IN')}, Deductions: ${deductions.toLocaleString('en-IN')}, Net: ${net.toLocaleString('en-IN')}, Receipt: ${receiptDocName}.`
+        desc: `Recorded bank payout for [${policy.type} (${policy.policyNumber || policy.policy})]. Mode: ${mode}, UTR: ${utr}, Net: ${net.toLocaleString('en-IN')}, Receipt: ${receiptDocName}.`
       });
 
       closeInsuranceModal('modalRecordPayment');
